@@ -1,0 +1,204 @@
+# Chrome DevTools MCP Server Configuration
+# MCP 服务器配置文件
+
+mcp_server:
+  # MCP 服务器地址
+  host: "localhost"
+
+  # MCP 服务器端口
+  port: 3000
+
+  # 认证令牌 (如果需要)
+  auth_token: ""
+
+  # 连接超时 (毫秒)
+  connection_timeout: 10000
+
+  # 心跳间隔 (秒)
+  heartbeat_interval: 30
+
+  # 最大重连次数
+  max_reconnect_attempts: 5
+
+  # 重连延迟 (秒)
+  reconnect_delay: 5
+
+# Chrome DevTools 连接配置
+chrome_devtools:
+  # Chrome/Chromium 路径 (留空自动检测)
+  chrome_path: ""
+
+  # DevTools 协议端口 (0 表示自动分配)
+  devtools_port: 0
+
+  # 远程调试地址 (用于远程 Chrome 实例)
+  remote_debugging_url: ""
+
+  # 启动参数
+  launch_args:
+    - "--no-sandbox"
+    - "--disable-dev-shm-usage"
+    - "--disable-background-timer-throttling"
+    - "--disable-backgrounding-occluded-windows"
+    - "--disable-renderer-backgrounding"
+    - "--disable-features=TranslateUI"
+    - "--disable-ipc-flooding-protection"
+
+# MCP 工具配置
+tools:
+  # 控制台消息工具
+  console_messages:
+    enabled: true
+    max_buffer_size: 1000
+    filter_levels:
+      - "log"
+      - "info"
+      - "warn"
+      - "error"
+
+  # 网络请求工具
+  network_requests:
+    enabled: true
+    max_buffer_size: 1000
+    capture_headers: true
+    capture_body: false
+    filter_methods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+      - "PATCH"
+
+  # 性能追踪工具
+  performance_tracing:
+    enabled: true
+    tracing_categories:
+      - "devtools.timeline"
+      - "toplevel"
+      - "blink.console"
+      - "blink.user_timing"
+      - "netlog"
+      - "disabled-by-default-devtools.timeline"
+    trace_buffer_size: 1000000
+
+  # DOM 调试工具
+  dom_debug:
+    enabled: true
+    max_depth: 10
+    capture_attributes: true
+    capture_text_content: true
+
+  # 页面快照工具
+  page_snapshots:
+    enabled: true
+    format: "mhtml"
+    include_resources: false
+
+  # JavaScript 执行工具
+  javascript_execution:
+    enabled: true
+    timeout: 5000
+
+# 数据存储配置
+data_storage:
+  # 数据存储根目录
+  root_dir: "mcp_data"
+
+  # 控制台日志存储
+  console_logs:
+    enabled: true
+    file_pattern: "console_{timestamp}.json"
+    max_file_size: "50MB"
+    retention_days: 7
+
+  # 网络日志存储
+  network_logs:
+    enabled: true
+    file_pattern: "network_{timestamp}.json"
+    max_file_size: "100MB"
+    retention_days: 7
+
+  # 性能追踪数据存储
+  performance_traces:
+    enabled: true
+    file_pattern: "trace_{timestamp}.json.gz"
+    max_file_size: "200MB"
+    retention_days: 3
+
+  # DOM 快照存储
+  dom_snapshots:
+    enabled: true
+    file_pattern: "dom_{timestamp}.json"
+    max_file_size: "10MB"
+    retention_days: 1
+
+# 监控和报警
+monitoring:
+  # 是否启用性能监控
+  enabled: true
+
+  # 性能指标阈值
+  thresholds:
+    # 页面加载时间 (毫秒)
+    page_load_time: 5000
+
+    # API 响应时间 (毫秒)
+    api_response_time: 3000
+
+    # JavaScript 错误数量
+    js_error_count: 10
+
+    # 网络失败率 (%)
+    network_failure_rate: 5
+
+  # 通知配置
+  alerts:
+    # 控制台错误通知
+    console_errors: true
+
+    # 网络错误通知
+    network_errors: true
+
+    # 性能问题通知
+    performance_issues: true
+
+# 安全配置
+security:
+  # 允许的域名 (白名单)
+  allowed_domains:
+    - "localhost"
+    - "127.0.0.1"
+
+  # 禁止的 URL 模式 (黑名单)
+  blocked_patterns:
+    - "file://"
+    - "chrome://"
+    - "chrome-extension://"
+
+  # 最大请求大小 (字节)
+  max_request_size: 10485760  # 10MB
+
+# 日志配置
+logging:
+  # MCP 服务器日志级别
+  level: "INFO"
+
+  # 日志文件路径
+  file_path: "logs/mcp_server.log"
+
+  # 日志格式
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# 开发和调试配置
+development:
+  # 是否启用调试模式
+  debug_mode: false
+
+  # 详细日志
+  verbose_logging: false
+
+  # 性能分析
+  profiling: false
+
+  # 热重载配置
+  hot_reload: false
