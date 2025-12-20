@@ -1,0 +1,90 @@
+name: Auto-label issues
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = (issue.title || "").toLowerCase();
+            const body  = (issue.body  || "").toLowerCase();
+
+            async function addLabels(labels) {
+              const existing = new Set((issue.labels || []).map(l => l.name));
+              const toAdd = labels.filter(l => !existing.has(l));
+              if (!toAdd.length) return;
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: toAdd
+              });
+            }
+
+            function extractField(fieldHeader) {
+              const re = new RegExp(`###\\s+${fieldHeader}[\\s\\S]*?\\n\\n([^\\n]+)`, "i");
+              const m = body.match(re);
+              return m ? m[1].trim().toLowerCase() : "";
+            }
+
+            const component = extractField("🧩 component（组件/归类）");
+            const aiAction  = extractField("🤖 ai action（自动处理策略）");
+
+            const labels = [];
+
+            if (aiAction.includes("auto-fix")) {
+              labels.push("ai:auto-fix");
+            } else if (aiAction.includes("manual-only")) {
+              labels.push("ai:manual-only");
+            } else {
+              labels.push("ai:analysis-only");
+            }
+
+            function routeByComponent(comp) {
+              if (!comp) return null;
+              if (comp.includes("ci") || comp.includes("github actions")) return "agent:codex";
+              if (comp.includes("runner") || comp.includes("workflow")) return "agent:codex";
+              if (comp.includes("parallel")) return "agent:codex";
+              if (comp.includes("robot")) return "agent:claude";
+              if (comp.includes("auth") || comp.includes("token")) return "agent:gemini";
+              if (comp.includes("service") || comp.includes("endpoint") || comp.includes("9020")) return "agent:gemini";
+              if (comp.includes("data") || comp.includes("fixtures")) return "agent:gemini";
+              if (comp.includes("spec")) return "agent:claude";
+              return null;
+            }
+
+            let agent = routeByComponent(component);
+
+            if (!agent) {
+              if (body.includes("github actions") || body.includes(".yml") || body.includes("workflow")) {
+                agent = "agent:codex";
+              } else if (body.includes("robot") || body.includes("suite") || body.includes("tag")) {
+                agent = "agent:claude";
+              } else if (body.includes("token") || body.includes("auth") || body.includes("9020")) {
+                agent = "agent:gemini";
+              } else if (body.includes("parallel") || body.includes("executor")) {
+                agent = "agent:codex";
+              }
+            }
+
+            if (agent) labels.push(agent);
+
+            if (component) {
+              const short = component
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "")
+                .slice(0, 32);
+              labels.push(`component:${short}`);
+            }
+
+            await addLabels(labels);
