@@ -134,3 +134,13 @@
 - 已补齐标签：component:data-fixtures、component:ci-github-actions、component:spec-ambiguity-process、component:unknown
 - 已补齐标签：component:service-endpoint-9020-etc（无尾部短横线）
 - 已存在额外标签：component:service-endpoint-9020-etc-（带尾部短横线）
+
+## Context
+- Task: 提交 Issue #30 相关改动
+
+## Commands
+- git -C /home/yuanzhi/Develop/NowHi/auto-test-bot add .github/ISSUE_TEMPLATE/bug.yaml .github/workflows/issue-auto-label.yml .ai/index.md .ai/issues/ISSUE-30.md runs/2025-12-20/run.md runs/2025-12-20/issue-28-body.md
+- git -C /home/yuanzhi/Develop/NowHi/auto-test-bot commit -m "Add bug form routing fields and issue auto-label"
+
+## Results
+- 已提交改动：Add bug form routing fields and issue auto-label
