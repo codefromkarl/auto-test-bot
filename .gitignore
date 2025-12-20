@@ -96,7 +96,6 @@ config/*.secrets.yaml
 .claude/*
 .codex_coord/*
 .gemini/*
-.github/*
 .opencode/*
 .qwen/*
 reports/*
