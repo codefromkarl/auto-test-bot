@@ -1,0 +1,80 @@
+name: Spec / Runbook
+description: 新增或修改测试规范 / Runbook
+title: "[Spec] "
+labels:
+  - type:spec
+  - status:needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📘 规范定义
+        > 本 Issue 用于定义或变更 **Feature Spec** 或 **Test Runbook**。
+        > 变更后的规范建议同步更新到 `specs/` 目录。
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 🎯 Purpose（目的）
+      description: 这个规范是为了解决什么问题？
+      validations:
+        required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 🔭 Scope（范围）
+      description: 包含什么？不包含什么？
+      validations:
+        required: true
+
+  - type: textarea
+    id: preconditions
+    attributes:
+      label: 🔌 Preconditions & Gates
+      description: 执行前必须满足的条件（环境、账号、配置）。
+      placeholder: |
+        - Env: CI / Local
+        - Account: Valid user with verified email
+        - Config: use e2e_config.yaml
+      validations:
+        required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: ✅ Acceptance Criteria（验收标准）
+      description: 具体的成功标准。
+      validations:
+        required: true
+
+  - type: textarea
+    id: mapping
+    attributes:
+      label: 🗺️ Mapping（映射）
+      description: 关联的代码、Workflow 文件、Robot Tag。
+      placeholder: |
+        - Workflow: workflows/e2e/login.yaml
+        - Robot Tag: @login
+        - Command: python src/main.py ...
+      validations:
+        required: true
+
+  - type: textarea
+    id: evidence_policy
+    attributes:
+      label: 🧾 Evidence Policy
+      description: 需要保留哪些证据？
+      value: |
+        - Runs must be saved to `runs/YYYY-MM-DD/`
+        - Include: Command, Stdout/Stderr, Report HTML
+      validations:
+        required: true
+
+  - type: textarea
+    id: changelog
+    attributes:
+      label: 📝 ChangeLog
+      description: 如果是修改现有规范，请说明变更点。
+      validations:
+        required: false
