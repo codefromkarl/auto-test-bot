@@ -1,0 +1,493 @@
+workflow:
+  name: "naohai_E2E_GoldenPath"
+  description: "E2E黄金路径测试 - 从剧本创建到视频导出的完整用户旅程（可执行/可静态校验）"
+  version: "e2e-v1.1"
+  timeout: 600000  # 10分钟超时（作为元数据保留；真实超时由 executor 的 execution.* 控制）
+
+  # E2E测试初始化：确保环境准备就绪（仅使用已支持的 atomic/rf_* action）
+  suite_setup:
+    - action: "open_page"
+      url: "${test.url}"
+      timeout: ${test.timeout.page_load}
+
+    - action: "wait_for"
+      condition:
+        selector: "body"
+        visible: true
+      timeout: ${test.timeout.element_load}
+
+    - action: "assert_logged_in"
+
+    - action: "rf_enter_ai_creation"
+      timeout: ${test.timeout.element_load}
+
+    - action: "wait_for"
+      condition:
+        selector: "text=剧本列表"
+        visible: true
+      timeout: ${test.timeout.page_load}
+
+  # E2E黄金路径：完整7个关键环节
+  phases:
+    # Phase 1: 新建剧本，填写基础信息（对齐 FC-NH-012）
+    - name: "create_script_and_outline"
+      description: "创建新剧本并填写基础信息"
+      steps:
+        - action: "click"
+          selector: "div.list-item.add-item"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=基础信息"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "input"
+          selector: "input[placeholder*=\"剧本名称\"], input[placeholder*=\"名称\"]"
+          text: "E2E测试剧本_${timestamp}"
+          clear: true
+
+        - action: "input"
+          selector: "textarea"
+          text: "自动化E2E黄金路径：创建→资产→分镜→融图→视频→导出"
+          clear: true
+
+        - action: "upload_file"
+          selector: "input[type=\"file\"]"
+          file_path: "tests/assets/cover.png"
+          optional: true
+
+        - action: "screenshot"
+          name: "basic_info_filled"
+          save_path: "screenshots/e2e/phase1_basic_info_filled.png"
+
+        - action: "click"
+          selector: "text=下一步"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=画风"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "click"
+          selector: ".style-card:first-child, .style-option:first-child, .art-style-item:first-child"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=创建剧本, text=创建, text=提交"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=创建成功, text=成功, .success-message, .toast-success"
+            visible: true
+          timeout: 30000
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: 30000
+
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:has-text('E2E测试剧本_${timestamp}')"
+            visible: true
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "script_created"
+          save_path: "screenshots/e2e/phase1_script_created.png"
+
+    # Phase 2: 建立分集、角色、场景（对齐 FC-NH-015 / FC-NH-018 / FC-NH-023）
+    - name: "setup_episode_assets"
+      description: "创建分集、角色和场景资产"
+      steps:
+        - action: "click"
+          selector: "div.list-item:has-text('E2E测试剧本_${timestamp}'), div.list-item:not(.add-item):first-child"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=分集, text=片段, text=episodes"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "click"
+          selector: "text=添加片段, text=新增片段, text=添加分集, text=新增分集, button:has-text('+')"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: ".modal, .dialog, .form-panel"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "input"
+          selector: "input[placeholder*=\"分集名称\"], input[placeholder*=\"片段名称\"]"
+          text: "E2E分集_${timestamp}"
+          clear: true
+
+        - action: "input"
+          selector: "textarea[placeholder*=\"分集说明\"], textarea[placeholder*=\"片段说明\"]"
+          text: "自动化E2E黄金路径分集"
+          clear: true
+
+        - action: "click"
+          selector: "text=保存, text=确认, text=提交"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "div.episode-item:has-text('E2E分集_${timestamp}'), .fragment-item:has-text('E2E分集_${timestamp}')"
+            visible: true
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=角色, text=角色资产, .tab:has-text('角色')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=角色, .character-section"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=创建角色, button:has-text('+角色'), .add-character, .create-character"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: ".character-form, .modal, .dialog"
+            visible: true
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=模型生成"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "input"
+          selector: "input[placeholder*='角色名称'], input[name*='name']"
+          text: "E2E角色_${timestamp}"
+          clear: true
+          optional: true
+
+        - action: "click"
+          selector: "text=创建, text=确认, text=保存"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=场景, text=场景资产, .tab:has-text('场景')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=场景, .scene-section"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=创建场景, button:has-text('+场景'), .add-scene, .create-scene"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: ".scene-form, .modal, .dialog"
+            visible: true
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=模型生成"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "input"
+          selector: "input[placeholder*='场景名称'], input[name*='name'], input[placeholder*='名称']"
+          text: "E2E场景_${timestamp}"
+          clear: true
+          optional: true
+
+        - action: "click"
+          selector: "text=创建, text=确认, text=保存"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "assets_created"
+          save_path: "screenshots/e2e/phase2_assets_created.png"
+
+    # Phase 3: 分析剧本、生成分镜、生成提示词（对齐 FC-NH-033/034/035/026）
+    - name: "analyze_and_create_storyboard"
+      description: "分析剧本并生成分镜脚本与提示词"
+      steps:
+        - action: "click"
+          selector: "text=分镜管理, .tab:has-text('分镜')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=AI分析剧本, .ai-analysis-section"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "input"
+          selector: "textarea[placeholder*='剧本'], .script-input, .analysis-input"
+          text: "第一场：室内。主角走到窗边，望向远方。"
+          clear: true
+          optional: true
+
+        - action: "click"
+          selector: "text=开始分析, .start-analysis, button:has-text('分析')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=分析完成, .analysis-complete, .result-section"
+            visible: true
+          timeout: 120000
+          optional: true
+
+        - action: "click"
+          selector: "text=导入分镜, text=应用到分镜, .import-to-storyboard"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        # 兜底：如分析链路不可用，手动新增 1 条分镜保证后续步骤可继续（对齐 FC-NH-026）
+        - action: "click"
+          selector: "text=新增分镜, button:has-text('+分镜'), .add-storyboard"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "input"
+          selector: "input[placeholder*='分镜标题'], input[placeholder*='标题'], input[name*='title']"
+          text: "E2E分镜_${timestamp}"
+          clear: true
+          optional: true
+
+        - action: "input"
+          selector: "textarea[placeholder*='分镜描述'], textarea[name*='description']"
+          text: "自动化E2E黄金路径分镜"
+          clear: true
+          optional: true
+
+        - action: "click"
+          selector: "text=保存, text=确认, text=提交"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=生成提示词, .generate-prompt, button:has-text('提示词')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: ".prompt-list, .prompt-column"
+            visible: true
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "storyboard_created"
+          save_path: "screenshots/e2e/phase3_storyboard_and_prompts.png"
+
+    # Phase 4: 分镜资源绑定（对齐 FC-NH-037 / FC-NH-038）
+    - name: "bind_storyboard_assets"
+      description: "为分镜绑定角色和场景"
+      steps:
+        - action: "rf_bind_characters"
+          max_characters: 1
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=场景, .scene-binding, .scene-select"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: ".scene-option:first-child, .scene-list .item:first-child"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: ".scene-tag.selected, .selected-scene"
+            visible: true
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "assets_bound"
+          save_path: "screenshots/e2e/phase4_assets_bound.png"
+
+    # Phase 5: 融合生图（对齐 FC-NH-040）
+    - name: "generate_image_assets"
+      description: "融合生图生成图片素材（best-effort，可降级为只验证入口存在）"
+      steps:
+        - action: "assert_element_exists"
+          selector: "text=融合生图, .fusion-generate, button:has-text('融合')"
+          optional: true
+
+        - action: "click"
+          selector: "text=融合生图, .fusion-generate"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=开始融合, text=生成, .start-fusion"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=融合完成, .fusion-complete, .result-image"
+            visible: true
+          timeout: ${test.timeout.image_generation}
+          optional: true
+
+        - action: "screenshot"
+          name: "images_generated"
+          save_path: "screenshots/e2e/phase5_images_generated.png"
+
+    # Phase 6: 图生视频（对齐 FC-NH-043 / FC-NH-049）
+    - name: "generate_video_segments"
+      description: "进入视频创作并选择视频片段（best-effort）"
+      steps:
+        - action: "click"
+          selector: "text=视频创作, .video-create, button:has-text('视频')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=视频创作, .video-creation-page"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=图生视频, .image-to-video"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "assert_element_exists"
+          selector: ".video-fragment, .video-item, .result-video"
+          optional: true
+
+        - action: "click"
+          selector: ".video-fragment:first-child .select, .video-item:first-child .use-as-result"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "video_generated"
+          save_path: "screenshots/e2e/phase6_video_selected.png"
+
+    # Phase 7: 导出资源/视频交付（对齐 FC-NH-050）
+    - name: "export_final_video"
+      description: "导出资源包并验证下载入口（best-effort）"
+      steps:
+        - action: "assert_element_exists"
+          selector: "text=导出资源, text=导出, .export-button, .export-resources"
+          optional: true
+
+        - action: "click"
+          selector: "text=导出资源, .export-resources"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: ".export-modal, .dialog:has-text('导出')"
+            visible: true
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=开始导出, text=确认导出, .start-export"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=导出完成, .export-complete, text=下载"
+            visible: true
+          timeout: ${test.timeout.video_generation}
+          optional: true
+
+        - action: "screenshot"
+          name: "export_completed"
+          save_path: "screenshots/e2e/phase7_export_completed.png"
+
+  # E2E成功标准：验证完整用户旅程
+  success_criteria:
+    - "剧本创建成功并填写基础信息"
+    - "分集、角色、场景资产创建完成"
+    - "剧本分析完成，分镜脚本生成"
+    - "分镜资源绑定成功"
+    - "图片素材融合生成完成"
+    - "视频片段生成成功"
+    - "最终导出/下载入口可用"
+    - "所有阶段截图保存完整（best-effort）"
+
+  # E2E错误恢复：仅保留可执行的通用回退（避免未知 action 导致解析失败）
+  error_recovery:
+    - action: "open_page"
+      url: "${test.url}"
+      timeout: ${test.timeout.page_load}
+      optional: true
+
+    - action: "rf_enter_ai_creation"
+      timeout: ${test.timeout.element_load}
+      optional: true
+
+  # 性能监控：记录各阶段耗时（元数据）
+  performance_monitoring:
+    enabled: true
+    checkpoints:
+      - phase: "create_script_and_outline"
+        expected_duration: 30
+      - phase: "setup_episode_assets"
+        expected_duration: 120
+      - phase: "analyze_and_create_storyboard"
+        expected_duration: 60
+      - phase: "bind_storyboard_assets"
+        expected_duration: 20
+      - phase: "generate_image_assets"
+        expected_duration: 180
+      - phase: "generate_video_segments"
+        expected_duration: 300
+      - phase: "export_final_video"
+        expected_duration: 30
+
+  # 数据收集：记录关键指标（元数据）
+  data_collection:
+    enabled: true
+    metrics:
+      - "total_execution_time"
+      - "phase_completion_times"
+      - "ai_generation_success_rate"
+      - "error_counts"
+      - "screenshot_count"

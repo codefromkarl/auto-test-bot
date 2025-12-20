@@ -1,0 +1,73 @@
+workflow:
+  description: 'FC-NH-051: 导航项展示验证｜闹海当前版本-只读：验证顶部导航项渲染与文案（不做跳转/不落库） (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_051_rf
+  phases:
+  - description: 打开站点并验证导航可见 (RF语义化）
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 0
+      semantic_action_count: 0
+    name: open_site
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition: &id001
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: assert_logged_in
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item:has-text("首页")
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item:has-text("AI创作")
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item:has-text("AI工具")
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item:has-text("我的作品")
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item:has-text("教程")
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item:has-text("更多功能")
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: fc_nh_051_nav_items_present
+      save_path: screenshots/naohai/fc_nh_051_nav_items_present.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

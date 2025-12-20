@@ -1,0 +1,425 @@
+# 主配置文件 - Data-TestId 集成版本
+# 使用 locators 作为唯一真源，配合度量机制和 CI 门禁
+
+test:
+  # 测试流程名称
+  flow_name: "nowhi_data_testid_v2"
+
+  # 测试目标网站
+  url: "http://localhost:9020/#/home/dashboard"
+
+  # 超时设置 (毫秒)
+  timeout: 30000
+  page_load_timeout: 120000
+  element_timeout: 10000
+
+  # 测试提示词
+  test_prompt: "一只可爱的猫咪在花园里玩耍，阳光明媚，花朵盛开"
+
+# Data-TestId 定位策略配置（唯一真源）
+locators:
+  # 导航相关
+  nav_home_tab:
+    - "[data-testid='nav-home-tab']"
+    - "[data-testid*='home'][data-testid*='tab']"
+    - "a:has-text('首页')"
+    - ".nav-item:has-text('首页')"
+
+  nav_ai_create_tab:
+    - "[data-testid='nav-ai-create-tab']"
+    - "[data-testid*='ai'][data-testid*='create']"
+    - "a:has-text('AI创作')"
+    - "button:has-text('AI创作')"
+    - ".nav-item:has-text('AI创作')"
+
+  nav_text_image_tab:
+    - "[data-testid='nav-text-image-tab']"
+    - "[data-testid*='text'][data-testid*='image']"
+    - "a:has-text('文生图')"
+    - "button:has-text('文生图')"
+    - ".nav-item:has-text('文生图')"
+
+  nav_ai_tools_tab:
+    - "[data-testid='nav-ai-tools-tab']"
+    - "a:has-text('AI工具')"
+    - ".nav-item:has-text('AI工具')"
+
+  # 输入相关
+  prompt_input:
+    - "[data-testid='prompt-input']"
+    - "[data-testid='prompt-textarea']"
+    - "[data-testid='ai-create-prompt']"
+    - "textarea[placeholder*='提示']"
+    - "textarea[placeholder*='描述']"
+    - ".arco-textarea"
+    - "textarea:first-of-type"
+
+  prompt_textarea:
+    - "[data-testid='prompt-textarea']"
+    - "[data-testid='textarea']"
+    - "textarea[placeholder*='请输入']"
+    - ".arco-textarea-large"
+
+  # 按钮相关
+  generate_image_button:
+    - "[data-testid='generate-image-button']"
+    - "[data-testid='generate-button']"
+    - "[data-testid='text-image-generate']"
+    - "button:has-text('生成图片')"
+    - "button:has-text('生成')"
+    - ".arco-btn-primary:has-text('图片')"
+    - "button[type='submit']"
+
+  generate_video_button:
+    - "[data-testid='generate-video-button']"
+    - "[data-testid='video-generate']"
+    - "button:has-text('生成视频')"
+    - "button:has-text('视频')"
+    - ".arco-btn-secondary:has-text('视频')"
+
+  clear_button:
+    - "[data-testid='clear-button']"
+    - "[data-testid='clear-btn']"
+    - "button:has-text('清空')"
+    - "button:has-text('清除')"
+    - ".arco-btn:has-text('清空')"
+
+  submit_button:
+    - "[data-testid='submit-button']"
+    - "[data-testid='form-submit']"
+    - "button[type='submit']"
+    - ".arco-btn-primary[type='submit']"
+
+  # 结果展示相关
+  image_result:
+    - "[data-testid='image-result']"
+    - "[data-testid='result-image']"
+    - "[data-testid='generated-image']"
+    - ".image-result"
+    - ".generated-image"
+    - "img[alt*='生成']"
+    - "img[src*='result']"
+
+  generated_image:
+    - "[data-testid='generated-image']"
+    - "img[data-testid='generated-image']"
+    - "#image-result img"
+
+  video_result:
+    - "[data-testid='video-result']"
+    - "[data-testid='result-video']"
+    - "[data-testid='generated-video']"
+    - ".video-result"
+    - ".generated-video"
+    - "video[controls]"
+    - "video[src*='result']"
+
+  generated_video:
+    - "[data-testid='generated-video']"
+    - "video[data-testid='generated-video']"
+    - "#video-result video"
+
+  result_container:
+    - "[data-testid='result-container']"
+    - "[data-testid='results']"
+    - ".result-area"
+    - ".results-container"
+
+  # 状态指示器
+  loading_indicator:
+    - "[data-testid='loading-indicator']"
+    - "[data-testid='loading']"
+    - "[data-testid='spinner']"
+    - ".loading"
+    - ".spinner"
+    - "[data-loading='true']"
+    - ".arco-spin"
+
+  loading_text:
+    - "[data-testid='loading-text']"
+    - "[data-testid='loading-message']"
+    - ".loading-text"
+    - "text=正在生成"
+    - "text=AI正在创作"
+
+  progress_bar:
+    - "[data-testid='progress-bar']"
+    - "[data-testid='progress']"
+    - ".progress-bar"
+    - ".arco-progress"
+
+  # 错误和提示
+  error_message:
+    - "[data-testid='error-message']"
+    - "[data-testid='error']"
+    - "[data-testid='alert']"
+    - ".error-message"
+    - ".arco-message-error"
+    - "[role='alert']"
+
+  success_message:
+    - "[data-testid='success-message']"
+    - "[data-testid='success']"
+    - ".success-message"
+    - ".arco-message-success"
+
+  toast_message:
+    - "[data-testid='toast']"
+    - "[data-testid='message']"
+    - ".arco-message"
+    - ".toast"
+
+  # 布局和容器
+  main_content:
+    - "[data-testid='main-content']"
+    - "[data-testid='content']"
+    - "main"
+    - ".main-content"
+    - ".arco-layout-content"
+
+  sidebar:
+    - "[data-testid='sidebar']"
+    - "[data-testid='side-menu']"
+    - ".sidebar"
+    - ".arco-layout-sider"
+
+  header:
+    - "[data-testid='header']"
+    - "[data-testid='navbar']"
+    - "header"
+    - ".header"
+    - ".arco-layout-header"
+
+  # 表单相关
+  form_group:
+    - "[data-testid='form-group']"
+    - ".form-group"
+    - ".arco-form-item"
+
+  input_label:
+    - "[data-testid='input-label']"
+    - ".arco-form-item-label"
+    - "label"
+
+  # 模态框和弹窗
+  modal:
+    - "[data-testid='modal']"
+    - "[data-testid='dialog']"
+    - ".arco-modal"
+    - ".modal"
+    - "[role='dialog']"
+
+  modal_close:
+    - "[data-testid='modal-close']"
+    - "[data-testid='close']"
+    - ".arco-modal-close"
+    - "button[aria-label='Close']"
+
+  dropdown:
+    - "[data-testid='dropdown']"
+    - "[data-testid='select']"
+    - ".arco-dropdown"
+    - ".arco-select"
+
+  # AI创作页面特有元素
+  style_selector:
+    - "[data-testid='style-selector']"
+    - "[data-testid='art-style']"
+    - ".style-selector"
+    - "select:has-text('风格')"
+
+  size_selector:
+    - "[data-testid='size-selector']"
+    - "[data-testid='image-size']"
+    - ".size-selector"
+    - "select:has-text('尺寸')"
+
+  quality_selector:
+    - "[data-testid='quality-selector']"
+    - "[data-testid='image-quality']"
+    - ".quality-selector"
+    - "select:has-text('质量')"
+
+# 测试步骤配置（使用新定位器）
+steps:
+  # 是否执行网站访问测试
+  open_site: true
+
+  # 是否执行导航到AI创作页
+  navigate_to_ai_create: true
+
+  # 是否执行导航到文生图页
+  navigate_to_text_image: true
+
+  # 是否执行文生图测试（使用V2版本）
+  generate_image: true
+
+  # 是否执行图生视频测试
+  generate_video: true
+
+  # 是否使用度量混合定位器
+  use_metrics_locator: true
+
+  # 是否启用覆盖率报告
+  enable_coverage_report: true
+
+  # 是否在失败时进行诊断
+  enable_diagnostics: true
+
+  # 是否进行 CI 门禁验证
+  enable_ci_validation: true
+
+# 重试配置
+retry:
+  # 最大重试次数
+  max_attempts: 3
+
+  # 重试间隔 (秒)
+  delay: 5
+
+  # 哪些步骤需要重试
+  retry_steps:
+    - "open_site"
+    - "navigate_to_ai_create"
+    - "navigate_to_text_image"
+    - "generate_image"
+    - "generate_video"
+
+  # 定位器重试配置
+  locator_retry:
+    max_attempts: 3
+    delay: 1.0
+
+# 度量和监控配置
+metrics:
+  # 是否记录所有定位器操作
+  log_all_locations: true
+
+  # 是否生成详细报告
+  generate_detailed_report: true
+
+  # 是否保存度量数据
+  save_metrics: true
+
+  # 度量数据输出目录
+  metrics_output_dir: "reports/metrics"
+
+# CI 门禁配置
+ci_gates:
+  # 是否启用 CI 门禁
+  enabled: true
+
+  # 关键路径覆盖率要求
+  critical_paths_requirement: 100  # 必须达到100%
+
+  # 整体覆盖率要求
+  overall_coverage_min: 80
+
+  # 回退率限制
+  fallback_rate_max: 20
+
+  # 失败率限制
+  failure_rate_max: 5
+
+  # 验证模式：strict（严格）或 warning（警告）
+  validation_mode: "strict"
+
+# 报告配置
+reporting:
+  # 报告输出目录
+  output_dir: "reports"
+
+  # 报告格式: json, html, both
+  format: "both"
+
+  # 是否包含定位器诊断信息
+  include_locator_diagnostics: true
+
+  # 是否包含 data-testid 覆盖率
+  include_testid_coverage: true
+
+  # 是否包含 CI 门禁结果
+  include_ci_validation: true
+
+  # 报告保留天数
+  retention_days: 30
+
+# 浏览器配置
+browser:
+  # 浏览器类型: chromium, firefox, webkit
+  type: "chromium"
+
+  # 登录状态
+  storage_state: "scripts/auth/auth_state_real.json"
+  session_state: "scripts/auth/auth_session.json"
+
+  # 是否无头模式
+  headless: false
+
+  # 慢点击
+  slow_mo: 100
+
+  # 浏览器窗口大小
+  viewport:
+    width: 1920
+    height: 1080
+
+  # 用户代理
+  user_agent: "AutoTestBot/2.0 (DataTestId-Metrics)"
+
+  # 忽略 HTTPS 错误
+  ignore_https_errors: true
+
+# 日志配置
+logging:
+  # 日志级别: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+
+  # 日志格式
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  # 日志文件路径
+  file_path: "logs/test_bot_v2.log"
+
+  # 日志文件最大大小 (MB)
+  max_file_size: 10
+
+  # 保留的日志文件数量
+  backup_count: 5
+
+  # 是否输出到控制台
+  console_output: true
+
+  # 是否输出定位器度量信息
+  log_locator_metrics: true
+
+# 契约配置（指向标准契约文件）
+contracts:
+  # 契约文件路径
+  required_testids_file: "config/required_testids.yaml"
+
+  # 是否自动同步契约到前端
+  auto_sync: true
+
+  # 契约变更通知
+  change_notifications: true
+
+# 开发和调试配置
+development:
+  # 是否启用开发模式
+  enabled: false
+
+  # 是否显示定位器详细信息
+  show_locator_details: false
+
+  # 是否启用性能分析
+  enable_profiling: false
+
+  # 调试输出目录
+  debug_output_dir: "debug"
+
+# 版本信息
+version:
+  config_version: "2.0.0"
+  testid_integration_version: "1.0.0"
+  last_updated: "2024-12-17"

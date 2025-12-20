@@ -1,0 +1,132 @@
+workflow:
+  name: naohai_FC_NH_037
+  description: 'FC-NH-037: 绑定多个角色（≤3）'
+  phases:
+  - name: prepare_assets
+    description: 准备测试资产（确保有角色和场景）
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: .storyboard-item, .shot-item
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: binding_preparation
+      save_path: screenshots/naohai/fc_nh_037_prepare.png
+  - name: test_character_binding
+    description: 'FC-NH-037: 绑定多个角色（≤3）'
+    steps:
+    - action: click
+      selector: .storyboard-item:first-child .edit, .shot-item:first-child .config
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .binding-panel, .character-binding
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=角色, .character-select, .character-tag
+      optional: true
+    - action: click
+      selector: .character-select, .add-character
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .character-list, .character-options
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: .character-option:first-child, .character-list .item:first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .character-tag, .selected-character
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: first_character_bound
+      save_path: screenshots/naohai/fc_nh_037_first_character.png
+    - action: click
+      selector: .character-select, .add-character
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: .character-option:nth-child(2), .character-list .item:nth-child(2)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: .character-select, .add-character
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: .character-option:nth-child(3), .character-list .item:nth-child(3)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: three_characters_bound
+      save_path: screenshots/naohai/fc_nh_037_three_characters.png
+    - action: assert_element_count
+      selector: .character-tag, .selected-character
+      expected_count: 3
+      optional: true
+    - action: click
+      selector: .character-select, .add-character
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: .character-option:nth-child(4), .character-list .item:nth-child(4)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=最多3个, text=已达上限, text=限制
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: character_limit_reached
+      save_path: screenshots/naohai/fc_nh_037_limit.png
+    - action: assert_element_count
+      selector: .character-tag, .selected-character
+      expected_count: 3
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

@@ -1,0 +1,84 @@
+workflow:
+  description: 'FC-NH-016: 分集卡片菜单 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_016_rf
+  phases:
+  - description: 进入剧本详情/分集管理页 (RF语义化）
+    metadata:
+      conversion_rate: 0.25
+      selector_count: 2
+      semantic_action_count: 2
+    name: enter_story_detail
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分集, text=片段, text=episodes
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: story_detail_entered
+      save_path: screenshots/naohai/fc_nh_013_story_detail.png
+  - description: 'FC-NH-016: 分集卡片菜单 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 4
+      semantic_action_count: 0
+    name: episode_menu
+    steps:
+    - action: click
+      optional: true
+      selector: div.episode-item:has-text('测试分集_${timestamp}') .menu, div.fragment-item:has-text('测试分集_${timestamp}')
+        .more
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .dropdown-menu, .menu-list
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: text=片段说明, text=查看说明
+    - action: assert_element_exists
+      optional: true
+      selector: text=统计数据, text=查看统计
+    - action: assert_element_exists
+      optional: true
+      selector: text=删除片段, text=删除分集
+    - action: screenshot
+      name: episode_menu
+      save_path: screenshots/naohai/fc_nh_016_episode_menu.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

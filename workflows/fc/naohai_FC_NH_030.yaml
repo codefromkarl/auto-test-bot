@@ -1,0 +1,86 @@
+workflow:
+  name: naohai_FC_NH_030
+  description: 'FC-NH-030: 剧本输入'
+  phases:
+  - name: enter_analysis_section
+    description: 进入AI分析剧本区域
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=AI分析剧本, .ai-analysis-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: ai_analysis_section
+      save_path: screenshots/naohai/fc_nh_030_analysis_section.png
+  - name: script_input
+    description: 'FC-NH-030: 剧本输入'
+    steps:
+    - action: assert_element_exists
+      selector: textarea[placeholder*='剧本'], .script-input, .analysis-input
+      optional: true
+    - action: assert_element_exists
+      selector: text=导入文件, .import-file, input[type='file']
+      optional: true
+    - action: input
+      selector: textarea[placeholder*='剧本'], .script-input
+      text: '第一场：清晨的公园
+
+
+        清晨的阳光洒在公园里，老人们在晨练，孩子们在嬉戏。
+
+
+        小明：（兴奋地）看，那只小松鼠！
+
+
+        小红：（惊喜）好可爱啊！
+
+
+        松鼠跳到树枝上，消失在树林中。
+
+
+        第二场：咖啡厅
+
+
+        小明和小红坐在咖啡厅里，回忆着早晨的趣事。
+
+
+        小明：（感慨）时间过得真快。
+
+
+        小红：（微笑）是啊，要珍惜每一天。
+
+        '
+      clear: true
+      optional: true
+    - action: screenshot
+      name: script_input_filled
+      save_path: screenshots/naohai/fc_nh_030_script_input.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

@@ -1,0 +1,190 @@
+# 性能回归测试配置
+# Performance Regression Tests
+
+name: "性能回归测试"
+description: "监控系统性能指标，检测性能退化"
+category: "performance"
+priority: "high"
+
+# 性能基准配置
+baselines:
+  page_load:
+    home_page: 2.0
+    ai_create_page: 3.0
+    script_editor: 2.5
+
+  ai_generation:
+    script_analysis:
+      median: 25
+      p95: 40
+    image_generation:
+      median: 90
+      p95: 150
+    video_generation:
+      median: 240
+      p95: 400
+
+  resource_usage:
+    cpu_idle: 20
+    memory_normal: 60
+    disk_io_normal: 50
+
+# 性能测试场景
+test_scenarios:
+  - name: "页面加载性能测试"
+    type: "page_load"
+    urls:
+      - "/"
+      - "/ai-create"
+      - "/scripts"
+      - "/assets"
+    metrics:
+      - "first_contentful_paint"
+      - "largest_contentful_paint"
+      - "time_to_interactive"
+      - "cumulative_layout_shift"
+    thresholds:
+      fcp:
+        warning: 2.5
+        failure: 4.0
+      lcp:
+        warning: 3.0
+        failure: 5.0
+      tti:
+        warning: 3.5
+        failure: 6.0
+      cls:
+        warning: 0.1
+        failure: 0.25
+
+  - name: "AI生成性能测试"
+    type: "ai_generation"
+    workflows:
+      - name: "剧本分析"
+        type: "script_analysis"
+        test_data:
+          - "short_script.txt"
+          - "medium_script.txt"
+          - "long_script.txt"
+        metrics:
+          - "processing_time"
+          - "memory_peak"
+          - "cpu_usage"
+      - name: "图片生成"
+        type: "image_generation"
+        test_data:
+          - prompt: "简单场景：小猫"
+          - prompt: "复杂场景：城市风景"
+          - prompt: "多角色：三人对话"
+        metrics:
+          - "generation_time"
+          - "quality_score"
+          - "retry_count"
+      - name: "视频生成"
+        type: "video_generation"
+        test_data:
+          - duration: 5
+          - duration: 10
+          - duration: 30
+        metrics:
+          - "generation_time"
+          - "fps_stability"
+          - "file_size"
+
+  - name: "并发性能测试"
+    type: "concurrent"
+    scenarios:
+      - users: 5
+        ramp_up: 10
+        duration: 60
+        think_time: 2
+      - users: 10
+        ramp_up: 20
+        duration: 120
+        think_time: 3
+      - users: 20
+        ramp_up: 30
+        duration: 180
+        think_time: 5
+    metrics:
+      - "response_time_percentiles"
+      - "throughput"
+      - "error_rate"
+      - "concurrent_users"
+
+# 性能回归检测规则
+regression_detection:
+  # 基于百分比的检测
+  percentage_rules:
+    - metric: "response_time_p50"
+      increase_threshold: "20%"
+      severity: "warning"
+    - metric: "response_time_p95"
+      increase_threshold: "30%"
+      severity: "failure"
+    - metric: "throughput"
+      decrease_threshold: "15%"
+      severity: "warning"
+    - metric: "error_rate"
+      increase_threshold: "5%"
+      severity: "failure"
+
+  # 基于绝对值的检测
+  absolute_rules:
+    - metric: "response_time_p95"
+      threshold: 10.0
+      severity: "failure"
+      unit: "seconds"
+    - metric: "memory_usage"
+      threshold: 90
+      severity: "failure"
+      unit: "percent"
+
+# 性能监控配置
+monitoring:
+  # 实时监控
+  real_time:
+    enabled: true
+    interval: 30
+    metrics:
+      - "cpu"
+      - "memory"
+      - "disk"
+      - "network"
+
+  # 性能剖析
+  profiling:
+    enabled: true
+    triggers:
+      - "response_time > threshold"
+      - "error_rate > threshold"
+    tools:
+      - "python_profiler"
+      - "memory_profiler"
+      - "flamegraph"
+
+# 性能报告配置
+reporting:
+  trends:
+    enabled: true
+    time_range: "7d"
+    granularity: "hour"
+  comparisons:
+    baseline_vs_current: true
+    version_vs_version: true
+    environment_vs_environment: true
+  visualizations:
+    - "time_series"
+    - "histogram"
+    - "heatmap"
+    - "waterfall"
+
+# 优化建议
+optimization_hints:
+  enabled: true
+  categories:
+    - "database"
+    - "cache"
+    - "cdn"
+    - "compression"
+    - "lazy_loading"

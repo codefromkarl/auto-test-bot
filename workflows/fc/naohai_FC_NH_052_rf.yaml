@@ -1,0 +1,50 @@
+workflow:
+  description: 'FC-NH-052: AI创作只读验证｜闹海当前版本-只读：进入 AI创作/剧本列表并截图 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_052_rf
+  phases:
+  - description: 打开站点并进入 AI创作 (RF语义化）
+    metadata:
+      conversion_rate: 0.14285714285714285
+      selector_count: 1
+      semantic_action_count: 1
+    name: precondition
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition: &id001
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: fc_nh_052_story_list_loaded_readonly
+      save_path: screenshots/naohai/fc_nh_052_story_list_loaded_readonly.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

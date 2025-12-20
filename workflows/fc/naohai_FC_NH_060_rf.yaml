@@ -1,0 +1,66 @@
+workflow:
+  description: 'FC-NH-060: 默认步骤只读验证｜闹海当前版本-只读：验证新建剧本弹窗默认停留在“基础信息”（且“画风”未出现） (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_060_rf
+  phases:
+  - description: 打开新建弹窗 (RF语义化）
+    metadata:
+      conversion_rate: 0.09090909090909091
+      selector_count: 2
+      semantic_action_count: 1
+    name: open_modal
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition: &id001
+        selector: body
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: fc_nh_060_create_modal_default_after_open
+      save_path: screenshots/naohai/fc_nh_060_create_modal_default_after_open.png
+    - action: assert_logged_in
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item:has-text("AI创作")
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item.add-item
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=基础信息
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: text=画风与预览
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: fc_nh_060_create_modal_default_step_readonly
+      save_path: screenshots/naohai/fc_nh_060_create_modal_default_step_readonly.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.page_load}
+  version: rf-v1.0

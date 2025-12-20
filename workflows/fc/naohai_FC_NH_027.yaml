@@ -1,0 +1,71 @@
+workflow:
+  name: naohai_FC_NH_027
+  description: 'FC-NH-027: 编辑分镜入口'
+  phases:
+  - name: enter_storyboard_page
+    description: 进入分镜管理页
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理, .tab:has-text('分镜')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜, .storyboard-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: storyboard_page
+      save_path: screenshots/naohai/fc_nh_026_storyboard.png
+  - name: test_edit_storyboard
+    description: 'FC-NH-027: 编辑分镜入口'
+    steps:
+    - action: assert_element_exists
+      selector: .storyboard-item:has-text('测试分镜_${timestamp}') .edit, .storyboard-item:has-text('测试分镜_${timestamp}')
+        .modify
+      optional: true
+    - action: click
+      selector: .storyboard-item:has-text('测试分镜_${timestamp}') .edit
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .storyboard-form, .modal
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_value_contains
+      selector: input[placeholder*='分镜标题']
+      expected: 测试分镜_${timestamp}
+      optional: true
+    - action: screenshot
+      name: storyboard_edit_mode
+      save_path: screenshots/naohai/fc_nh_027_edit.png
+    - action: click
+      selector: text=取消, .cancel
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

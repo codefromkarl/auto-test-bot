@@ -1,0 +1,82 @@
+workflow:
+  name: naohai_FC_NH_015
+  description: 'FC-NH-015: 新增分集提交'
+  phases:
+  - name: enter_story_detail
+    description: 进入剧本详情/分集管理页
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分集, text=片段, text=episodes
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: story_detail_entered
+      save_path: screenshots/naohai/fc_nh_013_story_detail.png
+  - name: create_new_episode
+    description: 'FC-NH-015: 新增分集提交'
+    steps:
+    - action: click
+      selector: text=添加片段, text=新增片段, text=添加分集, text=新增分集, button:has-text('+')
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .modal, .dialog, .form-panel
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      selector: input[placeholder*="分集名称"], input[placeholder*="片段名称"], input[name*="name"]
+    - action: assert_element_exists
+      selector: textarea[placeholder*="分集说明"], textarea[placeholder*="片段说明"], textarea[name*="desc"]
+    - action: input
+      selector: input[placeholder*="分集名称"], input[placeholder*="片段名称"]
+      text: 测试分集_${timestamp}
+      clear: true
+    - action: input
+      selector: textarea[placeholder*="分集说明"], textarea[placeholder*="片段说明"]
+      text: 这是自动化测试创建的分集，用于验证分集管理功能。
+      clear: true
+    - action: screenshot
+      name: episode_form_filled
+      save_path: screenshots/naohai/fc_nh_014_form_filled.png
+    - action: click
+      selector: text=保存, text=确认, text=提交
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=保存成功, text=创建成功, .success-message
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: div.episode-item:has-text('测试分集_${timestamp}'), .fragment-item:has-text('测试分集_${timestamp}')
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: episode_created
+      save_path: screenshots/naohai/fc_nh_015_episode_created.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

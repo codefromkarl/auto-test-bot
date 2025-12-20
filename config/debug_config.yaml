@@ -1,0 +1,42 @@
+# 调试模式配置文件
+# 仅在本地开发和调试时使用
+
+# 继承主配置
+extends: config.yaml
+
+# 调试模式设置
+debug:
+  # 开启 MCP 调试
+  enable_devtools_mcp: true
+
+  # 失败时自动采集证据
+  capture_on_failure: true
+
+  # MCP 工具配置
+  mcp_tools:
+    console: true      # 捕获控制台消息
+    network: true      # 监控网络请求
+    performance: false # 性能追踪（需要时开启）
+    dom_debug: true    # DOM 快照
+    screenshot: true   # 截图
+
+  # 触发条件
+  triggers:
+    element_not_found: true
+    timeout_exceeded: true
+    assertion_failed: true
+    unexpected_navigation: true
+
+  # 防护措施
+  guardrails:
+    max_mcp_calls_per_session: 50
+    max_evidence_size_mb: 100
+
+# 测试配置保持不变
+test:
+  url: "https://your-test-site.com"
+  timeout: 30000
+
+# 日志级别调整为 DEBUG
+logging:
+  level: "DEBUG"

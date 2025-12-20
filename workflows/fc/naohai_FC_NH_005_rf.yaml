@@ -1,0 +1,78 @@
+workflow:
+  description: 'FC-NH-005: 填写剧本名称 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_005_rf
+  phases:
+  - description: 进入剧本列表页 (RF语义化）
+    metadata:
+      conversion_rate: 0.2
+      selector_count: 1
+      semantic_action_count: 1
+    name: enter_story_list
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+  - description: 打开新建剧本弹窗 (RF语义化）
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 1
+      semantic_action_count: 0
+    name: open_create_modal
+    steps:
+    - action: click
+      selector: div.list-item.add-item
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: text=基础信息
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: create_modal_open
+      save_path: screenshots/naohai/fc_nh_004_modal_open.png
+  - description: 'FC-NH-005: 填写剧本名称 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 2
+      semantic_action_count: 0
+    name: fc_nh_005
+    steps:
+    - action: assert_element_exists
+      optional: true
+      selector: input[placeholder*='剧本名称'], input[placeholder*='名称']
+    - action: input
+      clear: true
+      optional: true
+      selector: input[placeholder*='剧本名称'], input[placeholder*='名称']
+      text: 测试剧本_${timestamp}
+    - action: screenshot
+      name: fc_nh_005
+      save_path: screenshots/naohai/fc_nh_005_name.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

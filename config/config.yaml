@@ -2,14 +2,19 @@
 # 测试机器人配置文件
 
 test:
+  # 测试流程名称
+  flow_name: "nowhi_basic_navigation"
+
   # 测试目标网站
-  url: "https://example.com"
+  url: "http://<NOWHI_HOST>/nowhi/index.html"
+
+  # url: "http://localhost:9020/#/home/dashboard"
 
   # 超时设置 (毫秒)
   timeout: 30000
 
   # 页面加载超时
-  page_load_timeout: 60000
+  page_load_timeout: 120000
 
   # 元素等待超时
   element_timeout: 10000
@@ -52,10 +57,64 @@ test:
       - ".spinner"
       - "[data-loading='true']"
 
-# 测试步骤配置
+# 工作流执行策略（用于避免“看起来卡住”与假阳性）
+execution:
+  # strict：任一非 optional 步骤失败→phase 失败（避免被后续成功步骤覆盖）
+  # recover：以最后一个非 optional 步骤结果为准（支持“失败后恢复”语义）
+  phase_success_mode: "strict"
+  # true：非 optional 步骤失败后立即停止执行该 phase 剩余步骤（减少无意义等待）
+  fail_fast: true
+  # wait_for 最大等待上限（毫秒），即使 workflow 写了更大的 timeout 也会被裁剪
+  max_wait_for_timeout_ms: 240000
+  # 任一单步最大执行时长（毫秒）；超过即终止该步并判失败（用于“4分钟以上等待就终止”）
+  max_step_duration_ms: 240000
+  # 失败现场自动截图（best-effort）
+  screenshot_on_error: true
+  screenshots_dir: "screenshots/errors"
+  # 任一阶段失败后停止该 workflow（避免前置失败还继续跑后续阶段造成“看起来卡住”）
+  stop_on_phase_failure: true
+  # 自动基线准备：每个 workflow 执行前确保 AI创作/剧本列表至少有 1 个剧本卡片（无则自动创建）
+  auto_ensure_baseline: true
+  ensure_baseline_min_story_cards: 1
+
+# 失败边界定义 (Failure Boundaries)
+failure_boundaries:
+  # Critical级别：立即停止所有执行
+  critical:
+    - "service_unavailable"     # 本地服务不可用
+    - "browser_crash"           # 浏览器崩溃
+    - "config_invalid"           # 配置文件错误
+
+  # High级别：重试3次后停止
+  high:
+    - "auth_failure"            # 认证失败
+    - "workflow_file_not_found"  # 工作流文件缺失
+    max_retries: 3
+    retry_delay: 5  # 秒
+
+  # Medium级别：继续执行后续用例
+  medium:
+    - "element_not_found"       # 页面元素缺失
+    - "timeout_unexpected"      # 操作超时
+    - "assertion_failed"        # 业务断言失败
+    continue_on_failure: true
+
+  # Low级别：记录但不影响执行
+  low:
+    - "report_generation_failed" # 报告生成失败
+    - "file_write_error"        # 非关键文件写入失败
+    log_only: true
+
+# 测试步骤配置（重构版本）
 steps:
   # 是否执行网站访问测试
   open_site: true
+
+  # 是否执行导航到AI创作页
+  navigate_to_ai_create: true
+
+  # 是否执行导航到文生图页
+  navigate_to_text_image: true
 
   # 是否执行文生图测试
   generate_image: true
@@ -84,9 +143,16 @@ retry:
 browser:
   # 浏览器类型: chromium, firefox, webkit
   type: "chromium"
+  # 登录状态
+  storage_state: scripts/auth/auth_state_real.json
+  # sessionStorage 登录态（token/user_info）
+  session_state: scripts/auth/auth_session.json
 
   # 是否无头模式
-  headless: true
+  headless: false
+
+  # 慢点击
+  slow_mo: 100
 
   # 浏览器窗口大小
   viewport:
@@ -167,6 +233,9 @@ reporting:
   # 是否包含 MCP trace 数据
   include_mcp_data: true
 
+  # 是否启用优化格式（决策导向）
+  use_optimized_format: true
+
   # 报告保留天数
   retention_days: 30
 
@@ -204,3 +273,68 @@ notifications:
     - "test_failure"
     - "api_errors"
     - "performance_degradation"
+
+# =========================
+# Phase 2/3/4 扩展配置（可选）
+# =========================
+
+# 插件系统（Phase 2）
+plugins:
+  # 插件目录（默认：src/plugins）
+  dir: "src/plugins"
+
+  # 启用的插件模块名（对应插件文件名，不含 .py）
+  # 说明：PluginManager 会仅加载 enabled 列表中的模块，避免未启用插件导致加载失败
+  enabled:
+    - "async_task"
+    - "file_processing"
+    - "api_mixing"
+
+  # 单个插件配置（键名与 enabled 模块名一致）
+  file_processing:
+    base_temp_dir: "temp"
+
+# 监控系统（Phase 3）
+monitoring:
+  enabled: false
+
+  metrics:
+    # 可选：JSONL 持久化路径（用于基线对比/CI门禁）
+    persist_path: "reports/metrics.jsonl"
+
+  ingest:
+    domains_by_event_prefix:
+      "task.": "task"
+      "file.": "file"
+      "locator.": "locator"
+    event_types:
+      - "task.completed"
+      - "task.failed"
+      - "task.timeout"
+      - "file.download_completed"
+      - "file.processing_failed"
+      - "locator.success"
+      - "locator.failure"
+
+  slo_definitions:
+    async_task.completion_rate:
+      type: "event_ratio"
+      domain: "task"
+      numerator_event: "task.completed"
+      denominator_events: ["task.completed", "task.failed", "task.timeout"]
+      min: 0.95
+
+  alerts:
+    notifier:
+      # file/webhook
+      type: "file"
+      file:
+        path: "reports/alerts.jsonl"
+      webhook:
+        url: ""
+
+# Dashboard（Phase 3 Week7）
+dashboard:
+  enabled: false
+  host: "127.0.0.1"
+  port: 8081

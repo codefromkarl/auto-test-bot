@@ -1,0 +1,82 @@
+workflow:
+  name: naohai_FC_NH_019
+  description: 'FC-NH-019: 角色模型选择'
+  phases:
+  - name: enter_character_section
+    description: 进入角色资产管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=角色, text=角色资产, .tab:has-text('角色')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=角色, .character-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: character_section
+      save_path: screenshots/naohai/fc_nh_018_character_section.png
+  - name: create_character_with_model
+    description: 'FC-NH-019: 角色模型选择'
+    steps:
+    - action: click
+      selector: text=模型生成
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: .model-select, .model-dropdown
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .model-option, .dropdown-item
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: .model-option:first-child, .dropdown-item:first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: input
+      selector: input[placeholder*='角色名称'], input[name*='name']
+      text: 测试角色_${timestamp}
+      clear: true
+      optional: true
+    - action: screenshot
+      name: character_model_form
+      save_path: screenshots/naohai/fc_nh_019_model_form.png
+    - action: click
+      selector: text=创建, text=确认, text=保存
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=创建成功, .success-message
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

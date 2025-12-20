@@ -1,0 +1,331 @@
+"""
+页面状态管理模块
+定义页面状态枚举和识别函数
+"""
+
+from enum import Enum
+from typing import Optional
+from playwright.async_api import Page
+
+
+class PageState(Enum):
+    """页面状态枚举"""
+    HOME = "HOME"                    # 首页 / 营销页
+    AI_CREATE = "AI_CREATE"            # AI创作总览页
+    TEXT_TO_IMAGE = "TEXT_TO_IMAGE"    # 文生图页
+    IMAGE_TO_VIDEO = "IMAGE_TO_VIDEO"   # 图生视频页
+    UNKNOWN = "UNKNOWN"                # 未知页面
+
+
+async def is_home_page(page: Page) -> bool:
+    """
+    判断是否为首页
+
+    Args:
+        page: Playwright页面对象
+
+    Returns:
+        bool: 是否为首页
+    """
+    try:
+        # 检查URL模式
+        url = page.url
+        url_patterns = [
+            "#/home/dashboard",
+            "#/",
+            "/home",
+            "/dashboard",
+            "index.html"
+        ]
+
+        url_match = any(pattern in url for pattern in url_patterns)
+
+        # 检查页面特征元素（任选2-3个）
+        try:
+            # 检查NowHi logo（包含可能的变体）
+            logo_variants = ["NowHi", "nowhi", "NOWHI"]
+            logo = False
+            for variant in logo_variants:
+                if await page.get_by_text(variant).count() > 0:
+                    logo = True
+                    break
+
+            # 检查导航栏（包含可能的类名）
+            nav_selectors = ["nav", ".nav", ".navbar", "[role='navigation']"]
+            nav = False
+            for selector in nav_selectors:
+                if await page.locator(selector).count() > 0:
+                    nav = True
+                    break
+
+            # 检查首页特有的元素（更宽容）
+            home_indicators = [
+                "首页", "仪表盘", "dashboard", "开始使用", "欢迎"
+            ]
+            home_text = False
+            for indicator in home_indicators:
+                if await page.get_by_text(indicator).count() > 0:
+                    home_text = True
+                    break
+
+            # 检查是否有主要内容区域
+            content_area = await page.locator("main, .main, #main, .content").count() > 0
+
+            # 组合判断：URL匹配 + 至少1个特征元素
+            has_features = logo or nav or home_text or content_area
+        result = url_match and has_features
+
+        # 调试日志
+        print(f"[DEBUG] 首页识别: URL={url}, URL匹配={url_match}, Logo={logo}, Nav={nav}, Welcome={welcome_text}, 结果={result}")
+
+        return result
+
+    except Exception as e:
+        print(f"[DEBUG] 首页识别异常: {str(e)}")
+        return False
+
+
+async def is_ai_create_page(page: Page) -> bool:
+    """
+    判断是否为AI创作总览页
+
+    Args:
+        page: Playwright页面对象
+
+    Returns:
+        bool: 是否为AI创作总览页
+    """
+    try:
+        # 检查URL模式
+        url = page.url
+        url_patterns = [
+            "#/ai/create",
+            "/ai-create",
+            "create"
+        ]
+
+        url_match = any(pattern in url for pattern in url_patterns)
+
+        # 检查页面特征元素
+        try:
+            # 检查AI创作标题
+            ai_title = await page.get_by_text("AI创作").count() > 0
+        except:
+            ai_title = False
+
+        try:
+            # 检查功能卡片
+            cards = await page.locator("[class*='card']").count() >= 2
+        except:
+            cards = False
+
+        try:
+            # 检查文生图入口
+            text_to_image = await page.get_by_text("文生图").count() > 0
+        except:
+            text_to_image = False
+
+        # 组合判断：URL匹配 + 至少1个特征元素
+        return url_match and (ai_title or cards or text_to_image)
+
+    except Exception:
+        return False
+
+
+async def is_text_to_image_page(page: Page) -> bool:
+    """
+    判断是否为文生图页面
+
+    Args:
+        page: Playwright页面对象
+
+    Returns:
+        bool: 是否为文生图页面
+    """
+    try:
+        # 检查URL模式
+        url = page.url
+        url_patterns = [
+            "#/ai/text-image",
+            "/text-to-image",
+            "text-image"
+        ]
+
+        url_match = any(pattern in url for pattern in url_patterns)
+
+        # 检查页面特征元素
+        try:
+            # 检查文生图标题
+            title = await page.get_by_text("文生图").count() > 0
+        except:
+            title = False
+
+        try:
+            # 检查提示词输入框
+            prompt_input = await page.get_by_placeholder("提示词", exact=True).count() > 0
+            if not prompt_input:
+                # 尝试其他可能的placeholder
+                prompt_input = await page.get_by_placeholder("请输入", exact=True).count() > 0
+        except:
+            prompt_input = False
+
+        try:
+            # 检查生成按钮
+            generate_btn = await page.get_by_role("button", name="生成图片").count() > 0
+        except:
+            generate_btn = False
+
+        # 组合判断：URL匹配 + 至少1个特征元素
+        return url_match and (title or prompt_input or generate_btn)
+
+    except Exception:
+        return False
+
+
+async def is_image_to_video_page(page: Page) -> bool:
+    """
+    判断是否为图生视频页面
+
+    Args:
+        page: Playwright页面对象
+
+    Returns:
+        bool: 是否为图生视频页面
+    """
+    try:
+        # 检查URL模式
+        url = page.url
+        url_patterns = [
+            "#/ai/image-video",
+            "/image-to-video",
+            "image-video"
+        ]
+
+        url_match = any(pattern in url for pattern in url_patterns)
+
+        # 检查页面特征元素
+        try:
+            # 检查图生视频标题
+            title = await page.get_by_text("图生视频").count() > 0
+        except:
+            title = False
+
+        try:
+            # 检查图片上传区域
+            upload_area = await page.get_by_text("上传图片").count() > 0
+        except:
+            upload_area = False
+
+        try:
+            # 检查生成视频按钮
+            generate_btn = await page.get_by_role("button", name="生成视频").count() > 0
+        except:
+            generate_btn = False
+
+        # 组合判断：URL匹配 + 至少1个特征元素
+        return url_match and (title or upload_area or generate_btn)
+
+    except Exception:
+        return False
+
+
+async def get_current_page_state(page: Page) -> PageState:
+    """
+    获取当前页面状态
+
+    Args:
+        page: Playwright页面对象
+
+    Returns:
+        PageState: 当前页面状态
+    """
+    # 按优先级检查页面状态
+    if await is_home_page(page):
+        return PageState.HOME
+    elif await is_ai_create_page(page):
+        return PageState.AI_CREATE
+    elif await is_text_to_image_page(page):
+        return PageState.TEXT_TO_IMAGE
+    elif await is_image_to_video_page(page):
+        return PageState.IMAGE_TO_VIDEO
+    else:
+        return PageState.UNKNOWN
+
+
+def get_page_state_info(state: PageState) -> dict:
+    """
+    获取页面状态信息
+
+    Args:
+        state: 页面状态
+
+    Returns:
+        dict: 页面状态信息
+    """
+    info_map = {
+        PageState.HOME: {
+            "name": "首页",
+            "description": "网站首页/营销页面",
+            "expected_url_patterns": ["#/home/dashboard", "#/", "/home", "/dashboard"],
+            "key_elements": ["NowHi", "导航栏", "欢迎文案"]
+        },
+        PageState.AI_CREATE: {
+            "name": "AI创作页",
+            "description": "AI功能总览页面",
+            "expected_url_patterns": ["#/ai/create", "/ai-create", "create"],
+            "key_elements": ["AI创作标题", "功能卡片", "文生图入口"]
+        },
+        PageState.TEXT_TO_IMAGE: {
+            "name": "文生图页",
+            "description": "文本生成图片功能页面",
+            "expected_url_patterns": ["#/ai/text-image", "/text-to-image", "text-image"],
+            "key_elements": ["文生图标题", "提示词输入框", "生成图片按钮"]
+        },
+        PageState.IMAGE_TO_VIDEO: {
+            "name": "图生视频页",
+            "description": "图片生成视频功能页面",
+            "expected_url_patterns": ["#/ai/image-video", "/image-to-video", "image-video"],
+            "key_elements": ["图生视频标题", "图片上传区域", "生成视频按钮"]
+        },
+        PageState.UNKNOWN: {
+            "name": "未知页面",
+            "description": "无法识别的页面状态",
+            "expected_url_patterns": [],
+            "key_elements": []
+        }
+    }
+
+    return info_map.get(state, info_map[PageState.UNKNOWN])
+
+
+# 页面状态转换规则
+VALID_TRANSITIONS = {
+    PageState.HOME: [PageState.AI_CREATE],
+    PageState.AI_CREATE: [PageState.TEXT_TO_IMAGE, PageState.IMAGE_TO_VIDEO],
+    PageState.TEXT_TO_IMAGE: [PageState.AI_CREATE],  # 可以返回
+    PageState.IMAGE_TO_VIDEO: [PageState.AI_CREATE],  # 可以返回
+    PageState.UNKNOWN: []  # 未知状态不能转换
+}
+
+
+def is_valid_transition(from_state: PageState, to_state: PageState) -> bool:
+    """
+    检查页面状态转换是否有效
+
+    Args:
+        from_state: 源页面状态
+        to_state: 目标页面状态
+
+    Returns:
+        bool: 转换是否有效
+    """
+    return to_state in VALID_TRANSITIONS.get(from_state, [])
+
+
+class PreconditionError(Exception):
+    """页面前置条件错误"""
+    def __init__(self, message: str, current_state: PageState, expected_state: PageState):
+        self.message = message
+        self.current_state = current_state
+        self.expected_state = expected_state
+        super().__init__(self.message)

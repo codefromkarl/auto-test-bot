@@ -1,0 +1,31 @@
+# 公共前置模板：进入剧本列表页
+# 用于所有需要进入剧本列表的FC用例
+
+name: "enter_story_list"
+description: "打开站点→验证登录→进入剧本列表"
+
+steps:
+  - action: "open_page"
+    url: "${test.url}"
+    timeout: ${test.timeout.page_load}
+
+  - action: "wait_for"
+    condition:
+      selector: "body"
+      visible: true
+    timeout: ${test.timeout.element_load}
+
+  - action: "assert_logged_in"
+
+  - action: "click"
+    selector: ".nav-item:has-text('AI创作')"
+    timeout: ${test.timeout.element_load}
+
+  - action: "wait_for"
+    condition:
+      selector: "text=剧本列表"
+      visible: true
+    timeout: ${test.timeout.page_load}
+
+  - action: "screenshot"
+    name: "story_list_reached"

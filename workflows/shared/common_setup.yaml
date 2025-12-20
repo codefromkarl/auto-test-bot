@@ -1,0 +1,27 @@
+workflow:
+  id: "SHARED-001"
+  kind: "SHARED"
+  title: "基础环境初始化"
+  description: "打开站点、验证登录态，不进入具体页面"
+  entrypoint: "initialize"
+  coverage_level: "L0"
+  data_strategy: "Readonly"
+
+  phases:
+    - name: "initialize"
+      description: "打开站点并验证登录态"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        - action: "screenshot"
+          name: "initialized"

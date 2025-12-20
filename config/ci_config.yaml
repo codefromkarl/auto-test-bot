@@ -1,0 +1,47 @@
+# CI/生产环境配置文件
+# 严禁在 CI/生产环境中使用 MCP
+
+# 继承主配置
+extends: config.yaml
+
+# 调试模式完全关闭
+debug:
+  # CI 环境永远不启用 MCP
+  enable_devtools_mcp: false
+
+  # 仅保留基础错误收集
+  capture_on_failure: true
+
+  # MCP 工具全部禁用
+  mcp_tools:
+    console: false
+    network: false
+    performance: false
+    dom_debug: false
+    screenshot: false
+
+  # 仅使用 Playwright 保存证据
+  evidence_tools:
+    playwright_screenshot: true
+    playwright_dom: true
+
+# 测试配置（更严格）
+test:
+  url: "https://your-test-site.com"
+  timeout: 30000
+  retry_count: 2  # CI 环境允许重试
+
+# 日志级别为 INFO
+logging:
+  level: "INFO"
+
+# CI 特定设置
+ci:
+  # 快速失败模式
+  fast_fail: true
+
+  # 保存失败现场
+  save_failure_artifacts: true
+
+  # 生成 JUnit 报告
+  generate_junit_report: true

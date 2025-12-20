@@ -1,0 +1,117 @@
+workflow:
+  name: "naohai_FC_NH_012"
+  description: "FC-NH-012: 完整创建剧本测试 - 端到端创建剧本并验证结果"
+
+  phases:
+    - name: "enter_story_list"
+      description: "进入剧本列表页"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作")'
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "before_create"
+          save_path: "screenshots/naohai/fc_nh_012_before_create.png"
+
+    - name: "open_create_modal"
+      description: "打开新建剧本弹窗"
+      steps:
+        - action: "click"
+          selector: "div.list-item.add-item"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=基础信息"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+    - name: "fill_basic_info"
+      description: "填写基础信息"
+      steps:
+        - action: "input"
+          selector: "input[placeholder*=\"剧本名称\"], input[placeholder*=\"名称\"]"
+          text: "测试剧本_${timestamp}"
+          clear: true
+
+        - action: "input"
+          selector: "textarea"
+          text: "这是一个自动化测试创建的剧本，用于验证完整创建流程。"
+          clear: true
+
+        - action: "upload_file"
+          selector: "input[type=\"file\"]"
+          file_path: "tests/assets/cover.png"
+
+        - action: "screenshot"
+          name: "basic_info_filled"
+          save_path: "screenshots/naohai/fc_nh_012_basic_info_filled.png"
+
+    - name: "select_style"
+      description: "选择画风并创建"
+      steps:
+        - action: "click"
+          selector: "text=下一步"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=画风"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "click"
+          selector: ".style-card:first-child, .style-option:first-child, .art-style-item:first-child"
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "style_selected"
+          save_path: "screenshots/naohai/fc_nh_012_style_selected.png"
+
+        - action: "click"
+          selector: "text=创建剧本, text=创建, text=提交"
+          timeout: ${test.timeout.element_load}
+
+    - name: "verify_creation_result"
+      description: "验证创建结果"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "text=创建成功, text=成功, .success-message, .toast-success"
+            visible: true
+          timeout: 30000
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: 30000
+
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:has-text('测试剧本_${timestamp}')"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "story_created"
+          save_path: "screenshots/naohai/fc_nh_012_story_created.png"

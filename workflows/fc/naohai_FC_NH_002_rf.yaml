@@ -1,0 +1,39 @@
+workflow:
+  name: "naohai_FC_NH_002_rf"
+  description: "FC-NH-002: 剧本卡片展示测试 (RF版本)"
+  version: "rf-v1.0"
+
+  # RF语义化：公共路径移至suite_setup
+  suite_setup:
+    - action: "rf_enter_ai_creation"
+      timeout: ${test.timeout.element_load}
+
+  # RF语义化：专注于测试点，不重复公共路径
+  phases:
+    - name: "verify_story_cards_display"
+      description: "验证剧本卡片展示元素（RF语义化）"
+      steps:
+        # RF语义化：确保存在可测试的剧本
+        - action: "rf_ensure_story_exists"
+          timeout: ${test.timeout.element_load}
+
+        # RF语义化：打开第一个剧本卡片（语义化操作）
+        - action: "rf_open_first_story_card"
+          timeout: ${test.timeout.element_load}
+
+        # 保留：截图作为诊断证据
+        - action: "screenshot"
+          name: "story_cards_display_rf"
+          save_path: "screenshots/naohai/fc_nh_002_story_cards_display_rf.png"
+
+  # RF语义化：关注业务状态而非UI结构
+  success_criteria:
+    - "成功进入AI创作模块"
+    - "确保至少一个剧本存在"
+    - "成功打开剧本详情页"
+    - "截图保存成功"
+
+  # RF语义化：错误恢复机制
+  error_recovery:
+    - action: "rf_enter_ai_creation"  # 重试进入
+    - action: "rf_ensure_story_exists" # 确保状态

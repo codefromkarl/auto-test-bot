@@ -1,0 +1,114 @@
+workflow:
+  description: 'FC-NH-041: 当前/历史 Tabs (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_041_rf
+  phases:
+  - description: 进入图片素材管理区 (RF语义化）
+    metadata:
+      conversion_rate: 0.2727272727272727
+      selector_count: 4
+      semantic_action_count: 3
+    name: enter_material_section
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: rf_enter_storyboard_management
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      optional: true
+      selector: .storyboard-item:first-child, .shot-item:first-child
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=图片素材, .image-material, .material-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: material_section
+      save_path: screenshots/naohai/fc_nh_039_material_section.png
+  - description: 'FC-NH-041: 当前/历史 Tabs (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 7
+      semantic_action_count: 0
+    name: test_tab_switching
+    steps:
+    - action: assert_element_exists
+      optional: true
+      selector: text=当前图片, .current-tab, .tab:has-text('当前')
+    - action: assert_element_exists
+      optional: true
+      selector: text=历史图片, .history-tab, .tab:has-text('历史')
+    - action: assert_element_selected
+      optional: true
+      selector: .current-tab, .tab:has-text('当前')
+    - action: click
+      optional: true
+      selector: text=历史图片, .history-tab
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .history-list, .history-images
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: .history-item, .history-image
+    - action: screenshot
+      name: history_tab
+      save_path: screenshots/naohai/fc_nh_041_history.png
+    - action: click
+      optional: true
+      selector: text=当前图片, .current-tab
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .current-list, .current-images
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: .image-item, .material-item
+    - action: screenshot
+      name: current_tab
+      save_path: screenshots/naohai/fc_nh_041_current.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

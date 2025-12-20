@@ -1,0 +1,57 @@
+workflow:
+  name: "naohai_FC_NH_050_rf"
+  description: "FC-NH-050: 导出资源包 (RF版本)"
+  version: "rf-v1.0"
+
+  # RF语义化：完整业务流程收束
+  suite_setup:
+    - action: "rf_enter_ai_creation"
+      timeout: ${test.timeout.element_load}
+
+    - action: "rf_ensure_story_exists"
+      timeout: ${test.timeout.element_load}
+
+    - action: "rf_open_first_story_card"
+      timeout: ${test.timeout.element_load}
+
+    - action: "rf_enter_storyboard_management"
+      timeout: ${test.timeout.element_load}
+
+  # RF语义化：专注于导出测试
+  phases:
+    - name: "export_resource_package"
+      description: "导出资源包测试（RF语义化）"
+      steps:
+        # RF语义化：导出资源包（使用新的语义Action）
+        - action: "rf_export_resource_package"
+          timeout: ${test.timeout.element_load}
+
+        # 验证导出完成
+        - action: "assert_element_exists"
+          selector: "[data-testid='export-success-message']"
+          timeout: ${test.timeout.element_load}
+
+        # 验证下载链接生成
+        - action: "assert_element_exists"
+          selector: "[data-testid='download-link']"
+          timeout: ${test.timeout.element_load}
+
+        # 诊断截图
+        - action: "screenshot"
+          name: "resource_package_export_rf"
+          save_path: "screenshots/naohai/fc_nh_050_export_rf.png"
+
+  # RF语义化：业务成功标准
+  success_criteria:
+    - "成功进入分镜管理页面"
+    - "导出操作成功触发"
+    - "导出完成消息显示"
+    - "下载链接可用"
+    - "截图保存成功"
+
+  # RF语义化：错误恢复策略
+  error_recovery:
+    - action: "rf_enter_storyboard_management"  # 重新进入分镜管理
+    - action: "click"
+      selector: "[data-testid='export-button-secondary']"
+      timeout: ${test.timeout.element_load}

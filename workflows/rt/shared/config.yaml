@@ -1,0 +1,80 @@
+# 回归测试共享配置
+# Regression Testing Shared Configuration
+
+# 基线管理配置
+baseline:
+  storage_path: "test_artifacts/regression/baselines"
+  auto_update: true
+  retention_days: 30
+  versions_to_keep: 10
+
+# 性能阈值配置
+performance_thresholds:
+  # 页面加载时间 (秒)
+  page_load:
+    warning: 3.0
+    failure: 5.0
+
+  # AI生成时间 (秒)
+  ai_generation:
+    script_analysis:
+      warning: 30
+      failure: 60
+    image_generation:
+      warning: 120
+      failure: 300
+    video_generation:
+      warning: 300
+      failure: 600
+
+  # 资源使用率 (百分比)
+  resource_usage:
+    cpu:
+      warning: 70
+      failure: 90
+    memory:
+      warning: 80
+      failure: 95
+
+# 功能回归阈值
+functional_thresholds:
+  # 成功率要求 (百分比)
+  success_rate:
+    warning: 95
+    failure: 90
+
+  # 兼容性要求
+  compatibility:
+    browser_support:
+      - chrome
+      - firefox
+      - safari
+      - edge
+    min_resolution:
+      width: 1920
+      height: 1080
+
+# 报告配置
+reporting:
+  output_dir: "test_artifacts/regression/reports"
+  formats: ["html", "json"]
+  include_trends: true
+  include_screenshots: true
+
+# 告警配置
+alerts:
+  enabled: true
+  channels:
+    email:
+      enabled: false
+      recipients: []
+    webhook:
+      enabled: false
+      url: ""
+
+# 并行执行配置
+execution:
+  max_workers: 4
+  timeout_seconds: 1800
+  retry_count: 2
+  retry_delay: 5

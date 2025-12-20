@@ -1,0 +1,79 @@
+workflow:
+  name: naohai_FC_NH_017
+  description: 'FC-NH-017: 分集统计弹窗'
+  phases:
+  - name: enter_story_detail
+    description: 进入剧本详情/分集管理页
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分集, text=片段, text=episodes
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: story_detail_entered
+      save_path: screenshots/naohai/fc_nh_013_story_detail.png
+  - name: episode_statistics
+    description: 'FC-NH-017: 分集统计弹窗'
+    steps:
+    - action: click
+      selector: div.episode-item:has-text('测试分集_${timestamp}') .menu, div.fragment-item:has-text('测试分集_${timestamp}')
+        .more
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .dropdown-menu, .menu-list
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=统计数据, text=查看统计
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .modal:has-text('统计'), .dialog:has-text('统计')
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=图片数量, text=图片
+      optional: true
+    - action: assert_element_exists
+      selector: text=视频数量, text=视频
+      optional: true
+    - action: assert_element_exists
+      selector: text=消耗积分, text=积分
+      optional: true
+    - action: screenshot
+      name: episode_statistics
+      save_path: screenshots/naohai/fc_nh_017_statistics.png
+    - action: click
+      selector: .modal .close, .dialog .close, text=关闭
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

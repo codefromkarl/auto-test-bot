@@ -1,0 +1,88 @@
+workflow:
+  name: naohai_FC_NH_022
+  description: 'FC-NH-022: 场景创建方式单选'
+  phases:
+  - name: enter_scene_section
+    description: 进入场景资产管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=场景, text=场景资产, .tab:has-text('场景')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=场景, .scene-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: scene_section
+      save_path: screenshots/naohai/fc_nh_022_scene_section.png
+  - name: test_scene_creation_method
+    description: 'FC-NH-022: 场景创建方式单选'
+    steps:
+    - action: assert_element_exists
+      selector: .create-scene, .add-scene, text=创建场景
+      optional: true
+    - action: click
+      selector: text=创建场景, button:has-text('+场景'), .add-scene
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .scene-form, .modal, .dialog
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=模型生成, input[type='radio'][value*='model']
+      optional: true
+    - action: assert_element_exists
+      selector: text=自己上传, text=上传图片, input[type='radio'][value*='upload']
+      optional: true
+    - action: screenshot
+      name: scene_creation_methods
+      save_path: screenshots/naohai/fc_nh_022_creation_methods.png
+    - action: click
+      selector: text=模型生成, input[type='radio'][value*='model']
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .scene-model-select, .model-options
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=自己上传, text=上传图片, input[type='radio'][value*='upload']
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: input[type='file'], .upload-area
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

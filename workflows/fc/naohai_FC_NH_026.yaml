@@ -1,0 +1,90 @@
+workflow:
+  name: naohai_FC_NH_026
+  description: 'FC-NH-026: 新增分镜'
+  phases:
+  - name: enter_storyboard_page
+    description: 进入分镜管理页
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理, .tab:has-text('分镜')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜, .storyboard-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: storyboard_page
+      save_path: screenshots/naohai/fc_nh_026_storyboard.png
+  - name: add_storyboard_entry
+    description: 'FC-NH-026: 新增分镜'
+    steps:
+    - action: assert_element_exists
+      selector: text=新增分镜, button:has-text('+分镜'), .add-storyboard
+    - action: click
+      selector: text=新增分镜, button:has-text('+分镜'), .add-storyboard
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .storyboard-form, .modal, .dialog
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: input[placeholder*='分镜标题'], input[placeholder*='标题'], input[name*='title']
+      optional: true
+    - action: assert_element_exists
+      selector: textarea[placeholder*='分镜描述'], textarea[name*='description']
+      optional: true
+    - action: input
+      selector: input[placeholder*='分镜标题'], input[placeholder*='标题']
+      text: 测试分镜_${timestamp}
+      clear: true
+      optional: true
+    - action: input
+      selector: textarea[placeholder*='分镜描述'], textarea[name*='description']
+      text: 这是自动化测试创建的分镜，用于验证分镜管理功能。
+      clear: true
+      optional: true
+    - action: screenshot
+      name: storyboard_form
+      save_path: screenshots/naohai/fc_nh_026_form.png
+    - action: click
+      selector: text=保存, text=创建, text=确认
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .storyboard-item:has-text('测试分镜_${timestamp}')
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: storyboard_created
+      save_path: screenshots/naohai/fc_nh_026_created.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

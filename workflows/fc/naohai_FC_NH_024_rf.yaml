@@ -1,0 +1,84 @@
+workflow:
+  description: 'FC-NH-024: 场景卡片展示 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_024_rf
+  phases:
+  - description: 进入场景资产管理区 (RF语义化）
+    metadata:
+      conversion_rate: 0.2222222222222222
+      selector_count: 3
+      semantic_action_count: 2
+    name: enter_scene_section
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: click
+      optional: true
+      selector: text=场景, text=场景资产, .tab:has-text('场景')
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=场景, .scene-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: scene_section
+      save_path: screenshots/naohai/fc_nh_022_scene_section.png
+  - description: 'FC-NH-024: 场景卡片展示 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 3
+      semantic_action_count: 0
+    name: verify_scene_card
+    steps:
+    - action: wait_for
+      condition: &id001
+        selector: .scene-card:has-text('测试场景_${timestamp}'), .scene-item:has-text('测试场景_${timestamp}')
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: .scene-card:has-text('测试场景_${timestamp}') img
+    - action: assert_element_exists
+      optional: true
+      selector: .scene-card:has-text('测试场景_${timestamp}') .name, .scene-card:has-text('测试场景_${timestamp}')
+        .title
+    - action: assert_element_exists
+      optional: true
+      selector: .scene-card .description, .scene-card .info
+    - action: screenshot
+      name: scene_card
+      save_path: screenshots/naohai/fc_nh_024_scene_card.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

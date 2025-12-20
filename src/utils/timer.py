@@ -153,6 +153,29 @@ class PerformanceMetrics:
         self.metrics: Dict[str, Any] = {}
         self.timers: Dict[str, Timer] = {}
 
+    def get_summary(self) -> Dict[str, Any]:
+        """
+        获取性能摘要，提供更友好的格式
+
+        Returns:
+            Dict[str, Any]: 格式化的性能摘要
+        """
+        summary = {
+            'timestamp': datetime.now().isoformat(),
+            'timers': {}
+        }
+
+        for name, timer in self.timers.items():
+            elapsed = timer.get_elapsed_time()
+            if elapsed > 0:
+                summary['timers'][name] = {
+                    'elapsed_time': elapsed,
+                    'elapsed_time_str': timer.get_elapsed_time_str(),
+                    'checkpoints': timer.get_checkpoints()
+                }
+
+        return summary
+
     def start_timer(self, name: str) -> Timer:
         """
         开始一个计时器
@@ -278,6 +301,100 @@ class PerformanceMetrics:
             for metric_name, metric_value in summary['metrics'].items():
                 self.logger.info(f"    {metric_name}: {metric_value}")
 
+    def get_all_elapsed(self) -> Dict[str, float]:
+        """
+        获取所有计时器的耗时
+
+        Returns:
+            Dict[str, float]: 计时器名称到耗时的映射
+        """
+        result = {}
+        for name, timer in self.timers.items():
+            elapsed = timer.get_elapsed_time()
+            if elapsed > 0:
+                result[name] = elapsed
+        return result
+
 
 # 全局性能指标实例
 performance = PerformanceMetrics()
+
+
+class ExtendedTimer(Timer):
+    """扩展计时器，支持性能监控集成"""
+
+    def __init__(self, name: str, monitor=None):
+        """
+        初始化扩展计时器
+
+        Args:
+            name: 计时器名称
+            monitor: 性能监控器实例
+        """
+        super().__init__(name)
+        self.monitor = monitor
+        self.quality_score = None
+
+    def set_quality_score(self, score: float):
+        """
+        设置质量评分
+
+        Args:
+            score: 质量评分 (0-1)
+        """
+        self.quality_score = score
+
+    def stop(self) -> float:
+        """
+        停止计时并记录到性能监控器
+
+        Returns:
+            float: 经过的时间（毫秒）
+        """
+        elapsed = super().stop()
+
+        # 如果有性能监控器，记录指标
+        if self.monitor and hasattr(self.monitor, 'stop_ai_generation_monitoring'):
+            self.monitor.stop_ai_generation_monitoring(
+                self.name,
+                success=True,
+                quality_score=self.quality_score
+            )
+
+        return elapsed
+
+    def stop_with_error(self, error_message: str) -> float:
+        """
+        停止计时并记录错误
+
+        Args:
+            error_message: 错误消息
+
+        Returns:
+            float: 经过的时间（毫秒）
+        """
+        elapsed = super().stop()
+
+        # 如果有性能监控器，记录错误
+        if self.monitor and hasattr(self.monitor, 'stop_ai_generation_monitoring'):
+            self.monitor.stop_ai_generation_monitoring(
+                self.name,
+                success=False,
+                error_message=error_message
+            )
+
+        return elapsed
+
+
+def create_monitored_timer(name: str, monitor=None) -> ExtendedTimer:
+    """
+    创建受监控的计时器
+
+    Args:
+        name: 计时器名称
+        monitor: 性能监控器实例
+
+    Returns:
+        ExtendedTimer: 扩展计时器实例
+    """
+    return ExtendedTimer(name, monitor)

@@ -1,0 +1,96 @@
+workflow:
+  name: naohai_FC_NH_041
+  description: 'FC-NH-041: 当前/历史 Tabs'
+  phases:
+  - name: enter_material_section
+    description: 进入图片素材管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: .storyboard-item:first-child, .shot-item:first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=图片素材, .image-material, .material-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: material_section
+      save_path: screenshots/naohai/fc_nh_039_material_section.png
+  - name: test_tab_switching
+    description: 'FC-NH-041: 当前/历史 Tabs'
+    steps:
+    - action: assert_element_exists
+      selector: text=当前图片, .current-tab, .tab:has-text('当前')
+      optional: true
+    - action: assert_element_exists
+      selector: text=历史图片, .history-tab, .tab:has-text('历史')
+      optional: true
+    - action: assert_element_selected
+      selector: .current-tab, .tab:has-text('当前')
+      optional: true
+    - action: click
+      selector: text=历史图片, .history-tab
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .history-list, .history-images
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: .history-item, .history-image
+      optional: true
+    - action: screenshot
+      name: history_tab
+      save_path: screenshots/naohai/fc_nh_041_history.png
+    - action: click
+      selector: text=当前图片, .current-tab
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .current-list, .current-images
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: .image-item, .material-item
+      optional: true
+    - action: screenshot
+      name: current_tab
+      save_path: screenshots/naohai/fc_nh_041_current.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

@@ -1,0 +1,73 @@
+workflow:
+  name: naohai_FC_NH_021
+  description: 'FC-NH-021: 删除角色'
+  phases:
+  - name: enter_character_section
+    description: 进入角色资产管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=角色, text=角色资产, .tab:has-text('角色')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=角色, .character-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: character_section
+      save_path: screenshots/naohai/fc_nh_018_character_section.png
+  - name: test_character_deletion
+    description: 'FC-NH-021: 删除角色'
+    steps:
+    - action: click
+      selector: .character-card:has-text('测试角色_${timestamp}') .delete, .character-card:has-text('测试角色_${timestamp}')
+        .remove
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .modal:has-text('删除'), .dialog:has-text('删除')
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=不可恢复, text=无法恢复, text=删除后
+      optional: true
+    - action: assert_element_exists
+      selector: text=确定, text=确认删除
+      optional: true
+    - action: assert_element_exists
+      selector: text=取消
+      optional: true
+    - action: screenshot
+      name: delete_character_confirm
+      save_path: screenshots/naohai/fc_nh_021_delete_confirm.png
+    - action: click
+      selector: text=取消
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

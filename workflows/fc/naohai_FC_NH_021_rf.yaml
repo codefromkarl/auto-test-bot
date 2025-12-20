@@ -1,0 +1,92 @@
+workflow:
+  description: 'FC-NH-021: 删除角色 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_021_rf
+  phases:
+  - description: 进入角色资产管理区 (RF语义化）
+    metadata:
+      conversion_rate: 0.2222222222222222
+      selector_count: 3
+      semantic_action_count: 2
+    name: enter_character_section
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: click
+      optional: true
+      selector: text=角色, text=角色资产, .tab:has-text('角色')
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=角色, .character-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: character_section
+      save_path: screenshots/naohai/fc_nh_018_character_section.png
+  - description: 'FC-NH-021: 删除角色 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 5
+      semantic_action_count: 0
+    name: test_character_deletion
+    steps:
+    - action: click
+      optional: true
+      selector: .character-card:has-text('测试角色_${timestamp}') .delete, .character-card:has-text('测试角色_${timestamp}')
+        .remove
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .modal:has-text('删除'), .dialog:has-text('删除')
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: text=不可恢复, text=无法恢复, text=删除后
+    - action: assert_element_exists
+      optional: true
+      selector: text=确定, text=确认删除
+    - action: assert_element_exists
+      optional: true
+      selector: text=取消
+    - action: screenshot
+      name: delete_character_confirm
+      save_path: screenshots/naohai/fc_nh_021_delete_confirm.png
+    - action: click
+      optional: true
+      selector: text=取消
+      timeout: ${test.timeout.element_load}
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

@@ -1,0 +1,73 @@
+workflow:
+  name: naohai_FC_NH_025
+  description: 'FC-NH-025: 删除场景'
+  phases:
+  - name: enter_scene_section
+    description: 进入场景资产管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=场景, text=场景资产, .tab:has-text('场景')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=场景, .scene-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: scene_section
+      save_path: screenshots/naohai/fc_nh_022_scene_section.png
+  - name: test_scene_deletion
+    description: 'FC-NH-025: 删除场景'
+    steps:
+    - action: click
+      selector: .scene-card:has-text('测试场景_${timestamp}') .delete, .scene-card:has-text('测试场景_${timestamp}')
+        .remove
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .modal:has-text('删除'), .dialog:has-text('删除')
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=不可恢复, text=无法恢复, text=删除后
+      optional: true
+    - action: assert_element_exists
+      selector: text=确定, text=确认删除
+      optional: true
+    - action: assert_element_exists
+      selector: text=取消
+      optional: true
+    - action: screenshot
+      name: delete_scene_confirm
+      save_path: screenshots/naohai/fc_nh_025_delete_confirm.png
+    - action: click
+      selector: text=取消
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

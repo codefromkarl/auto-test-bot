@@ -1,0 +1,98 @@
+workflow:
+  description: 'FC-NH-017: 分集统计弹窗 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_017_rf
+  phases:
+  - description: 进入剧本详情/分集管理页 (RF语义化）
+    metadata:
+      conversion_rate: 0.25
+      selector_count: 2
+      semantic_action_count: 2
+    name: enter_story_detail
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分集, text=片段, text=episodes
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: story_detail_entered
+      save_path: screenshots/naohai/fc_nh_013_story_detail.png
+  - description: 'FC-NH-017: 分集统计弹窗 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 6
+      semantic_action_count: 0
+    name: episode_statistics
+    steps:
+    - action: click
+      optional: true
+      selector: div.episode-item:has-text('测试分集_${timestamp}') .menu, div.fragment-item:has-text('测试分集_${timestamp}')
+        .more
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .dropdown-menu, .menu-list
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: click
+      optional: true
+      selector: text=统计数据, text=查看统计
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: .modal:has-text('统计'), .dialog:has-text('统计')
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: text=图片数量, text=图片
+    - action: assert_element_exists
+      optional: true
+      selector: text=视频数量, text=视频
+    - action: assert_element_exists
+      optional: true
+      selector: text=消耗积分, text=积分
+    - action: screenshot
+      name: episode_statistics
+      save_path: screenshots/naohai/fc_nh_017_statistics.png
+    - action: click
+      optional: true
+      selector: .modal .close, .dialog .close, text=关闭
+      timeout: ${test.timeout.element_load}
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

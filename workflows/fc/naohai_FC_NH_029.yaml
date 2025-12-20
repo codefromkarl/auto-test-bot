@@ -1,0 +1,73 @@
+workflow:
+  name: naohai_FC_NH_029
+  description: 'FC-NH-029: 分镜删除入口'
+  phases:
+  - name: enter_storyboard_page
+    description: 进入分镜管理页
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理, .tab:has-text('分镜')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜, .storyboard-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: storyboard_page
+      save_path: screenshots/naohai/fc_nh_026_storyboard.png
+  - name: test_delete_storyboard
+    description: 'FC-NH-029: 分镜删除入口'
+    steps:
+    - action: assert_element_exists
+      selector: .storyboard-item:has-text('测试分镜_${timestamp}') .delete, .storyboard-item:has-text('测试分镜_${timestamp}')
+        .remove
+      optional: true
+    - action: click
+      selector: .storyboard-item:has-text('测试分镜_${timestamp}') .delete
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .modal:has-text('删除'), .dialog:has-text('删除')
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=确定, text=确认删除
+      optional: true
+    - action: assert_element_exists
+      selector: text=取消
+      optional: true
+    - action: screenshot
+      name: delete_storyboard_confirm
+      save_path: screenshots/naohai/fc_nh_029_delete.png
+    - action: click
+      selector: text=取消
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

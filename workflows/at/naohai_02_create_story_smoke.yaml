@@ -1,0 +1,83 @@
+workflow:
+  name: "naohai_02_create_story_smoke"
+  description: "闹海当前版本-新建剧本冒烟用例：打开新建弹窗、填写基础信息、进入画风与预览（选择器可能需按实际页面微调）"
+
+  phases:
+    - name: "precondition"
+      description: "进入剧本列表"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作")'
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+    - name: "open_create_modal"
+      description: "打开新建剧本弹窗（Step 1.2.1）"
+      steps:
+        # 实际页面的入口为“+”卡片（无文本），使用稳定 class 定位
+        - action: "click"
+          selector: "div.list-item.add-item"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=基础信息"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "create_modal_opened"
+          save_path: "screenshots/naohai/create_modal_opened.png"
+
+    - name: "fill_basic_info"
+      description: "填写基础信息（Step 1.2.2~1.2.6）"
+      steps:
+        - action: "input"
+          selector: "input[placeholder*=\"剧本名称\"], input[placeholder*=\"名称\"], input"
+          text: "自动化测试剧本"
+          clear: true
+
+        - action: "input"
+          selector: "textarea"
+          text: "自动化测试：项目说明/大纲"
+          clear: true
+
+        # 若页面使用 <input type=file> 上传封面，可启用该步骤；如为自定义上传组件，需调整 selector
+        - action: "upload_file"
+          selector: "input[type=\"file\"]"
+          file_path: "tests/assets/cover.png"
+
+        - action: "click"
+          selector: "text=16:9"
+          timeout: ${test.timeout.element_load}
+
+        - action: "click"
+          selector: "text=下一步"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=画风"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "style_step"
+          save_path: "screenshots/naohai/create_story_style_step.png"

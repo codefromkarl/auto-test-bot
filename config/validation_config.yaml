@@ -1,0 +1,275 @@
+# 内容验证配置文件
+# Content Validation Configuration
+
+# 验证模块全局配置
+validation:
+  # 是否启用验证
+  enabled: true
+
+  # 验证模式
+  # strict: 严格模式，所有验证必须通过
+  # normal: 标准模式，允许部分警告
+  # relaxed: 宽松模式，仅验证基本要求
+  mode: "normal"
+
+  # 输出目录
+  output_dir: "validation_reports"
+
+  # 并行验证
+  parallel_validation: true
+  max_workers: 4
+
+  # 缓存配置
+  cache:
+    enabled: true
+    ttl: 3600  # 缓存时间(秒)
+    dir: ".cache/validation"
+
+# 图片验证配置
+image:
+  # 基础要求
+  min_resolution:
+    width: 512
+    height: 512
+  max_resolution:
+    width: 4096
+    height: 4096
+
+  # 格式支持
+  supported_formats: ["jpg", "jpeg", "png", "webp"]
+
+  # 质量阈值
+  min_quality_score: 70.0
+
+  # 质量指标
+  quality_metrics:
+    # 清晰度（0-100）
+    sharpness:
+      enabled: true
+      threshold: 50.0
+      weight: 0.3
+
+    # 对比度（0-100）
+    contrast:
+      enabled: true
+      threshold: 30.0
+      weight: 0.2
+
+    # 亮度（0-100）
+    brightness:
+      enabled: true
+      min: 20.0
+      max: 80.0
+      weight: 0.2
+
+    # 色彩平衡（0-100）
+    color_balance:
+      enabled: true
+      threshold: 40.0
+      weight: 0.2
+
+    # 噪声水平（0-100，越低越好）
+    noise_level:
+      enabled: true
+      max_threshold: 30.0
+      weight: 0.1
+
+  # 内容检测
+  content_detection:
+    # NSFW内容检测
+    nsfw_detection:
+      enabled: true
+      threshold: 0.5
+
+    # 模糊检测
+    blur_detection:
+      enabled: true
+      threshold: 100.0  # 拉普拉斯方差
+
+    # 曝光检测
+    exposure_detection:
+      enabled: true
+      underexposed_threshold: 50.0
+      overexposed_threshold: 240.0
+
+# 视频验证配置
+video:
+  # 时长限制（秒）
+  min_duration: 3.0
+  max_duration: 60.0
+
+  # 帧率限制
+  min_fps: 12
+  max_fps: 60
+
+  # 格式支持
+  supported_formats: ["mp4", "webm", "mov", "avi"]
+
+  # 质量阈值
+  min_quality_score: 70.0
+
+  # 质量指标
+  quality_metrics:
+    # 分辨率
+    resolution:
+      enabled: true
+      min_width: 512
+      min_height: 512
+      weight: 0.3
+
+    # 帧率稳定性
+    fps_stability:
+      enabled: true
+      variance_threshold: 5.0
+      weight: 0.2
+
+    # 比特率
+    bitrate:
+      enabled: true
+      min_bitrate: 500  # kbps
+      weight: 0.2
+
+    # 画面稳定性
+    stability:
+      enabled: true
+      motion_threshold: 0.1
+      weight: 0.3
+
+  # 音频验证（如果有）
+  audio:
+    enabled: false
+    sample_rate: 44100
+    channels: 2
+    bit_depth: 16
+
+# 一致性验证配置
+consistency:
+  # 角色一致性
+  character:
+    enabled: true
+    similarity_threshold: 0.75
+    feature_matching: ["face", "color", "shape"]
+
+  # 场景一致性
+  scene:
+    enabled: true
+    similarity_threshold: 0.70
+    background_weight: 0.4
+    foreground_weight: 0.6
+
+  # 风格一致性
+  style:
+    enabled: true
+    consistency_threshold: 0.75
+    metrics: ["color_palette", "brush_stroke", "composition"]
+
+  # 跨帧分析（视频）
+  cross_frame:
+    enabled: true
+    sample_rate: 5  # 每秒采样帧数
+    analysis_window: 10  # 分析窗口大小
+
+# 相关性评分配置
+relevance:
+  # 模型配置
+  model:
+    name: "clip"
+    version: "ViT-B/32"
+    device: "auto"  # auto, cpu, cuda
+
+  # 评分阈值
+  similarity_threshold: 0.65
+
+  # 权重配置
+  weights:
+    visual_similarity: 0.7
+    semantic_similarity: 0.3
+
+  # 特征提取
+  feature_extraction:
+    # 文本特征
+    text:
+      max_length: 77
+      truncation: true
+
+    # 图像特征
+    image:
+      resize: [224, 224]
+      normalize: true
+
+# 报告配置
+reporting:
+  # 报告格式
+  export_formats: ["json", "html", "csv"]
+
+  # HTML报告配置
+  html:
+    include_thumbnails: true
+    thumbnail_size: [200, 200]
+    template: "default"
+
+  # JSON报告配置
+  json:
+    pretty_print: true
+    include_raw_data: false
+
+  # CSV报告配置
+  csv:
+    include_headers: true
+    delimiter: ","
+
+  # 报告内容
+  include:
+    summary: true
+    details: true
+    metrics: true
+    recommendations: true
+
+# 自定义规则配置
+custom_rules:
+  # 可以添加自定义验证规则
+  enabled: false
+  rules_file: "config/custom_validation_rules.py"
+
+# 性能优化
+performance:
+  # GPU加速
+  gpu_acceleration: true
+
+  # 批处理大小
+  batch_size: 8
+
+  # 内存限制(MB)
+  memory_limit: 2048
+
+  # 超时设置
+  timeout:
+    image_validation: 30
+    video_validation: 120
+    consistency_check: 60
+
+# 通知配置
+notifications:
+  # 失败通知
+  on_failure:
+    enabled: true
+    channels: ["email", "webhook"]
+
+  # 阈值警告
+  on_warning:
+    enabled: true
+    threshold: 0.7
+    channels: ["email"]
+
+  # 邮件配置
+  email:
+    smtp_server: "smtp.example.com"
+    smtp_port: 587
+    username: "test@example.com"
+    password: "password"
+
+  # Webhook配置
+  webhook:
+    url: "https://hooks.example.com/webhook"
+    headers:
+      Authorization: "Bearer token"

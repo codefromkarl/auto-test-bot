@@ -1,0 +1,94 @@
+# Test configuration for workflow execution
+# Kept compatible with ConfigLoader validation and src/main.py expectations.
+
+test:
+  url: "http://<NOWHI_HOST>/nowhi/index.html"
+  # url: "http://localhost:9020/#/home/dashboard"
+  timeout: 30000
+  page_load_timeout: 60000
+  element_timeout: 10000
+
+  selectors:
+    prompt_input:
+      - "#prompt-input"
+      - "textarea[placeholder*='提示词']"
+      - ".prompt-textarea"
+
+    generate_image_button:
+      - "#generate-image-btn"
+      - "button[data-action='generate-image']"
+      - ".generate-btn:contains('生成图片')"
+
+    generate_video_button:
+      - "#generate-video-btn"
+      - "button[data-action='generate-video']"
+      - ".generate-btn:contains('生成视频')"
+
+    image_result:
+      - ".image-result"
+      - ".generated-image"
+      - "[data-result='image']"
+
+    video_result:
+      - ".video-result"
+      - ".generated-video"
+      - "[data-result='video']"
+
+    loading_indicator:
+      - ".loading"
+      - ".spinner"
+      - "[data-loading='true']"
+
+steps:
+  open_site: true
+  generate_image: true
+  generate_video: true
+  test_prompt: "一只可爱的猫咪在花园里玩耍"
+
+retry:
+  max_attempts: 3
+  delay: 5
+  retry_steps:
+    - "open_site"
+    - "generate_image"
+    - "generate_video"
+
+browser:
+  type: "chromium"
+  headless: true
+  viewport:
+    width: 1920
+    height: 1080
+  user_agent: "AutoTestBot/1.0 (Playwright)"
+  ignore_https_errors: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "logs/test_bot.log"
+  max_file_size: 10
+  backup_count: 5
+  console_output: true
+
+mcp:
+  enabled: false
+
+reporting:
+  output_dir: "test_reports"
+  format: "both"
+  include_screenshots: true
+  include_mcp_data: false
+  use_optimized_format: true
+  retention_days: 30
+
+screenshots:
+  enabled: true
+  format: "png"
+  quality: 80
+  capture_on:
+    - "step_start"
+    - "step_success"
+    - "step_failure"
+    - "test_complete"
+  save_path: "screenshots"
+

@@ -1,0 +1,89 @@
+workflow:
+  name: naohai_FC_NH_038
+  description: 'FC-NH-038: 绑定1个场景'
+  phases:
+  - name: prepare_assets
+    description: 准备测试资产（确保有角色和场景）
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: .storyboard-item, .shot-item
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: binding_preparation
+      save_path: screenshots/naohai/fc_nh_037_prepare.png
+  - name: test_scene_binding
+    description: 'FC-NH-038: 绑定1个场景'
+    steps:
+    - action: click
+      selector: text=场景, .scene-binding, .scene-select
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: .scene-options, .scene-list
+      optional: true
+    - action: click
+      selector: .scene-option:first-child, .scene-list .item:first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .scene-tag.selected, .selected-scene
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: scene_selected
+      save_path: screenshots/naohai/fc_nh_038_scene_selected.png
+    - action: click
+      selector: .scene-option:nth-child(2), .scene-list .item:nth-child(2)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_not_selected
+      selector: .scene-option:first-child, .scene-list .item:first-child
+      optional: true
+    - action: assert_element_selected
+      selector: .scene-option:nth-child(2), .scene-list .item:nth-child(2)
+      optional: true
+    - action: screenshot
+      name: scene_replaced
+      save_path: screenshots/naohai/fc_nh_038_scene_replaced.png
+    - action: assert_element_count
+      selector: .scene-tag.selected, .selected-scene
+      expected_count: 1
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

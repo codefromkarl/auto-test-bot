@@ -1,0 +1,41 @@
+workflow:
+  name: "naohai_01_story_list_smoke"
+  description: "闹海当前版本-剧本列表冒烟用例：可打开站点、已登录、可进入AI创作/剧本列表"
+
+  phases:
+    - name: "open_site"
+      description: "打开站点并等待基础结构"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        - action: "screenshot"
+          name: "home_loaded"
+          save_path: "screenshots/naohai/home_loaded.png"
+
+    - name: "enter_ai_create"
+      description: "点击顶部导航AI创作，进入剧本列表页"
+      steps:
+        # 说明：使用 .nav-routerTo-item 定位顶部导航，避免 text=AI创作 命中页面其它同名元素导致点击无效
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作")'
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "story_list_loaded"
+          save_path: "screenshots/naohai/story_list_loaded.png"

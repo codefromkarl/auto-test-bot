@@ -1,0 +1,93 @@
+workflow:
+  name: "naohai_04_video_editor_probe"
+  description: "闹海当前版本-视频编辑探针：进入AI创作→打开首个剧本→尝试进入视频编辑页并截图（用于对齐生成视频流程选择器）"
+
+  phases:
+    - name: "enter_story_list"
+      description: "进入AI创作-剧本列表"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        # 若 test.url 已经是剧本列表路由，则无需点击导航；保留为 optional 以兼容首页场景
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作"), text=AI创作'
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表, div.list-item.add-item, div.list-item:not(.add-item)"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "story_list"
+          save_path: "screenshots/naohai/probe_story_list.png"
+
+    - name: "open_first_story"
+      description: "打开首个剧本卡片进入详情"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:not(.add-item)"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "click"
+          selector: "div.list-item:not(.add-item)"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本详情, text=分集, text=角色, text=场景"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "story_detail"
+          save_path: "screenshots/naohai/probe_story_detail.png"
+
+    - name: "enter_video_editor"
+      description: "进入分镜管理后尝试进入视频编辑页"
+      steps:
+        - action: "click"
+          selector: "text=分镜管理, .tab:has-text('分镜')"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: ".storyboard-section, text=新增分镜"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "storyboard_page"
+          save_path: "screenshots/naohai/probe_storyboard.png"
+
+        - action: "click"
+          selector: "text=视频编辑, text=视频创作"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: ".video-creation-page, .video-editor, text=视频生成, text=生成视频, text=视频编辑"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "video_editor"
+          save_path: "screenshots/naohai/probe_video_editor.png"

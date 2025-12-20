@@ -1,0 +1,61 @@
+workflow:
+  description: 'FC-NH-053: Tab项存在验证｜闹海当前版本-只读：验证 AI创作页流程 Tab 文案存在（剧本列表/剧本详情/分镜管理/视频编辑）
+    (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_053_rf
+  phases:
+  - description: 进入 AI创作/剧本列表 (RF语义化）
+    metadata:
+      conversion_rate: 0.1111111111111111
+      selector_count: 1
+      semantic_action_count: 1
+    name: enter_ai_create
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition: &id001
+        selector: .nav-routerTo-item
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本详情
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分镜管理
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=视频编辑
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: fc_nh_053_ai_create_step_tabs_present
+      save_path: screenshots/naohai/fc_nh_053_ai_create_step_tabs_present.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.page_load}
+  version: rf-v1.0

@@ -1,0 +1,249 @@
+workflow:
+  name: "naohai_resilience_test"
+  description: "闹海系统容错性测试 - 验证异常中断后的系统恢复能力"
+  version: "resilience-v1.0"
+  timeout: 300000  # 5分钟超时
+
+  # 容错测试初始化
+  suite_setup:
+    - action: "open_site"
+      url: "${test.url}"
+      timeout: ${test.timeout.page_load}
+
+    - action: "navigate_to_ai_create"
+      timeout: ${test.timeout.navigation}
+
+  # 容错测试场景
+  phases:
+    # 场景1: 网络中断恢复测试
+    - name: "network_interruption_recovery"
+      description: "模拟网络中断并验证恢复能力"
+      steps:
+        - action: "create_test_script"
+          name: "网络测试剧本"
+          description: "用于网络中断测试的剧本"
+          timeout: ${test.timeout.element_load}
+
+        - action: "simulate_network_interruption"
+          duration: 10000  # 10秒中断
+          verify_disconnection: true
+
+        - action: "wait_for_network_recovery"
+          timeout: 30000
+
+        - action: "verify_session_state"
+          expected_state: "partially_preserved"
+          check_script_exists: true
+          check_unsaved_changes: false
+
+        - action: "continue_script_creation"
+          verify_functionality: true
+
+        - action: "screenshot"
+          name: "network_recovery_verified"
+          save_path: "screenshots/resilience/network_recovery.png"
+
+    # 场景2: 页面刷新恢复测试
+    - name: "page_refresh_recovery"
+      description: "模拟意外页面刷新并验证状态恢复"
+      steps:
+        - action: "create_episode_with_assets"
+          episode_name: "刷新测试分集"
+          character_name: "刷新测试角色"
+          scene_name: "刷新测试场景"
+          timeout: ${test.timeout.element_load}
+
+        - action: "navigate_to_episode_settings"
+          timeout: ${test.timeout.element_load}
+
+        - action: "modify_episode_settings"
+          setting_changes:
+            - name: "episode_description"
+              value: "页面刷新测试描述"
+            - name: "episode_duration"
+              value: 5
+
+        - action: "simulate_browser_refresh"
+          verify_refresh: true
+
+        - action: "verify_settings_persistence"
+          expected_changes:
+            - name: "episode_description"
+              value: "页面刷新测试描述"
+            - name: "episode_duration"
+              value: 5
+
+        - action: "screenshot"
+          name: "page_refresh_verified"
+          save_path: "screenshots/resilience/page_refresh.png"
+
+    # 场景3: 会话超时恢复测试
+    - name: "session_timeout_recovery"
+      description: "模拟会话超时并验证重新认证后的数据恢复"
+      steps:
+        - action: "create_complex_storyboard"
+          script_content: "会话超时测试剧本内容，包含多个分镜"
+          target_duration: 3
+          expected_shots: 3
+          timeout: ${test.timeout.script_analysis}
+
+        - action: "edit_multiple_storyboard_shots"
+          shots_to_edit: [1, 2, 3]
+          modifications:
+            - add_character_binding: true
+            - add_scene_binding: true
+            - update_prompt: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "simulate_session_timeout"
+          clear_session: true
+          wait_duration: 60000  # 1分钟等待
+
+        - action: "perform_reauthentication"
+          login_method: "auto"
+          verify_success: true
+
+        - action: "verify_storyboard_recovery"
+          expected_shot_count: 3
+          verify_modifications: true
+          verify_bindings: true
+
+        - action: "screenshot"
+          name: "session_timeout_recovery_verified"
+          save_path: "screenshots/resilience/session_timeout_recovery.png"
+
+    # 场景4: 数据一致性验证测试
+    - name: "data_consistency_verification"
+      description: "在各种异常情况后验证数据完整性"
+      steps:
+        - action: "create_full_project_structure"
+          script_name: "一致性测试项目"
+          episodes: ["第一集", "第二集"]
+          characters: ["主角A", "主角B"]
+          scenes: ["室内场景A", "室外场景B"]
+          timeout: ${test.timeout.element_load}
+
+        - action: "establish_data_checkpoint"
+          checkpoint_name: "full_structure_checkpoint"
+          capture_all_data: true
+
+        - action: "simulate_random_interruptions"
+          interruption_types:
+            - network_dropout: 5000
+            - page_refresh: true
+            - navigation_break: true
+          recovery_attempts: 3
+
+        - action: "verify_data_consistency"
+          compare_checkpoint: "full_structure_checkpoint"
+          verify_integrity: true
+          tolerance_level: "strict"
+
+        - action: "generate_recovery_report"
+          include_detailed_diff: true
+          save_path: "reports/resilience/data_consistency_report.json"
+
+        - action: "screenshot"
+          name: "data_consistency_verified"
+          save_path: "screenshots/resilience/data_consistency.png"
+
+    # 场景5: 并发操作恢复测试
+    - name: "concurrent_operation_recovery"
+      description: "模拟并发操作冲突并验证恢复机制"
+      steps:
+        - action: "create_shared_project"
+          project_name: "并发测试项目"
+          share_mode: "team"
+          timeout: ${test.timeout.element_load}
+
+        - action: "simulate_concurrent_edits"
+          concurrent_operations:
+            - operation: "edit_script"
+              target: "第一集"
+              delay: 2000
+            - operation: "modify_character"
+              target: "主角A"
+              delay: 3000
+            - operation: "update_scene"
+              target: "室内场景A"
+              delay: 4000
+          conflict_resolution: "auto_merge"
+
+        - action: "verify_conflict_resolution"
+          expected_resolution: "merge_successful"
+          verify_data_integrity: true
+          check_for_conflicts: false
+
+        - action: "screenshot"
+          name: "concurrent_operation_verified"
+          save_path: "screenshots/resilience/concurrent_operations.png"
+
+  # 容错测试成功标准
+  success_criteria:
+    - "网络中断后能够成功恢复连接"
+    - "页面刷新后数据状态正确保持"
+    - "会话超时后重新认证能够恢复工作状态"
+    - "各种异常后数据一致性得到保证"
+    - "并发操作冲突能够正确解决"
+    - "所有恢复场景都有截图证明"
+    - "恢复时间在可接受范围内"
+
+  # 容错测试错误处理
+  error_recovery:
+    # 恢复策略
+    strategies:
+      - name: "exponential_backoff"
+        base_delay: 1000
+        max_delay: 30000
+        multiplier: 2
+
+      - name: "checkpoint_rollback"
+        checkpoint_frequency: "per_phase"
+        retention_count: 5
+
+      - name: "graceful_degradation"
+        fallback_behaviors:
+          - "offline_mode"
+          - "partial_functionality"
+          - "read_only_mode"
+
+    # 测试失败处理
+    failure_handling:
+      - action: "capture_failure_state"
+        include_browser_logs: true
+        include_network_logs: true
+        include_system_state: true
+
+      - action: "generate_failure_report"
+        detailed_analysis: true
+        recommendations: true
+
+      - action: "cleanup_test_environment"
+        preserve_artifacts: true
+        cleanup_temp_data: true
+
+  # 容错测试数据收集
+  data_collection:
+    enabled: true
+    metrics:
+      - "recovery_time"
+      - "data_loss_percentage"
+      - "error_resolution_success_rate"
+      - "user_session_state_persistence"
+      - "checkpoint_effectiveness"
+      - "conflict_resolution_time"
+
+    monitoring:
+      - "network_connectivity_status"
+      - "browser_state_integrity"
+      - "session_validity"
+      - "data_consistency_checks"
+      - "resource_availability"
+
+  # 容错测试报告配置
+  reporting:
+    include_recovery_timeline: true
+    include_data_integrity_analysis: true
+    include_performance_impact: true
+    include_recommendations: true
+    output_formats: ["json", "html", "markdown"]

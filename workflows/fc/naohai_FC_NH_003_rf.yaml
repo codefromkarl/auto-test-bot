@@ -1,0 +1,68 @@
+workflow:
+  name: "naohai_FC_NH_003_rf"
+  description: "FC-NH-003: 剧本卡片菜单操作测试 (RF版本)"
+  version: "rf-v1.0"
+
+  # RF语义化：公共路径收束
+  suite_setup:
+    - action: "rf_enter_ai_creation"
+      timeout: ${test.timeout.element_load}
+
+    - action: "rf_ensure_story_exists"
+      timeout: ${test.timeout.element_load}
+
+  # RF语义化：专注于菜单操作测试
+  phases:
+    - name: "test_story_card_menu"
+      description: "测试剧本卡片菜单操作（RF语义化）"
+      steps:
+        # RF语义化：确保有可操作的剧本卡片
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:not(.add-item)"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        # RF语义化：点击第一个剧本卡片菜单（改进语义）
+        - action: "click"
+          selector: "div.list-item:not(.add-item) [data-testid='story-menu-button']"
+          timeout: ${test.timeout.element_load}
+          optional: true  # 如果新的data-testid不存在，回退到原方案
+
+        # RF语义化：回退方案（保持兼容性）
+        - action: "click"
+          selector: "div.list-item:not(.add-item) .menu, div.list-item:not(.add-item) .more, div.list-item:not(.add-item) .ellipsis"
+          timeout: ${test.timeout.element_load}
+          skip_on_success: true  # 如果上一步成功，则跳过此步
+
+        # 验证菜单打开
+        - action: "wait_for"
+          condition:
+            selector: "[data-testid='story-menu-options'], .dropdown-menu, .menu-list"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        # RF语义化：验证菜单选项
+        - action: "assert_element_exists"
+          selector: "[data-testid='menu-view-option'], [data-testid='menu-edit-option']"
+          timeout: ${test.timeout.element_load}
+
+        # 诊断截图
+        - action: "screenshot"
+          name: "story_card_menu_rf"
+          save_path: "screenshots/naohai/fc_nh_003_story_menu_rf.png"
+
+  # RF语义化：业务成功标准
+  success_criteria:
+    - "成功进入AI创作模块"
+    - "剧本卡片存在且可操作"
+    - "菜单成功打开并显示选项"
+    - "菜单选项验证通过"
+    - "截图保存成功"
+
+  # RF语义化：错误恢复策略
+  error_recovery:
+    - action: "rf_ensure_story_exists"  # 确保数据状态
+    - action: "click"
+      selector: "div.list-item:not(.add-item):first-child .menu"
+      timeout: ${test.timeout.element_load}

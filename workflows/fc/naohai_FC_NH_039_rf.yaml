@@ -1,0 +1,108 @@
+workflow:
+  description: 'FC-NH-039: 上传图片 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_039_rf
+  phases:
+  - description: 进入图片素材管理区 (RF语义化）
+    metadata:
+      conversion_rate: 0.2727272727272727
+      selector_count: 4
+      semantic_action_count: 3
+    name: enter_material_section
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: rf_enter_storyboard_management
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      optional: true
+      selector: .storyboard-item:first-child, .shot-item:first-child
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=图片素材, .image-material, .material-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: material_section
+      save_path: screenshots/naohai/fc_nh_039_material_section.png
+  - description: 'FC-NH-039: 上传图片 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 3
+      semantic_action_count: 0
+    name: test_image_upload
+    steps:
+    - action: assert_element_exists
+      optional: true
+      selector: text=上传图片, .upload-image, button:has-text('上传')
+    - action: click
+      optional: true
+      selector: text=上传图片, .upload-image
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: input[type='file'], .upload-area
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: upload_file
+      file_path: tests/assets/test_image.jpg
+      optional: true
+      selector: input[type='file']
+    - action: screenshot
+      name: upload_interface
+      save_path: screenshots/naohai/fc_nh_039_upload_interface.png
+    - action: wait_for
+      condition:
+        selector: text=上传成功, .upload-success, .progress-complete
+        visible: true
+      optional: true
+      timeout: 30000
+    - action: wait_for
+      condition:
+        selector: .image-item, .material-item img
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: image_uploaded
+      save_path: screenshots/naohai/fc_nh_039_uploaded.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0
