@@ -1,0 +1,114 @@
+name: Task
+description: 有明确输入 / 输出 / 完成标准的可执行任务
+title: "[Task] "
+labels:
+  - status:needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧭 任务说明
+        > 本 Issue 表示一个**可独立完成、可中断接力**的工程任务  
+        > 若过程中发现新问题，请**新建 Bug Issue**，不要在此 Issue 内隐式扩展范围。
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 🎯 Goal（目标）
+      description: 这件事最终要达成什么状态？
+      placeholder: >
+        例：使用 local_workflow_config.yaml 成功跑通 FC-NH-052，
+        给出可复现命令、日志路径和结果判断。
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs
+    attributes:
+      label: 📥 Inputs（输入 / 依赖）
+      description: 需要哪些文件、配置、服务、前置条件？
+      placeholder: |
+        - config/local_workflow_config.yaml
+        - workflows/fc/naohai_FC_NH_052.yaml
+        - 本地服务 9020 端口
+    validations:
+      required: true
+
+  - type: textarea
+    id: outputs
+    attributes:
+      label: 📤 Outputs（产出）
+      description: 必须产出哪些“可验证”的东西？
+      placeholder: |
+        - 一条可复现命令
+        - 日志路径
+        - 报告/结果说明
+    validations:
+      required: true
+
+  - type: textarea
+    id: dod
+    attributes:
+      label: ✅ DoD（完成标准）
+      description: 满足哪些条件才算完成？
+      placeholder: |
+        - 命令可重复执行
+        - 结果明确成功 / 失败（带证据）
+        - 产物路径已记录
+    validations:
+      required: true
+
+  - type: input
+    id: dependencies
+    attributes:
+      label: ⛓️ Dependencies（前置 Issue）
+      description: 被哪些 Issue 阻塞？（填写 Issue 编号）
+      placeholder: "#12, #15"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: 🤖 Agent 建议
+      description: 建议由哪个模型/角色执行
+      options:
+        - agent:claude（方案 / 拆解 / 调度）
+        - agent:codex（代码 / 脚本 / 修复）
+        - agent:gemini（日志分析 / 根因定位）
+    validations:
+      required: false
+
+  - type: textarea
+    id: execution_notes
+    attributes:
+      label: 🧪 Execution Notes（执行记录）
+      description: |
+        执行过程中尝试过的命令、关键日志、失败现象。
+        ⚠️ 中断前请务必填写，便于他人接力。
+      placeholder: |
+        ```bash
+        python src/main_workflow.py ...
+        ```
+        日志摘录：
+        ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 🧾 Evidence（证据）
+      description: |
+        日志片段、截图、文件路径、PR 链接等。
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### 📌 协作规则
+        - ❌ 不要在一个 Issue 中同时做多件事  
+        - ❌ 不要隐式扩大任务范围  
+        - ✅ 新问题请新建 Bug Issue 并互相引用

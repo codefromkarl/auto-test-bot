@@ -1,0 +1,72 @@
+name: Bug / Failure
+description: 执行过程中发现的错误、失败模式或工具问题
+title: "[Bug] "
+labels:
+  - type:bug
+  - status:needs-triage
+body:
+  - type: textarea
+    id: symptom
+    attributes:
+      label: ❗ Symptom（现象）
+      description: 发生了什么？
+      placeholder: >
+        例：execute_parallel_tasks 报错：
+        cannot access local variable 'goals'
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 🔁 Repro Command（复现命令）
+      description: 如何稳定复现？
+      placeholder: |
+        ```bash
+        parallel-executor execute_parallel_tasks ...
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: ⚖️ Expected vs Actual
+      placeholder: |
+        Expected: 并行执行多个 shell 任务
+        Actual: 直接抛出 Python 异常
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📄 Logs / Evidence
+      placeholder: |
+        堆栈信息 / 日志片段 / 截图
+    validations:
+      required: false
+
+  - type: textarea
+    id: suspected_cause
+    attributes:
+      label: 🧠 Suspected Root Cause
+      description: 猜测原因（可空）
+    validations:
+      required: false
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: 🩹 Workaround（临时绕过）
+      description: 有无临时方案？
+    validations:
+      required: false
+
+  - type: textarea
+    id: fix_plan
+    attributes:
+      label: 🛠️ Fix Plan（修复计划）
+      description: 是否需要单独 Task / PR？
+    validations:
+      required: false
