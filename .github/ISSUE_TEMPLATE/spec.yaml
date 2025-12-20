@@ -1,80 +1,81 @@
-name: Spec / Runbook
-description: 新增或修改测试规范 / Runbook
+name: Spec (Runbook)
+description: 流程规范 / 期望行为（长期维护）
 title: "[Spec] "
 labels:
   - type:spec
   - status:needs-triage
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ## 📘 规范定义
-        > 本 Issue 用于定义或变更 **Feature Spec** 或 **Test Runbook**。
-        > 变更后的规范建议同步更新到 `specs/` 目录。
-
-  - type: textarea
+  - type: input
     id: purpose
     attributes:
-      label: 🎯 Purpose（目的）
-      description: 这个规范是为了解决什么问题？
-      validations:
-        required: true
+      label: Purpose
+      description: 这份 Spec 的目的（一句话）
+    validations:
+      required: true
 
   - type: textarea
     id: scope
     attributes:
-      label: 🔭 Scope（范围）
-      description: 包含什么？不包含什么？
-      validations:
-        required: true
+      label: Scope / Out of scope
+      description: 适用范围与不适用范围
+      placeholder: |
+        适用：
+        - daily 回归
+        不适用：
+        - 性能压测
+    validations:
+      required: true
 
   - type: textarea
     id: preconditions
     attributes:
-      label: 🔌 Preconditions & Gates
-      description: 执行前必须满足的条件（环境、账号、配置）。
-      placeholder: |
-        - Env: CI / Local
-        - Account: Valid user with verified email
-        - Config: use e2e_config.yaml
-      validations:
-        required: true
+      label: Preconditions
+      description: 环境/权限/数据/服务依赖（Gate-Env）
+    validations:
+      required: true
 
   - type: textarea
-    id: acceptance_criteria
+    id: procedure
     attributes:
-      label: ✅ Acceptance Criteria（验收标准）
-      description: 具体的成功标准。
-      validations:
-        required: true
+      label: Procedure (Gates)
+      description: 步骤按 Gate 划分（Gate-Env / Gate-Run / Gate-Report / Gate-Judge）
+      placeholder: |
+        1) Gate-Env: ...
+        2) Gate-Scope: ...
+        3) Gate-Run: ...
+        4) Gate-Report: ...
+        5) Gate-Judge: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Pass/Fail 判定 + 必须产物
+    validations:
+      required: true
 
   - type: textarea
     id: mapping
     attributes:
-      label: 🗺️ Mapping（映射）
-      description: 关联的代码、Workflow 文件、Robot Tag。
+      label: Mapping (anchors)
+      description: 必填：workflow 路径 + robot suite/tag + runner/入口
       placeholder: |
-        - Workflow: workflows/e2e/login.yaml
-        - Robot Tag: @login
-        - Command: python src/main.py ...
-      validations:
-        required: true
+        workflows: workflows/xxx.yml
+        robot tags: naohai_smoke, naohai_regression
+        robot suites: tests/robot/naohai/...
+        entry: python src/main_workflow.py ...
+    validations:
+      required: true
 
   - type: textarea
-    id: evidence_policy
+    id: change_policy
     attributes:
-      label: 🧾 Evidence Policy
-      description: 需要保留哪些证据？
-      value: |
-        - Runs must be saved to `runs/YYYY-MM-DD/`
-        - Include: Command, Stdout/Stderr, Report HTML
-      validations:
-        required: true
-
-  - type: textarea
-    id: changelog
-    attributes:
-      label: 📝 ChangeLog
-      description: 如果是修改现有规范，请说明变更点。
-      validations:
-        required: false
+      label: Change Policy
+      description: Spec 变更规则（必须写清）
+      placeholder: |
+        - Spec 变更必须经 Review（PR 或 Spec Issue 内记录）
+        - 仅修 Bug 不改 Spec，除非预期行为变化
+    validations:
+      required: true
