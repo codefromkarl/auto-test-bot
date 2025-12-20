@@ -1,60 +1,80 @@
 # Auto Test Bot
 
-自动化测试机器人 - 基于 Playwright 和 Chrome DevTools MCP 的深度监控系统，用于 Web 应用的端到端自动化测试和智能错误诊断。
+自动化测试机器人 - 基于 Playwright 的稳定执行引擎，配备 Chrome DevTools MCP 作为调试显微镜。
+
+> **核心理念**: Playwright 负责稳定执行，MCP 只用于看清问题，AI 帮助快速修复
 
 ## 🎯 功能特性
 
-- **智能自动化**: 基于 Playwright 的浏览器自动化测试
-- **深度监控**: 集成 Chrome DevTools MCP 进行开发者工具级别监控
-- **AI 诊断**: AI Agent 原生的错误分析和智能诊断
+### 执行层（稳定可靠）
+- **Playwright 自动化**: 唯一的测试执行引擎，确保 CI/CD 稳定可复现
+- **确定性测试**: 固定 selectors、固定等待条件、固定断言
 - **定时执行**: 支持 Cron 定时任务，24/7 无人值守运行
-- **实时日志**: 完整的测试过程记录和错误追踪
+
+### 调试层（深度观测）
+- **Chrome DevTools MCP**: 仅在失败时启用的深度调试工具
+- **行为观测**: DOM 变化、网络请求、路由事件、JS 错误精准捕获
+- **证据采集**: 结构化失败现场，为 AI 分析提供完整上下文
+
+### 智能层（辅助决策）
+- **AI 诊断**: 基于证据的智能错误分析
+- **修复建议**: AI 提供代码修复建议，人工审核后应用
 - **多格式报告**: JSON 和 HTML 格式的结构化测试报告
-- **性能监控**: 实时性能指标收集和分析
-- **可视化支持**: 测试过程截图和快照
 
 ## 🏗️ 架构设计
+
+### 分层架构
+
+```
+【执行层 - 确定】
+├── browser.py           # Playwright 浏览器管理
+├── steps/              # 测试步骤实现
+└── workflows/          # 测试流程定义
+
+【调试层 - 探索】
+└── debug/              # MCP 调试工具（可选）
+    ├── mcp_helper.py    # MCP 辅助类
+    ├── evidence_collector.py  # 证据采集
+    └── analyzer.py      # 调试分析器
+
+【智能层 - 建议】
+├── reporter/           # 报告生成器
+└── ai/                # AI 分析引擎（规划中）
+```
+
+### 目录结构
 
 ```
 auto-test-bot/
 ├── config/                 # 配置文件
 │   ├── config.yaml        # 主配置文件
-│   └── mcp_config.yaml    # MCP 监控配置
+│   ├── debug_config.yaml   # 调试模式配置
+│   └── ci_config.yaml     # CI 环境配置
 ├── src/
-│   ├── main.py            # 主程序入口和流程控制
-│   ├── browser.py         # 浏览器管理和基础操作
-│   ├── mcp/               # MCP 深度监控模块
-│   │   ├── console.py      # 控制台日志监控
-│   │   ├── network.py      # 网络请求分析
-│   │   ├── performance.py  # 性能追踪器
-│   │   ├── dom.py          # DOM 调试器
-│   │   └── diagnostic.py  # 错误诊断器
-│   ├── steps/             # 测试步骤模块
-│   │   ├── open_site.py    # 网站访问测试
-│   │   ├── test_step.py     # 基础测试步骤类
-│   │   ├── custom_step.py  # 自定义测试步骤
-│   │   └── validate.py    # 结果验证模块
-│   ├── reporter/          # 报告生成模块
-│   │   ├── formatter.py    # 报告格式化器
-│   │   ├── analyzer.py     # 数据分析器
-│   │   └── logger.py       # 测试日志记录
-│   └── utils/             # 通用工具模块
-│       ├── config.py       # 配置管理器
-│       ├── timer.py        # 性能计时器
-│       └── logger.py       # 日志系统
-├── tests/                 # 测试和验证文件
-│   ├── manual_test.md    # 手动测试指南
-│   ├── unit/              # 单元测试
-│   └── integration/        # 集成测试
+│   ├── main_workflow.py    # 主程序入口
+│   ├── browser.py         # Playwright 浏览器管理
+│   ├── browser_manager.py  # 浏览器管理兼容层
+│   ├── debug/             # MCP 调试工具
+│   │   ├── mcp_bridge.py  # MCP 桥接器
+│   │   └── collector.py   # 证据采集器
+│   ├── steps/             # 测试步骤
+│   ├── workflows/         # 测试流程定义
+│   ├── reporter/          # 报告生成
+│   └── utils/             # 通用工具
+├── tests/                 # 测试文件
+├── evidence/              # MCP 采集的证据
 ├── docs/                  # 项目文档
-│   ├── architecture.md    # 架构设计文档
-│   ├── requirements.md   # 需求规格文档
-│   └── api.md            # API 文档
-├── cron/                  # 定时任务脚本
-│   └── cronjob.sh        # Cron 执行脚本
+│   ├── chrome-devtools-mcp-guide.md  # MCP 使用指南
+│   ├── architecture.md    # 架构设计
+│   ├── RF_MIGRATION_FINAL_SUMMARY.md  # RF迁移完成总结
+│   ├── rf_full_migration_verification_report.md  # RF迁移验证报告
+│   ├── optimization_todo.md  # 项目优化计划
+│   └── api.md            # API 参考
+├── workflows/             # 测试工作流
+│   └── fc/              # 功能测试用例
+│       ├── naohai_FC_NH_*.yaml       # 原版FC文件（59个）
+│       └── naohai_FC_NH_*_rf.yaml    # RF语义化版本（59个）
 └── scripts/               # 辅助脚本
-    ├── setup.sh          # 环境设置脚本
-    └── health_check.sh   # 健康检查脚本
 ```
 
 ## 🚀 快速开始
@@ -106,19 +126,30 @@ python src/main.py
 ### 手动运行特定测试
 
 ```bash
-# 调试模式运行
+# 正常执行（纯 Playwright）
+python src/main.py
+
+# 调试模式（失败时自动启用 MCP）
 python src/main.py --debug
+
+# MCP 深度诊断模式（全程启用 MCP）
+python src/main.py --mcp-diagnostic
 
 # 指定配置文件
 python src/main.py --config path/to/config.yaml
-
-# MCP 深度诊断模式
-python src/main.py --mcp-diagnostic
 ```
+
+> ⚠️ **重要提醒**: 生产环境和 CI 应始终使用默认模式，不要启用 MCP
 
 ## ⚙️ 配置说明
 
-### config.yaml
+### 配置文件清单
+
+- **config.yaml** - 主配置文件（默认使用）
+- **debug_config.yaml** - 调试模式配置（本地开发）
+- **ci_config.yaml** - CI/生产环境配置（禁用 MCP）
+
+### 主配置 (config.yaml)
 ```yaml
 test:
   url: "https://your-test-site.com"
@@ -135,17 +166,29 @@ steps:
   generate_video: true
 ```
 
-### mcp_config.yaml
+### 调试配置 (debug_config.yaml)
 ```yaml
-mcp:
-  server_url: "http://localhost:3000"
-  auth_token: "your-auth-token"
-  tools:
-    console_messages: true
-    network_requests: true
-    performance_tracing: true
+debug:
+  enable_devtools_mcp: true      # 开启 MCP
+  capture_on_failure: true        # 失败时采集证据
+  mcp_tools:
+    console: true
+    network: true
     dom_debug: true
+    screenshot: true
 ```
+
+### CI 配置 (ci_config.yaml)
+```yaml
+debug:
+  enable_devtools_mcp: false     # 严禁 MCP
+  evidence_tools:
+    playwright_screenshot: true   # 仅用 Playwright
+```
+
+> 💡 **提示**: 使用 `--config` 参数指定配置文件
+> - 本地调试: `--config debug_config.yaml`
+> - CI 环境: `--config ci_config.yaml`
 
 ## 📊 监控功能
 
@@ -189,12 +232,74 @@ crontab -e
 4. **智能诊断** - 失败时自动进行深度分析
 5. **报告生成** - 生成详细的测试报告
 
+## 🎯 RF语义化迁移（已完成）
+
+### 迁移成果
+- ✅ **全量完成**：59个FC全部迁移为RF语义化版本
+- ✅ **质量提升**：平均改进分数79.8/100
+- ✅ **技术债务减少**：消除369个硬编码Selector
+- ✅ **语义Action**：引入260个语义化Action
+
+### 使用方式
+```bash
+# 使用RF语义化版本
+python src/main_workflow.py --workflow workflows/fc/naohai_FC_NH_XXX_rf.yaml
+
+# 使用原版（向后兼容）
+python src/main_workflow.py --workflow workflows/fc/naohai_FC_NH_XXX.yaml
+```
+
+### 详细文档
+- [RF迁移完成总结](docs/RF_MIGRATION_FINAL_SUMMARY.md)
+- [RF迁移验证报告](docs/rf_full_migration_verification_report.md)
+
 ## 📝 日志和报告
 
 - **测试日志**: `logs/test_*.log`
-- **MCP 数据**: `mcp_data/` 目录
+- **MCP 证据**: `evidence/` 目录（仅调试模式）
 - **错误截图**: `screenshots/` 目录
 - **测试报告**: JSON 格式的结构化报告
+
+## 📚 项目文档索引
+
+### 快速导航
+- **📖 完整索引**：[文档索引](docs/DOCUMENTATION_INDEX.md) - 按功能分类的完整文档导航
+- **🏗️ 架构文档**：[架构总览](docs/architecture-design/README.md) - 三层架构设计体系
+- **🎉 RF迁移文档**：[迁移总结](docs/RF_MIGRATION_FINAL_SUMMARY.md) - 59个FC全量迁移成果
+- **⚡ 项目优化**：[优化计划](docs/optimization_todo.md) - 详细的优化任务清单
+
+### 核心文档
+| 分类 | 文档 | 用途 | 状态 |
+|------|------|------|------|
+| **项目指南** | README.md | 项目使用和配置 | ✅ 最新 |
+| **架构设计** | architecture-design/README.md | 架构总览和导航 | ✅ 完整 |
+| **RF迁移** | RF_MIGRATION_FINAL_SUMMARY.md | 迁移成果和总结 | ✅ 完成 |
+| **工作流** | README_WORKFLOWS.md | 工作流使用指南 | ✅ 有效 |
+| **MCP调试** | chrome-devtools-mcp-guide.md | 调试工具使用 | ✅ 有效 |
+
+### 历史文档（已归档）
+- `docs/auto_test_bot_todo_archived.md` - 原项目TODO（已归档）
+- `docs/rf_small_scale_migration_report_archived.md` - 小规模迁移报告（已归档）
+- `docs/architecture-design/code-templates_archived.md` - 原代码模板（已归档）
+
+### 使用建议
+1. **新成员**：先阅读项目README，再根据角色查看相应文档
+2. **开发人员**：重点关注架构设计和RF迁移文档
+3. **测试人员**：重点参考工作流指南和MCP调试文档
+4. **项目管理**：参考RF迁移总结和优化计划文档
+
+## 🔍 MCP 使用指南
+
+> **必读**: [Chrome DevTools MCP 使用指南](docs/chrome-devtools-mcp-guide.md)
+
+该指南详细说明了：
+- MCP 的正确使用场景和边界
+- 禁止的用途和常见误区
+- 调试模式配置方法
+- 失败证据采集规范
+- AI 辅助修复的工作流程
+
+**核心原则**: MCP 用来"看清楚"，代码用来"跑稳定"，AI 用来"帮人更快修"。
 
 ## 🛠️ 开发和调试
 

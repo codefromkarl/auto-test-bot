@@ -1,0 +1,91 @@
+workflow:
+  name: naohai_FC_NH_049
+  description: 'FC-NH-049: 选择视频片段'
+  phases:
+  - name: enter_video_creation
+    description: 'FC-NH-042: 从分镜进入视频创作页'
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: assert_element_exists
+      selector: text=视频创作, .video-create, button:has-text('视频')
+      optional: true
+    - action: click
+      selector: text=视频创作, .video-create
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=视频创作, .video-creation-page
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: video_creation_page
+      save_path: screenshots/naohai/fc_nh_042_video_page.png
+    - action: assert_element_exists
+      selector: .storyboard-context, .selected-shot
+      optional: true
+  - name: video_selection
+    description: 'FC-NH-049: 选择视频片段'
+    steps:
+    - action: assert_element_exists
+      selector: .video-fragment, .video-item, .result-video
+      optional: true
+    - action: assert_element_count
+      selector: .video-fragment, .video-item
+      min_count: 1
+      optional: true
+    - action: click
+      selector: .video-fragment:first-child .select, .video-item:first-child .use-as-result
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .video-fragment.selected, .video-item.selected
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: video_selected
+      save_path: screenshots/naohai/fc_nh_049_selected.png
+    - action: click
+      selector: text=保存选择, text=确定, .save-selection
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=保存成功, .success-message
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

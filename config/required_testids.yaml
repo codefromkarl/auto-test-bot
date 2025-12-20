@@ -1,0 +1,214 @@
+# Data-TestId 契约文件
+# B 流程（导航+文生图+图生视频）必需的 data-testid 列表
+
+# 契约说明
+# - 这些 data-testid 是测试稳定性的核心，前端必须保证存在
+# - CI 会验证这些元素的覆盖率，未达标会阻止构建
+# - 新增关键功能时，需要同步更新此文件
+
+# 导航类必需元素
+navigation:
+  required:
+    - nav-home-tab          # 首页标签
+    - nav-ai-create-tab     # AI创作标签
+    - nav-text-image-tab     # 文生图标签
+    - nav-ai-tools-tab      # AI工具标签（可选）
+  description: "主导航标签，用于页面间切换"
+  priority: "critical"
+  coverage_requirement: 100  # 必须达到100%覆盖率
+
+# AI创作页面必需元素
+ai_create_page:
+  required:
+    - prompt-input          # 提示词输入框
+    - prompt-textarea       # 提示词文本区域
+    - generate-image-button  # 生成图片按钮
+    - clear-button         # 清空按钮
+  description: "AI创作核心交互元素"
+  priority: "critical"
+  coverage_requirement: 100
+
+# 文生图流程必需元素
+text_image_flow:
+  required:
+    # 输入类
+    - prompt-textarea       # 提示词文本区域
+    - prompt-input         # 提示词输入框
+
+    # 操作类
+    - generate-image-button  # 生成图片按钮
+    - clear-button         # 清空按钮
+
+    # 状态类
+    - loading-indicator    # 加载指示器
+    - loading-spinner      # 加载动画
+    - loading-text        # 加载文本
+
+    # 结果类
+    - image-result        # 图片结果容器
+    - generated-image     # 生成的图片元素
+    - result-container    # 结果容器
+
+    # 错误处理
+    - error-message       # 错误消息
+    - error-container     # 错误容器
+
+    # 成功提示
+    - success-message     # 成功消息
+  description: "文生图完整流程所需的所有关键元素"
+  priority: "critical"
+  coverage_requirement: 100
+
+# 图生视频流程必需元素
+video_flow:
+  required:
+    # 操作类
+    - generate-video-button  # 生成视频按钮
+
+    # 状态类
+    - loading-indicator     # 视频加载指示器
+    - video-loading         # 视频专用加载状态
+
+    # 结果类
+    - video-result          # 视频结果容器
+    - generated-video       # 生成的视频元素
+    - video-player         # 视频播放器
+
+    # 控制类
+    - video-controls       # 视频控制按钮
+    - download-button      # 下载按钮
+
+    # 错误处理
+    - video-error-message   # 视频专用错误消息
+  description: "图生视频流程所需的关键元素"
+  priority: "critical"
+  coverage_requirement: 100
+
+# 通用UI元素
+common_ui:
+  required:
+    - modal               # 模态框
+    - modal-close         # 模态框关闭按钮
+    - dialog              # 对话框
+    - toast-message       # 提示消息
+    - tooltip            # 工具提示
+    - dropdown           # 下拉菜单
+    - loading-overlay    # 遮罩层
+  description: "通用UI组件，提升用户体验"
+  priority: "medium"
+  coverage_requirement: 80
+
+# 表单和输入控件
+form_controls:
+  required:
+    - input-label         # 输入框标签
+    - form-group         # 表单组
+    - select-dropdown    # 选择下拉框
+    - checkbox          # 复选框
+    - radio-button      # 单选按钮
+    - slider            # 滑块
+    - file-upload       # 文件上传
+  description: "表单控件相关元素"
+  priority: "medium"
+  coverage_requirement: 80
+
+# 响应式和布局
+layout_responsive:
+  required:
+    - mobile-menu        # 移动端菜单
+    - sidebar          # 侧边栏
+    - header           # 头部
+    - footer           # 底部
+    - main-content     # 主要内容区
+    - container        # 容器
+    - grid             # 网格布局
+  description: "响应式布局相关元素"
+  priority: "low"
+  coverage_requirement: 60
+
+# CI 门禁配置
+ci_gates:
+  # 关键流程必须有100%覆盖率
+  critical_paths:
+    - navigation
+    - text_image_flow
+    - video_flow
+
+  # 整体覆盖率要求
+  overall_coverage_min: 80    # 整体data-testid覆盖率最低80%
+
+  # 回退率限制
+  fallback_rate_max: 20         # 回退率不能超过20%
+
+  # 失败率限制
+  failure_rate_max: 5          # 定位失败率不能超过5%
+
+  # 告警阈值
+  warning_threshold:
+    coverage_fall_below: 85     # 覆盖率低于85%时告警
+    fallback_above: 15          # 回退率高于15%时告警
+
+# 变更管理
+change_management:
+  # 前端PR必须检查的清单
+  pr_checklist:
+    - "新增的交互元素是否添加了data-testid"
+    - "是否更新了required_testids.yaml"
+    - "data-testid命名是否符合规范"
+    - "是否破坏了现有契约"
+
+  # 代码审查规则
+  code_review_rules:
+    - "关键路径元素变更需要特别关注"
+    - "删除data-testid需要批准"
+    - "命名不一致需要修正"
+
+  # 版本发布检查
+  release_checks:
+    - "验证所有契约元素覆盖率"
+    - "运行完整测试套件"
+    - "检查性能影响"
+
+# 监控和报告
+monitoring:
+  # 实时监控指标
+  real_time_metrics:
+    - "data-testid命中率"
+    - "回退策略使用率"
+    - "定位失败次数"
+    - "响应时间"
+
+  # 定期报告
+  periodic_reports:
+    - "周覆盖率报告"
+    - "月度趋势分析"
+    - "季度改进计划"
+
+  # 自动化通知
+  notifications:
+    - "覆盖率下降告警"
+    - "新元素缺失提醒"
+    - "性能异常通知"
+
+# 工具和脚本
+tools:
+  # 自动化工具
+  automation:
+    - "覆盖率检测脚本"
+    - "缺失testid扫描器"
+    - "命名规范检查器"
+    - "PR自动审查工具"
+
+  # 开发辅助
+  developer_helpers:
+    - "data-testid生成器"
+    - "命名建议工具"
+    - "示例代码模板"
+    - "调试助手"
+
+# 版本信息
+version:
+  file_version: "1.0.0"
+  last_updated: "2024-12-17"
+  next_review: "2025-01-17"
+  maintainers: ["test-team", "frontend-team"]

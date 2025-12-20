@@ -93,3 +93,14 @@ network_logs/
 # Configuration with secrets
 config/secrets.yaml
 config/*.secrets.yaml
+.claude/*
+.codex_coord/*
+.gemini/*
+.github/*
+.opencode/*
+.qwen/*
+reports/*
+test/
+tests/
+test_artifacts/*
+test_reports/*

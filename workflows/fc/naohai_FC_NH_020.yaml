@@ -1,0 +1,65 @@
+workflow:
+  name: naohai_FC_NH_020
+  description: 'FC-NH-020: 角色卡片展示'
+  phases:
+  - name: enter_character_section
+    description: 进入角色资产管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=角色, text=角色资产, .tab:has-text('角色')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=角色, .character-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: character_section
+      save_path: screenshots/naohai/fc_nh_018_character_section.png
+  - name: verify_character_card
+    description: 'FC-NH-020: 角色卡片展示'
+    steps:
+    - action: wait_for
+      condition:
+        selector: .character-card:has-text('测试角色_${timestamp}')
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: .character-card:has-text('测试角色_${timestamp}') img
+      optional: true
+    - action: assert_element_exists
+      selector: .character-card:has-text('测试角色_${timestamp}') .name, .character-card:has-text('测试角色_${timestamp}')
+        .title
+      optional: true
+    - action: assert_element_exists
+      selector: .character-card .status, .character-card .info
+      optional: true
+    - action: screenshot
+      name: character_card
+      save_path: screenshots/naohai/fc_nh_020_character_card.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

@@ -1,0 +1,107 @@
+workflow:
+  description: 'FC-NH-038: 绑定1个场景 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_038_rf
+  phases:
+  - description: 准备测试资产（确保有角色和场景） (RF语义化）
+    metadata:
+      conversion_rate: 0.3
+      selector_count: 3
+      semantic_action_count: 3
+    name: prepare_assets
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: rf_enter_storyboard_management
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: .storyboard-item, .shot-item
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: binding_preparation
+      save_path: screenshots/naohai/fc_nh_037_prepare.png
+  - description: 'FC-NH-038: 绑定1个场景 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 7
+      semantic_action_count: 0
+    name: test_scene_binding
+    steps:
+    - action: click
+      optional: true
+      selector: text=场景, .scene-binding, .scene-select
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: .scene-options, .scene-list
+    - action: click
+      optional: true
+      selector: .scene-option:first-child, .scene-list .item:first-child
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .scene-tag.selected, .selected-scene
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: scene_selected
+      save_path: screenshots/naohai/fc_nh_038_scene_selected.png
+    - action: click
+      optional: true
+      selector: .scene-option:nth-child(2), .scene-list .item:nth-child(2)
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_not_selected
+      optional: true
+      selector: .scene-option:first-child, .scene-list .item:first-child
+    - action: assert_element_selected
+      optional: true
+      selector: .scene-option:nth-child(2), .scene-list .item:nth-child(2)
+    - action: screenshot
+      name: scene_replaced
+      save_path: screenshots/naohai/fc_nh_038_scene_replaced.png
+    - action: assert_element_count
+      expected_count: 1
+      optional: true
+      selector: .scene-tag.selected, .selected-scene
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

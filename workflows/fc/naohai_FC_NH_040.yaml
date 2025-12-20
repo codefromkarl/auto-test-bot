@@ -1,0 +1,103 @@
+workflow:
+  name: naohai_FC_NH_040
+  description: 'FC-NH-040: 融合生图'
+  phases:
+  - name: enter_material_section
+    description: 进入图片素材管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: .storyboard-item:first-child, .shot-item:first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=图片素材, .image-material, .material-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: material_section
+      save_path: screenshots/naohai/fc_nh_039_material_section.png
+  - name: test_fusion_generation
+    description: 'FC-NH-040: 融合生图'
+    steps:
+    - action: assert_element_exists
+      selector: text=融合生图, .fusion-generate, button:has-text('融合')
+      optional: true
+    - action: click
+      selector: text=融合生图, .fusion-generate
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .fusion-panel, .generation-params
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=融合度, .fusion-ratio, .slider
+      optional: true
+    - action: assert_element_exists
+      selector: text=风格, .style-select, text=强度
+      optional: true
+    - action: move_slider
+      selector: .fusion-ratio input[type='range'], .slider input
+      value: 70
+      optional: true
+    - action: screenshot
+      name: fusion_params
+      save_path: screenshots/naohai/fc_nh_040_fusion_params.png
+    - action: click
+      selector: text=开始融合, text=生成, .start-fusion
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .loading, .generating, text=融合中
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=融合完成, .fusion-complete, .result-image
+        visible: true
+      timeout: 60000
+      optional: true
+    - action: screenshot
+      name: fusion_result
+      save_path: screenshots/naohai/fc_nh_040_result.png
+    - action: assert_element_exists
+      selector: .fusion-result, .generated-image
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

@@ -1,0 +1,220 @@
+# E2E黄金路径测试配置
+# 基于NAOHAI_TESTING_TODO.md Phase 1.1要求
+
+e2e_testing:
+  enabled: true
+  timeout: 600000  # 10分钟总超时
+  parallel_execution: false  # 串行执行确保稳定性
+  screenshot_on_each_phase: true
+  performance_monitoring: true
+  recovery_enabled: true
+  max_phase_retries: 2
+
+# 基础测试配置
+test:
+  timeout:
+    page_load: 30000      # 页面加载超时 30秒
+    element_load: 10000    # 元素加载超时 10秒
+    image_generation: 180000  # 图片生成超时 3分钟
+    video_generation: 300000  # 视频生成超时 5分钟
+    ai_analysis: 120000    # AI分析超时 2分钟
+
+  url: "https://naohai.example.com"
+  headless: false  # E2E测试建议可视化执行
+
+# 闹海系统配置
+naohai:
+  base_url: "https://naohai.example.com"
+
+  # 测试用户配置
+  test_user:
+    username: "e2e_test_user"
+    password: "test_password_123"
+
+  # 资源路径配置
+  assets:
+    cover_image: "test_data/e2e/cover.jpg"
+    test_scripts: "test_data/e2e/scripts/"
+
+# 性能监控配置
+performance_monitoring:
+  enabled: true
+  thresholds:
+    script_analysis: 30      # 剧本分析阈值 30秒
+    image_generation: 120     # 图片生成阈值 2分钟
+    video_generation: 300     # 视频生成阈值 5分钟
+    storyboard_creation: 60   # 分镜创建阈值 1分钟
+    asset_binding: 20        # 资源绑定阈值 20秒
+    export_operation: 30      # 导出操作阈值 30秒
+
+  # 性能检查点
+  checkpoints:
+    - phase: "create_script_and_outline"
+      metric: "script_creation_time"
+      threshold: 30
+
+    - phase: "setup_episode_assets"
+      metric: "asset_setup_time"
+      threshold: 120
+
+    - phase: "analyze_and_create_storyboard"
+      metric: "storyboard_analysis_time"
+      threshold: 60
+
+    - phase: "bind_storyboard_assets"
+      metric: "asset_binding_time"
+      threshold: 20
+
+    - phase: "generate_image_assets"
+      metric: "image_generation_time"
+      threshold: 180
+
+    - phase: "generate_video_segments"
+      metric: "video_generation_time"
+      threshold: 300
+
+    - phase: "export_final_video"
+      metric: "export_time"
+      threshold: 30
+
+  reporting:
+    format: "unified_diff_patch"
+    output_dir: "reports/e2e/performance"
+    enable_alerts: true
+
+# 恢复检查器配置
+recovery:
+  enabled: true
+  max_retries: 3
+  backoff_multiplier: 2
+  retry_delay_ms: 2000
+
+  # 恢复场景配置
+  scenarios:
+    network_interruption:
+      enabled: true
+      recovery_timeout: 30000
+      check_interval: 2000
+
+    page_refresh:
+      enabled: true
+      recovery_timeout: 15000
+      preserve_state: true
+
+    session_timeout:
+      enabled: true
+      auto_relogin: true
+      recovery_timeout: 20000
+
+    asset_generation_failure:
+      enabled: true
+      retry_with_different_params: true
+      max_alternatives: 3
+
+  # 数据完整性检查
+  data_integrity:
+    enabled: true
+    checkpoints:
+      - "script_creation"
+      - "asset_setup"
+      - "storyboard_creation"
+      - "resource_binding"
+      - "media_generation"
+      - "export_completion"
+
+# 报告配置
+reporting:
+  enabled: true
+
+  # E2E专用报告格式
+  e2e_reports:
+    format: ["json", "yaml", "html"]
+    include_screenshots: true
+    include_performance_data: true
+    include_recovery_attempts: true
+
+  # 输出目录
+  output_dirs:
+    screenshots: "screenshots/e2e"
+    reports: "reports/e2e"
+    logs: "logs/e2e"
+    artifacts: "test_artifacts/e2e"
+
+  # 报告内容配置
+  content:
+    include_phase_details: true
+    include_step_timing: true
+    include_error_traces: true
+    include_system_metrics: true
+
+# 浏览器配置
+browser:
+  # E2E测试浏览器优化
+  type: "chromium"
+  headless: false
+  viewport:
+    width: 1920
+    height: 1080
+
+  # 性能优化
+  performance:
+    enable_devtools: false
+    disable_images: false
+    disable_css: false
+    network_throttling: false
+
+  # 超时配置
+  timeouts:
+    default: 30000
+    navigation: 60000
+    element_response: 10000
+
+# 日志配置
+logging:
+  level: "INFO"
+
+  # E2E专用日志配置
+  e2e_logging:
+    enabled: true
+    separate_files: true
+    log_phase_transitions: true
+    log_performance_metrics: true
+    log_recovery_attempts: true
+
+  # 日志轮转
+  rotation:
+    max_files: 10
+    max_size_mb: 50
+
+# 测试数据配置
+test_data:
+  # E2E测试数据目录
+  base_dir: "test_data/e2e"
+
+  # 默认测试剧本
+  default_script:
+    name: "闹海E2E测试剧本"
+    description: "用于E2E黄金路径测试的示例剧本"
+    content: "这是一个关于哪吒闹海的现代改编故事..."
+
+  # 默认角色配置
+  default_characters:
+    - name: "哪吒"
+      type: "main_character"
+      style: "少年英雄"
+      description: "重生后的现代少年形象"
+
+    - name: "敖丙"
+      type: "supporting_character"
+      style: "龙族王子"
+      description: "东海龙宫三太子"
+
+  # 默认场景配置
+  default_scenes:
+    - name: "现代都市"
+      type: "urban"
+      description: "现代城市背景"
+
+    - name: "东海龙宫"
+      type: "underwater_palace"
+      description: "神话水下宫殿"

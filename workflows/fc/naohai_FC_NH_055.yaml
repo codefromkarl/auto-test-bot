@@ -1,0 +1,41 @@
+workflow:
+  name: naohai_FC_NH_055
+  description: 'FC-NH-055: 创建弹窗只读验证｜闹海当前版本-只读：打开新建剧本弹窗（仅打开，不填写不提交）'
+  phases:
+  - name: open_modal
+    description: 进入剧本列表并打开弹窗
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: .nav-routerTo-item
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: div.list-item.add-item
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item.add-item
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=基础信息
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: fc_nh_055_create_modal_opened_readonly
+      save_path: screenshots/naohai/fc_nh_055_create_modal_opened_readonly.png
+  legacy_workflow_name: naohai_08_open_create_modal_readonly

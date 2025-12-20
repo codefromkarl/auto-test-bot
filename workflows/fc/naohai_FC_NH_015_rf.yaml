@@ -1,0 +1,100 @@
+workflow:
+  description: 'FC-NH-015: 新增分集提交 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_015_rf
+  phases:
+  - description: 进入剧本详情/分集管理页 (RF语义化）
+    metadata:
+      conversion_rate: 0.25
+      selector_count: 2
+      semantic_action_count: 2
+    name: enter_story_detail
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分集, text=片段, text=episodes
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: story_detail_entered
+      save_path: screenshots/naohai/fc_nh_013_story_detail.png
+  - description: 'FC-NH-015: 新增分集提交 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 6
+      semantic_action_count: 0
+    name: create_new_episode
+    steps:
+    - action: click
+      selector: text=添加片段, text=新增片段, text=添加分集, text=新增分集, button:has-text('+')
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .modal, .dialog, .form-panel
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      selector: input[placeholder*="分集名称"], input[placeholder*="片段名称"], input[name*="name"]
+    - action: assert_element_exists
+      selector: textarea[placeholder*="分集说明"], textarea[placeholder*="片段说明"], textarea[name*="desc"]
+    - action: input
+      clear: true
+      selector: input[placeholder*="分集名称"], input[placeholder*="片段名称"]
+      text: 测试分集_${timestamp}
+    - action: input
+      clear: true
+      selector: textarea[placeholder*="分集说明"], textarea[placeholder*="片段说明"]
+      text: 这是自动化测试创建的分集，用于验证分集管理功能。
+    - action: screenshot
+      name: episode_form_filled
+      save_path: screenshots/naohai/fc_nh_014_form_filled.png
+    - action: click
+      selector: text=保存, text=确认, text=提交
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=保存成功, text=创建成功, .success-message
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: div.episode-item:has-text('测试分集_${timestamp}'), .fragment-item:has-text('测试分集_${timestamp}')
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: screenshot
+      name: episode_created
+      save_path: screenshots/naohai/fc_nh_015_episode_created.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

@@ -1,0 +1,118 @@
+# 核心功能回归测试配置
+# Core Functional Regression Tests
+
+name: "核心功能回归测试"
+description: "验证闹海平台核心功能的稳定性"
+category: "core"
+priority: "high"
+
+# 测试用例配置
+test_cases:
+  - name: "用户导航测试"
+    test_id: "NAV_001"
+    description: "验证用户能够成功导航到AI创作页面"
+    steps:
+      - action: "navigate_to_ai_create"
+        expected: "页面加载成功，AI创作元素可见"
+    success_criteria:
+      - "页面标题正确"
+      - "创作按钮可点击"
+      - "无JavaScript错误"
+
+  - name: "剧本创建测试"
+    test_id: "SCRIPT_001"
+    description: "验证剧本创建流程完整性"
+    steps:
+      - action: "create_script"
+        input:
+          title: "测试剧本"
+          content: "这是一个测试剧本内容"
+        expected: "剧本创建成功"
+    success_criteria:
+      - "剧本保存成功"
+      - "剧本ID生成"
+      - "内容格式正确"
+
+  - name: "文生图测试"
+    test_id: "TXT2IMG_001"
+    description: "验证文本生成图片功能"
+    steps:
+      - action: "generate_image_from_text"
+        input:
+          prompt: "一只可爱的小猫"
+          style: "cartoon"
+        expected: "图片生成成功"
+    success_criteria:
+      - "生成时间在阈值内"
+      - "图片分辨率达标"
+      - "内容与提示词相关"
+
+  - name: "图生视频测试"
+    test_id: "IMG2VID_001"
+    description: "验证图片生成视频功能"
+    steps:
+      - action: "generate_video_from_image"
+        input:
+          image_path: "test_data/test_image.jpg"
+          duration: 10
+        expected: "视频生成成功"
+    success_criteria:
+      - "视频时长正确"
+      - "视频格式支持"
+      - "画面连贯性良好"
+
+  - name: "资产管理测试"
+    test_id: "ASSET_001"
+    description: "验证角色和场景资产管理"
+    steps:
+      - action: "manage_assets"
+        operations:
+          - upload_character
+          - upload_scene
+          - verify_assets
+        expected: "资产管理功能正常"
+    success_criteria:
+      - "资源上传成功"
+      - "元数据正确"
+      - "预览功能可用"
+
+# 回归检测规则
+regression_rules:
+  performance:
+    - metric: "response_time"
+      threshold: "20%_increase"
+      severity: "warning"
+    - metric: "success_rate"
+      threshold: "5%_decrease"
+      severity: "failure"
+
+  functional:
+    - metric: "step_completion_rate"
+      threshold: "100%"
+      severity: "failure"
+    - metric: "error_count"
+      threshold: "0"
+      severity: "failure"
+
+# 测试数据配置
+test_data:
+  scripts:
+    - path: "test_data/scripts/test_script_1.json"
+    - path: "test_data/scripts/test_script_2.json"
+  images:
+    - path: "test_data/images/test_character_1.jpg"
+    - path: "test_data/images/test_scene_1.jpg"
+  prompts:
+    - "一只可爱的小猫在花园里玩耍"
+    - "机器人探索未来城市"
+    - "小猪佩奇去上学"
+
+# 环境要求
+environment:
+  browser: "chrome"
+  resolution: "1920x1080"
+  network: "stable"
+  dependencies:
+    - "AI服务可用"
+    - "存储服务正常"
+    - "数据库连接正常"

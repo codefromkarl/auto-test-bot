@@ -1,0 +1,47 @@
+workflow:
+  name: "naohai_03_storyboard_smoke"
+  description: "闹海当前版本-分镜管理冒烟用例：进入分镜管理、检查基础入口（+新增分镜/编辑/删除等）"
+
+  phases:
+    - name: "precondition"
+      description: "进入AI创作-剧本列表"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作")'
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+    - name: "enter_storyboard"
+      description: "进入分镜管理页（Step 3.x/4.x/5.x/6.1）"
+      steps:
+        # 顶部流程导航存在“分镜管理”tab
+        - action: "click"
+          selector: "text=分镜管理"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=分镜管理"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "storyboard_page"
+          save_path: "screenshots/naohai/storyboard_page.png"

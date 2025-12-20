@@ -1,0 +1,103 @@
+workflow:
+  description: 'FC-NH-030: 剧本输入 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_030_rf
+  phases:
+  - description: 进入AI分析剧本区域 (RF语义化）
+    metadata:
+      conversion_rate: 0.3333333333333333
+      selector_count: 3
+      semantic_action_count: 3
+    name: enter_analysis_section
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition: &id001
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: rf_enter_storyboard_management
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=AI分析剧本, .ai-analysis-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: ai_analysis_section
+      save_path: screenshots/naohai/fc_nh_030_analysis_section.png
+  - description: 'FC-NH-030: 剧本输入 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 3
+      semantic_action_count: 0
+    name: script_input
+    steps:
+    - action: assert_element_exists
+      optional: true
+      selector: textarea[placeholder*='剧本'], .script-input, .analysis-input
+    - action: assert_element_exists
+      optional: true
+      selector: text=导入文件, .import-file, input[type='file']
+    - action: input
+      clear: true
+      optional: true
+      selector: textarea[placeholder*='剧本'], .script-input
+      text: '第一场：清晨的公园
+
+
+        清晨的阳光洒在公园里，老人们在晨练，孩子们在嬉戏。
+
+
+        小明：（兴奋地）看，那只小松鼠！
+
+
+        小红：（惊喜）好可爱啊！
+
+
+        松鼠跳到树枝上，消失在树林中。
+
+
+        第二场：咖啡厅
+
+
+        小明和小红坐在咖啡厅里，回忆着早晨的趣事。
+
+
+        小明：（感慨）时间过得真快。
+
+
+        小红：（微笑）是啊，要珍惜每一天。
+
+        '
+    - action: screenshot
+      name: script_input_filled
+      save_path: screenshots/naohai/fc_nh_030_script_input.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

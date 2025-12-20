@@ -1,0 +1,202 @@
+# Naohai Parallel Test Executor Configuration
+# 闹海并行测试执行器配置
+
+# executor_type: parallel - 并行执行模式
+executor_type: "parallel"
+
+# 任务分配策略
+task_allocation:
+  # UI和前端相关任务分配给Gemini
+  gemini_tasks:
+    - "ui_analysis"
+    - "page_layout_validation"
+    - "element_visibility_check"
+    - "style_compliance_test"
+    - "responsiveness_test"
+    - "accessibility_check"
+    - "screenshot_analysis"
+    - "dom_structure_validation"
+
+  # 功能和逻辑测试任务分配给Codex
+  codex_tasks:
+    - "functional_test"
+    - "api_validation"
+    - "workflow_execution"
+    - "data_flow_test"
+    - "business_logic_test"
+    - "error_handling_test"
+    - "integration_test"
+    - "performance_test"
+
+  # Claude负责协调和总体控制
+  claude_coordinator:
+    - "workflow_orchestration"
+    - "result_aggregation"
+    - "decision_making"
+    - "error_recovery"
+    - "report_generation"
+    - "task_prioritization"
+
+# 执行模式配置
+execution_modes:
+  # Gemini执行模式 - 专注于UI分析
+  gemini:
+    mode: "analysis"
+    timeout: 600
+    retry_count: 2
+    parallel_limit: 3
+
+  # Codex执行模式 - 专注于功能测试
+  codex:
+    mode: "auto"
+    timeout: 900
+    retry_count: 2
+    parallel_limit: 2
+
+  # Claude协调模式
+  claude:
+    mode: "coordination"
+    timeout: 300
+    retry_count: 1
+
+# 工作流阶段定义
+workflow_phases:
+  # 阶段1: 页面加载和基础分析
+  phase_1:
+    name: "Page Load and Initial Analysis"
+    tasks:
+      - name: "Open Website and Analyze Layout"
+        executor: "gemini"
+        task_type: "ui_analysis"
+        dependencies: []
+
+      - name: "Validate Basic Functionality"
+        executor: "codex"
+        task_type: "functional_test"
+        dependencies: []
+
+  # 阶段2: AI创作功能测试
+  phase_2:
+    name: "AI Creation Features Test"
+    tasks:
+      - name: "Navigate to AI Create Page"
+        executor: "codex"
+        task_type: "workflow_execution"
+        dependencies: []
+
+      - name: "Analyze AI Create UI Components"
+        executor: "gemini"
+        task_type: "ui_analysis"
+        dependencies: ["Navigate to AI Create Page"]
+
+      - name: "Test Text-to-Image Generation"
+        executor: "codex"
+        task_type: "functional_test"
+        dependencies: ["Analyze AI Create UI Components"]
+
+  # 阶段3: 文生图和图生视频测试
+  phase_3:
+    name: "Content Generation Test"
+    tasks:
+      - name: "Navigate to Text-to-Image"
+        executor: "codex"
+        task_type: "workflow_execution"
+        dependencies: []
+
+      - name: "Validate Image Generation UI"
+        executor: "gemini"
+        task_type: "ui_analysis"
+        dependencies: ["Navigate to Text-to-Image"]
+
+      - name: "Execute Image Generation Workflow"
+        executor: "codex"
+        task_type: "functional_test"
+        dependencies: ["Validate Image Generation UI"]
+
+      - name: "Analyze Generated Image Quality"
+        executor: "gemini"
+        task_type: "screenshot_analysis"
+        dependencies: ["Execute Image Generation Workflow"]
+
+  # 阶段4: 集成测试和报告
+  phase_4:
+    name: "Integration Test and Reporting"
+    tasks:
+      - name: "Cross-Feature Integration Test"
+        executor: "codex"
+        task_type: "integration_test"
+        dependencies: []
+
+      - name: "Performance and Accessibility Review"
+        executor: "gemini"
+        task_type: "performance_test"
+        dependencies: ["Cross-Feature Integration Test"]
+
+      - name: "Generate Comprehensive Test Report"
+        executor: "claude"
+        task_type: "report_generation"
+        dependencies: ["Performance and Accessibility Review"]
+
+# 并行控制参数
+parallel_control:
+  # 全局并行限制
+  max_concurrent_tasks: 5
+
+  # 同步点 - 等待所有任务完成
+  sync_points:
+    - after: "phase_1"
+      timeout: 300
+    - after: "phase_2"
+      timeout: 600
+    - after: "phase_3"
+      timeout: 900
+    - after: "phase_4"
+      timeout: 300
+
+# 错误处理策略
+error_handling:
+  # 失败重试策略
+  retry_strategy:
+    max_global_retries: 3
+    retry_delay: 10
+    exponential_backoff: true
+
+  # 失败处理模式
+  failure_mode: "continue_on_failure"
+
+  # 错误报告
+  error_report:
+    include_screenshots: true
+    include_browser_logs: true
+    include_network_traces: true
+
+# 通信和协调机制
+coordination:
+  # 任务状态共享
+  status_sharing:
+    enabled: true
+    update_interval: 5
+    persistent_storage: "workspace/task_status.json"
+
+  # 决策点
+  decision_points:
+    - name: "proceed_after_ui_analysis"
+      condition: "gemini_ui_analysis_success"
+      action: "continue_to_codex_functional_test"
+
+    - name: "proceed_after_functional_test"
+      condition: "codex_functional_test_success"
+      action: "continue_to_next_phase"
+
+# 输出和报告
+output:
+  # 各模型输出目录
+  gemini_output: "workspace/gemini_outputs"
+  codex_output: "workspace/codex_outputs"
+  claude_output: "workspace/claude_outputs"
+
+  # 聚合报告
+  aggregated_report:
+    enabled: true
+    format: "html"
+    location: "reports/naohai_parallel_test_report.html"

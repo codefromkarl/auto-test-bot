@@ -1,0 +1,65 @@
+workflow:
+  name: naohai_FC_NH_016
+  description: 'FC-NH-016: 分集卡片菜单'
+  phases:
+  - name: enter_story_detail
+    description: 进入剧本详情/分集管理页
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分集, text=片段, text=episodes
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: story_detail_entered
+      save_path: screenshots/naohai/fc_nh_013_story_detail.png
+  - name: episode_menu
+    description: 'FC-NH-016: 分集卡片菜单'
+    steps:
+    - action: click
+      selector: div.episode-item:has-text('测试分集_${timestamp}') .menu, div.fragment-item:has-text('测试分集_${timestamp}')
+        .more
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .dropdown-menu, .menu-list
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=片段说明, text=查看说明
+      optional: true
+    - action: assert_element_exists
+      selector: text=统计数据, text=查看统计
+      optional: true
+    - action: assert_element_exists
+      selector: text=删除片段, text=删除分集
+      optional: true
+    - action: screenshot
+      name: episode_menu
+      save_path: screenshots/naohai/fc_nh_016_episode_menu.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

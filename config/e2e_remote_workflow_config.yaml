@@ -1,0 +1,99 @@
+# E2E remote workflow configuration
+# - Targets remote NowHi site by default (can override via TEST_URL)
+# - Disables auto_ensure_baseline to avoid flaky preflight on remote
+# - Expands executor wait/step ceilings for long-running generation
+
+test:
+  flow_name: "workflow_e2e_remote"
+  # 直接进入 AI创作/剧本列表路由，避免远端导航渲染/点击不稳定导致用例阻塞
+  url: "http://115.29.232.120/nowhi/index.html#/ai-create/index/story-list"
+  timeout: 30000
+  page_load_timeout: 120000
+  element_timeout: 30000
+
+  selectors:
+    prompt_input:
+      - "#prompt-input"
+      - "textarea[placeholder*='提示词']"
+      - ".prompt-textarea"
+
+    generate_image_button:
+      - "#generate-image-btn"
+      - "button[data-action='generate-image']"
+      - ".generate-btn:contains('生成图片')"
+
+    generate_video_button:
+      - "#generate-video-btn"
+      - "button[data-action='generate-video']"
+      - ".generate-btn:contains('生成视频')"
+
+    image_result:
+      - ".image-result"
+      - ".generated-image"
+      - "[data-result='image']"
+
+    video_result:
+      - ".video-result"
+      - ".generated-video"
+      - "[data-result='video']"
+
+    loading_indicator:
+      - ".loading"
+      - ".spinner"
+      - "[data-loading='true']"
+
+execution:
+  phase_success_mode: "strict"
+  fail_fast: true
+  max_wait_for_timeout_ms: 240000
+  max_step_duration_ms: 240000
+  screenshot_on_error: true
+  screenshots_dir: "screenshots/errors"
+  stop_on_phase_failure: true
+  auto_ensure_baseline: false
+
+browser:
+  type: "chromium"
+  storage_state: scripts/auth/auth_state_real.json
+  session_state: scripts/auth/auth_session.json
+  headless: false
+  slow_mo: 0
+  viewport:
+    width: 1920
+    height: 1080
+  user_agent: "AutoTestBot/1.0 (Playwright)"
+  ignore_https_errors: true
+  launch_args:
+    - "--no-sandbox"
+    - "--disable-setuid-sandbox"
+    - "--disable-seccomp-filter-sandbox"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "logs/test_bot.log"
+  max_file_size: 10
+  backup_count: 5
+  console_output: true
+
+mcp:
+  enabled: false
+
+reporting:
+  output_dir: "test_reports"
+  format: "both"
+  include_screenshots: true
+  include_mcp_data: false
+  use_optimized_format: true
+  retention_days: 30
+
+screenshots:
+  enabled: true
+  format: "png"
+  quality: 80
+  capture_on:
+    - "step_start"
+    - "step_success"
+    - "step_failure"
+    - "test_complete"
+  save_path: "screenshots"

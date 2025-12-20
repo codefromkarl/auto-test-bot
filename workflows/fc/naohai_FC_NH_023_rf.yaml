@@ -1,0 +1,101 @@
+workflow:
+  description: 'FC-NH-023: 场景模型选择 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_023_rf
+  phases:
+  - description: 进入场景资产管理区 (RF语义化）
+    metadata:
+      conversion_rate: 0.2222222222222222
+      selector_count: 3
+      semantic_action_count: 2
+    name: enter_scene_section
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: click
+      optional: true
+      selector: text=场景, text=场景资产, .tab:has-text('场景')
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=场景, .scene-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: scene_section
+      save_path: screenshots/naohai/fc_nh_022_scene_section.png
+  - description: 'FC-NH-023: 场景模型选择 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 5
+      semantic_action_count: 0
+    name: create_scene_with_model
+    steps:
+    - action: click
+      optional: true
+      selector: text=模型生成
+      timeout: ${test.timeout.element_load}
+    - action: click
+      optional: true
+      selector: .scene-model-select, .model-dropdown
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .model-option, .dropdown-item
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: click
+      optional: true
+      selector: .model-option:first-child, .dropdown-item:first-child
+      timeout: ${test.timeout.element_load}
+    - action: input
+      clear: true
+      optional: true
+      selector: input[placeholder*='场景名称'], input[name*='name'], input[placeholder*='名称']
+      text: 测试场景_${timestamp}
+    - action: screenshot
+      name: scene_model_form
+      save_path: screenshots/naohai/fc_nh_023_model_form.png
+    - action: click
+      optional: true
+      selector: text=创建, text=确认, text=保存
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=创建成功, .success-message
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

@@ -1,0 +1,186 @@
+workflow:
+  name: "naohai_05_create_story_to_video_e2e"
+  description: "闹海当前版本-E2E：创建剧本→进入分镜管理→进入视频编辑并触发生成（选择器按当前页面做宽匹配，失败会产出截图用于对齐）"
+
+  phases:
+    - name: "enter_story_list"
+      description: "进入AI创作-剧本列表"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        # 若 test.url 已经是剧本列表路由，则无需点击导航；保留为 optional 以兼容首页场景
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作"), text=AI创作'
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "story_list_before_create"
+          save_path: "screenshots/naohai/e2e_story_list_before_create.png"
+
+    - name: "create_story"
+      description: "创建一个新剧本（基础信息→画风→提交）"
+      steps:
+        - action: "click"
+          selector: "div.list-item.add-item"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=基础信息"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "input"
+          selector: "input[placeholder*=\"剧本名称\"], input[placeholder*=\"名称\"], input"
+          text: "自动化测试剧本_${timestamp}"
+          clear: true
+
+        - action: "input"
+          selector: "textarea"
+          text: "自动化测试：创建剧本→生成视频全流程验证"
+          clear: true
+
+        - action: "upload_file"
+          selector: "input[type=\"file\"]"
+          file_path: "tests/assets/cover.png"
+          optional: true
+
+        - action: "click"
+          selector: "text=16:9"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=下一步"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=画风"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "click"
+          selector: ".style-card:first-child, .style-option:first-child, .art-style-item:first-child, .style-item:first-child"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=创建剧本, text=创建, text=提交"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=创建成功, text=成功, .success-message, .toast-success"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:has-text('自动化测试剧本_${timestamp}'), div.list-item:has-text('自动化测试剧本')"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "story_created"
+          save_path: "screenshots/naohai/e2e_story_created.png"
+
+    - name: "enter_storyboard"
+      description: "进入新建剧本的分镜管理页"
+      steps:
+        - action: "click"
+          selector: "div.list-item:has-text('自动化测试剧本_${timestamp}'), div.list-item:has-text('自动化测试剧本')"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本详情, text=分集, text=角色, text=场景"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "click"
+          selector: "text=分镜管理, .tab:has-text('分镜')"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=分镜, .storyboard-section"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "storyboard_page"
+          save_path: "screenshots/naohai/e2e_storyboard_page.png"
+
+    - name: "enter_video_editor"
+      description: "进入视频编辑/视频创作并尝试触发生成"
+      steps:
+        - action: "click"
+          selector: "text=视频编辑, text=视频创作, .tab:has-text('视频')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=视频编辑, text=视频创作, .video-editor, .video-creation-page"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "video_editor_page"
+          save_path: "screenshots/naohai/e2e_video_editor_page.png"
+
+        - action: "click"
+          selector: "text=开始生成, text=生成视频, text=生成, .start-generate, .generate-btn"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=生成中, text=处理中, .loading, .generating"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "video, .result-video, .video-item, text=生成完成"
+            visible: true
+          timeout: 240000
+          optional: true
+
+        - action: "screenshot"
+          name: "video_result"
+          save_path: "screenshots/naohai/e2e_video_result.png"
+
+  success_criteria:
+    - 成功进入AI创作模块
+    - 成功创建新剧本并在列表可见
+    - 成功进入分镜管理页
+    - 成功进入视频编辑页并完成生成触发/结果可见

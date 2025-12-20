@@ -1,0 +1,94 @@
+workflow:
+  name: naohai_FC_NH_018
+  description: 'FC-NH-018: 角色创建方式单选'
+  phases:
+  - name: enter_character_section
+    description: 进入角色资产管理区
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item):first-child
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=角色, text=角色资产, .tab:has-text('角色')
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=角色, .character-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: character_section
+      save_path: screenshots/naohai/fc_nh_018_character_section.png
+  - name: test_creation_method
+    description: 'FC-NH-018: 角色创建方式单选'
+    steps:
+    - action: assert_element_exists
+      selector: .create-character, .add-character, text=创建角色
+      optional: true
+    - action: click
+      selector: text=创建角色, button:has-text('+角色'), .add-character
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .character-form, .modal, .dialog
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: text=模型生成, input[type='radio'][value*='model']
+      optional: true
+    - action: assert_element_exists
+      selector: text=自己上传, text=上传图片, input[type='radio'][value*='upload']
+      optional: true
+    - action: screenshot
+      name: creation_method_options
+      save_path: screenshots/naohai/fc_nh_018_creation_methods.png
+    - action: click
+      selector: text=模型生成, input[type='radio'][value*='model']
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .model-select, .model-options
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: .model-select, .model-options
+      optional: true
+    - action: click
+      selector: text=自己上传, text=上传图片, input[type='radio'][value*='upload']
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: input[type='file'], .upload-area
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: assert_element_exists
+      selector: input[type='file'], .upload-area
+      optional: true
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

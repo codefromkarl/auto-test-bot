@@ -1,0 +1,94 @@
+workflow:
+  description: 'FC-NH-028: 编辑提示词入口 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_028_rf
+  phases:
+  - description: 进入分镜管理页 (RF语义化）
+    metadata:
+      conversion_rate: 0.3333333333333333
+      selector_count: 3
+      semantic_action_count: 3
+    name: enter_storyboard_page
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: rf_enter_storyboard_management
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分镜, .storyboard-section
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: storyboard_page
+      save_path: screenshots/naohai/fc_nh_026_storyboard.png
+  - description: 'FC-NH-028: 编辑提示词入口 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 6
+      semantic_action_count: 0
+    name: test_edit_prompt
+    steps:
+    - action: assert_element_exists
+      optional: true
+      selector: .storyboard-item:has-text('测试分镜_${timestamp}') .prompt-edit, .storyboard-item:has-text('测试分镜_${timestamp}')
+        .edit-prompt
+    - action: click
+      optional: true
+      selector: .storyboard-item:has-text('测试分镜_${timestamp}') .prompt-edit
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition: &id001
+        selector: .prompt-editor, .modal:has-text('提示词'), .sidepanel
+        visible: true
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_element_exists
+      optional: true
+      selector: textarea[placeholder*='提示词'], .prompt-textarea
+    - action: assert_element_exists
+      optional: true
+      selector: text=保存, .save-prompt
+    - action: assert_element_exists
+      optional: true
+      selector: text=取消, .cancel-prompt
+    - action: screenshot
+      name: prompt_editor
+      save_path: screenshots/naohai/fc_nh_028_prompt.png
+    - action: click
+      optional: true
+      selector: text=取消, .close, .cancel-prompt
+      timeout: ${test.timeout.element_load}
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    optional: true
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

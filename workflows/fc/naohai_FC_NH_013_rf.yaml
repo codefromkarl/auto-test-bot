@@ -1,0 +1,66 @@
+workflow:
+  description: 'FC-NH-013: 新增分集入口 (RF版本)'
+  error_recovery:
+  - action: rf_enter_ai_creation
+    timeout: ${test.timeout.element_load}
+  - action: rf_ensure_story_exists
+    timeout: ${test.timeout.element_load}
+  name: naohai_FC_NH_013_rf
+  phases:
+  - description: 进入剧本详情/分集管理页 (RF语义化）
+    metadata:
+      conversion_rate: 0.25
+      selector_count: 2
+      semantic_action_count: 2
+    name: enter_story_detail
+    steps:
+    - action: open_page
+      timeout: ${test.timeout.page_load}
+      url: ${test.url}
+    - action: wait_for
+      condition: &id001
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: rf_enter_ai_creation
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: rf_ensure_story_exists
+      optional: true
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=分集, text=片段, text=episodes
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: story_detail_entered
+      save_path: screenshots/naohai/fc_nh_013_story_detail.png
+  - description: 'FC-NH-013: 新增分集入口 (RF语义化）'
+    metadata:
+      conversion_rate: 0.0
+      selector_count: 1
+      semantic_action_count: 0
+    name: add_episode_entry
+    steps:
+    - action: assert_element_exists
+      selector: text=添加片段, text=新增片段, text=添加分集, text=新增分集, button:has-text('+'),
+        .add-episode
+    - action: screenshot
+      name: add_episode_entry
+      save_path: screenshots/naohai/fc_nh_013_add_entry.png
+  success_criteria:
+  - 成功进入AI创作模块
+  - 业务逻辑验证通过
+  - RF语义化改进生效
+  - 向后兼容性保持
+  suite_setup:
+  - action: wait_for
+    condition: *id001
+    timeout: ${test.timeout.element_load}
+  version: rf-v1.0

@@ -1,0 +1,42 @@
+workflow:
+  name: "naohai_FC_NH_002"
+  description: "FC-NH-002: 剧本卡片展示测试"
+
+  phases:
+    - name: "enter_story_list"
+      description: "进入剧本列表页"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作")'
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+    - name: "verify_story_cards"
+      description: "验证剧本卡片展示元素"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:not(.add-item)"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "story_cards_display"
+          save_path: "screenshots/naohai/fc_nh_002_story_cards_display.png"

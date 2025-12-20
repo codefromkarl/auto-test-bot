@@ -1,0 +1,31 @@
+workflow:
+  name: "nowhi_basic_navigation"
+  description: "NowHi网站基础导航测试 - 验证网站可达性和页面加载"
+
+  phases:
+    - name: "site_accessibility"
+      description: "验证网站可访问性和页面基本结构"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "page_loaded"
+          description: "页面加载完成后的截图"
+          save_path: "screenshots/basic_navigation.png"
+
+  success_criteria:
+    - phase_success: "成功加载页面并检测到body元素"
+    - overall_success: "所有步骤成功完成"
+
+  data_requirements:
+    - test_url: "需要提供测试目标URL"
+    - test_timeout: "页面加载超时配置"
+    - screenshot_path: "截图保存路径配置"

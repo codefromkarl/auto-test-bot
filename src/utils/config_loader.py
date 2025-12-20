@@ -67,12 +67,10 @@ class ConfigLoader:
         if 'url' not in test_config:
             raise ValueError("测试配置缺少 URL")
 
-        if 'selectors' not in test_config:
-            raise ValueError("测试配置缺少选择器配置")
-
-        # 验证选择器配置
-        selectors = test_config['selectors']
-        required_selectors = [
+        # 选择器配置有两种合法形态：
+        # 1) 传统版：test.selectors（用于旧流程）
+        # 2) 新版：顶层 locators（用于 data-testid/度量主流程）
+        required_keys = [
             'prompt_input',
             'generate_image_button',
             'generate_video_button',
@@ -80,13 +78,28 @@ class ConfigLoader:
             'video_result'
         ]
 
-        for selector_name in required_selectors:
-            if selector_name not in selectors:
-                raise ValueError(f"缺少必需的选择器配置: {selector_name}")
+        selectors = test_config.get('selectors')
+        locators = self._config.get('locators')
 
-            selector_list = selectors[selector_name]
-            if not isinstance(selector_list, list) or len(selector_list) == 0:
-                raise ValueError(f"选择器配置格式错误: {selector_name}")
+        if isinstance(selectors, dict):
+            for key in required_keys:
+                if key not in selectors:
+                    raise ValueError(f"缺少必需的选择器配置: {key}")
+                selector_list = selectors[key]
+                if not isinstance(selector_list, list) or len(selector_list) == 0:
+                    raise ValueError(f"选择器配置格式错误: {key}")
+            return
+
+        if isinstance(locators, dict):
+            for key in required_keys:
+                if key not in locators:
+                    raise ValueError(f"缺少必需的定位器配置(locators): {key}")
+                locator_list = locators[key]
+                if not isinstance(locator_list, list) or len(locator_list) == 0:
+                    raise ValueError(f"定位器配置格式错误(locators): {key}")
+            return
+
+        raise ValueError("测试配置缺少选择器/定位器配置：需要提供 test.selectors 或 locators")
 
     def get(self, key: str, default: Any = None) -> Any:
         """
@@ -140,6 +153,10 @@ class ConfigLoader:
     def get_selectors(self) -> Dict[str, Any]:
         """获取选择器配置"""
         return self.get('test.selectors', {})
+
+    def get_failure_boundaries(self) -> Dict[str, Any]:
+        """获取失败边界配置"""
+        return self.get('failure_boundaries', {})
 
     def get_timeout(self, timeout_type: str = 'default') -> int:
         """

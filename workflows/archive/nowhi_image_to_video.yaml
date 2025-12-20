@@ -1,0 +1,63 @@
+workflow:
+  name: "nowhi_image_to_video"
+  description: "NowHi网站图像到视频生成测试 - 验证图像到视频转换功能"
+
+  phases:
+    - name: "prepare_video_generation"
+      description: "准备视频生成环境"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "${selectors.image_result} img[data-result='image']"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "click"
+          selector: "${selectors.generate_video_button}"
+          timeout: ${test.timeout.element_load}
+
+    - name: "generate_video"
+      description: "生成视频并等待结果"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "${selectors.video_result} video"
+            visible: true
+          timeout: ${test.timeout.video_generation}
+
+        - action: "screenshot"
+          name: "video_generated"
+          description: "视频生成完成后的截图"
+          save_path: "screenshots/video_generated.png"
+
+    - name: "verify_video"
+      description: "验证生成的视频内容"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "${selectors.video_result} video[data-result='video']"
+            attribute:
+              data-result: "video"
+            timeout: ${test.timeout.element_load}
+
+        - action: "extract_video_info"
+          description: "提取视频信息（时长、格式等）"
+          selector: "${selectors.video_result} video[data-result='video']"
+          attributes:
+            - "duration"
+            - "format"
+            - "size"
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "video_verified"
+          description: "视频验证完成后的截图"
+          save_path: "screenshots/video_verified.png"
+
+  success_criteria:
+    - phase_success: "成功生成视频并通过验证"
+    - overall_success: "完整的图像到视频流程成功"
+
+  data_requirements:
+    - test_timeout: "视频生成专用超时配置"
+    - screenshot_path: "视频截图保存路径配置"

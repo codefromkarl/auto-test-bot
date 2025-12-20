@@ -1,0 +1,51 @@
+workflow:
+  name: "naohai_FC_NH_037_rf"
+  description: "FC-NH-037: 绑定多个角色（≤3）(RF版本)"
+  version: "rf-v1.0"
+
+  # RF语义化：公共路径收束
+  suite_setup:
+    - action: "rf_enter_ai_creation"
+      timeout: ${test.timeout.element_load}
+
+    - action: "rf_ensure_story_exists"
+      timeout: ${test.timeout.element_load}
+
+    - action: "rf_open_first_story_card"
+      timeout: ${test.timeout.element_load}
+
+    - action: "rf_enter_storyboard_management"
+      timeout: ${test.timeout.element_load}
+
+  # RF语义化：专注于业务逻辑
+  phases:
+    - name: "bind_characters"
+      description: "绑定多个角色（最多3个）"
+      steps:
+        # RF语义化：角色绑定逻辑
+        - action: "rf_bind_characters"
+          max_characters: 3
+          timeout: ${test.timeout.element_load}
+
+        # 验证绑定结果
+        - action: "assert_element_exists"
+          selector: "[data-testid='character-binding-result']"
+          timeout: ${test.timeout.element_load}
+
+        # 诊断截图
+        - action: "screenshot"
+          name: "character_binding_result_rf"
+          save_path: "screenshots/naohai/fc_nh_037_character_binding_rf.png"
+
+  # RF语义化：业务成功标准
+  success_criteria:
+    - "成功进入分镜管理页面"
+    - "成功绑定至少1个角色（最多3个）"
+    - "绑定结果正确显示"
+    - "截图保存成功"
+
+  # RF语义化：错误恢复策略
+  error_recovery:
+    - action: "rf_enter_storyboard_management"
+    - action: "rf_bind_characters"
+      max_characters: 1  # 降级：只绑定1个角色

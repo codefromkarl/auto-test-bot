@@ -1,0 +1,70 @@
+workflow:
+  name: "nowhi_text_to_image"
+  description: "NowHi网站文本到图像生成测试 - 验证提示词输入和图像生成功能"
+
+  phases:
+    - name: "prepare_generation"
+      description: "准备图像生成环境"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "${selectors.prompt_input}"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "clear_input"
+          selector: "${selectors.prompt_input}"
+          clear: true
+
+        - action: "input"
+          selector: "${selectors.prompt_input}"
+          text: "${test.prompt}"
+          clear: false
+
+        - action: "screenshot"
+          name: "prompt_entered"
+          description: "输入提示词后的截图"
+          save_path: "screenshots/prompt_entered.png"
+
+    - name: "generate_image"
+      description: "生成图像并等待结果"
+      steps:
+        - action: "click"
+          selector: "${selectors.generate_image_button}"
+          timeout: ${test.timeout.element_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "${selectors.image_result} img"
+            visible: true
+          timeout: ${test.timeout.image_generation}
+
+        - action: "screenshot"
+          name: "image_generated"
+          description: "图像生成完成后的截图"
+          save_path: "screenshots/image_generated.png"
+
+    - name: "verify_image"
+      description: "验证生成的图像内容"
+      steps:
+        - action: "wait_for"
+          condition:
+            selector: "${selectors.image_result}"
+            attribute:
+              data-result: "image"
+            timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "image_verified"
+          description: "图像验证完成后的截图"
+          save_path: "screenshots/image_verified.png"
+
+  success_criteria:
+    - phase_success: "成功生成图像并通过验证"
+    - overall_success: "完整的文本到图像流程成功"
+
+  data_requirements:
+    - test_prompt: "测试用的提示词文本"
+    - test_timeout: "各阶段超时配置"
+    - selectors: "所有页面元素选择器配置"
+    - screenshot_path: "截图保存路径配置"

@@ -1,0 +1,96 @@
+workflow:
+  name: naohai_FC_NH_043
+  description: 'FC-NH-043: 制作模式'
+  phases:
+  - name: enter_video_creation
+    description: 'FC-NH-042: 从分镜进入视频创作页'
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: assert_element_exists
+      selector: text=视频创作, .video-create, button:has-text('视频')
+      optional: true
+    - action: click
+      selector: text=视频创作, .video-create
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=视频创作, .video-creation-page
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: video_creation_page
+      save_path: screenshots/naohai/fc_nh_042_video_page.png
+    - action: assert_element_exists
+      selector: .storyboard-context, .selected-shot
+      optional: true
+  - name: production_mode
+    description: 'FC-NH-043: 制作模式'
+    steps:
+    - action: assert_element_exists
+      selector: text=图生视频, .image-to-video
+      optional: true
+    - action: assert_element_exists
+      selector: text=首尾帧视频, .frame-to-video
+      optional: true
+    - action: assert_element_selected
+      selector: text=图生视频, .image-to-video
+      optional: true
+    - action: click
+      selector: text=首尾帧视频, .frame-to-video
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .frame-upload, .start-end-frame
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: frame_to_video_mode
+      save_path: screenshots/naohai/fc_nh_043_frame_mode.png
+    - action: click
+      selector: text=图生视频, .image-to-video
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: .image-input, .prompt-input
+        visible: true
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: screenshot
+      name: image_to_video_mode
+      save_path: screenshots/naohai/fc_nh_043_image_mode.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

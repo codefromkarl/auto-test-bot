@@ -1,0 +1,72 @@
+workflow:
+  name: naohai_FC_NH_046
+  description: 'FC-NH-046: 描述'
+  phases:
+  - name: enter_video_creation
+    description: 'FC-NH-042: 从分镜进入视频创作页'
+    steps:
+    - action: open_page
+      url: ${test.url}
+      timeout: ${test.timeout.page_load}
+    - action: wait_for
+      condition:
+        selector: body
+        visible: true
+      timeout: ${test.timeout.element_load}
+    - action: assert_logged_in
+    - action: click
+      selector: .nav-routerTo-item:has-text("AI创作")
+      timeout: ${test.timeout.element_load}
+    - action: wait_for
+      condition:
+        selector: text=剧本列表
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: click
+      selector: div.list-item:not(.add-item)
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: click
+      selector: text=分镜管理
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=分镜
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: assert_element_exists
+      selector: text=视频创作, .video-create, button:has-text('视频')
+      optional: true
+    - action: click
+      selector: text=视频创作, .video-create
+      timeout: ${test.timeout.element_load}
+      optional: true
+    - action: wait_for
+      condition:
+        selector: text=视频创作, .video-creation-page
+        visible: true
+      timeout: ${test.timeout.page_load}
+    - action: screenshot
+      name: video_creation_page
+      save_path: screenshots/naohai/fc_nh_042_video_page.png
+    - action: assert_element_exists
+      selector: .storyboard-context, .selected-shot
+      optional: true
+  - name: video_description
+    description: 'FC-NH-046: 描述'
+    steps:
+    - action: assert_element_exists
+      selector: textarea[placeholder*='描述'], .video-description
+      optional: true
+    - action: input
+      selector: textarea[placeholder*='描述']
+      text: 这是一个自动化测试生成的视频，用于验证视频创作功能。
+      clear: true
+      optional: true
+    - action: screenshot
+      name: fc_nh_046
+      save_path: screenshots/naohai/fc_nh_046_desc.png
+  type: write
+  coverage_level: L3
+  test_account: 专用测试账号

@@ -1,0 +1,27 @@
+# 公共前置模板：进入分镜管理页
+# 用于所有需要进入分镜管理的FC用例
+
+name: "enter_storyboard"
+description: "打开站点→进入剧本列表→点击第一个剧本→进入分镜管理"
+
+prerequisite: "enter_story_list"
+
+steps:
+  # 选择第一个剧本（非添加项）
+  - action: "click"
+    selector: "div.list-item:not(.add-item):first-child"
+    timeout: ${test.timeout.element_load}
+
+  # 点击分镜管理
+  - action: "click"
+    selector: "text=分镜管理"
+    timeout: ${test.timeout.element_load}
+
+  - action: "wait_for"
+    condition:
+      selector: "text=分镜管理"
+      visible: true
+    timeout: ${test.timeout.page_load}
+
+  - action: "screenshot"
+    name: "storyboard_reached"
