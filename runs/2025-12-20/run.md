@@ -171,3 +171,23 @@
 
 ## Results
 - 已删除标签：component:service-endpoint-9020-etc-
+
+## Context
+- Task: 提交 run.md 记录（标签清理）
+
+## Commands
+- git -C /home/yuanzhi/Develop/NowHi/auto-test-bot add runs/2025-12-20/run.md
+- git -C /home/yuanzhi/Develop/NowHi/auto-test-bot commit -m "Remove invalid component label"
+
+## Results
+- 已提交改动：Remove invalid component label
+
+## Context
+- Task: 批量为存量 Issue 补打路由标签
+
+## Commands
+- python /home/yuanzhi/Develop/NowHi/auto-test-bot/scripts/label_existing_issues.py (timeout)
+- python /home/yuanzhi/Develop/NowHi/auto-test-bot/scripts/label_existing_issues.py
+
+## Results
+- 更新完成：新增/补齐路由标签的 Issue 数量 = 13
