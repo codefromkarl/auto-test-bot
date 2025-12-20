@@ -144,3 +144,30 @@
 
 ## Results
 - 已提交改动：Add bug form routing fields and issue auto-label
+
+## Context
+- Task: 补充 run.md 记录（提交日志）
+
+## Commands
+- git -C /home/yuanzhi/Develop/NowHi/auto-test-bot add runs/2025-12-20/run.md
+- git -C /home/yuanzhi/Develop/NowHi/auto-test-bot commit -m "Update run log for issue 30"
+
+## Results
+- 已提交改动：Update run log for issue 30
+
+## Context
+- Task: 获取变更行号（用于报告引用）
+
+## Commands
+- rg -n "component|ai_action" /home/yuanzhi/Develop/NowHi/auto-test-bot/.github/ISSUE_TEMPLATE/bug.yaml
+- rg -n "extractField|routeByComponent|component" /home/yuanzhi/Develop/NowHi/auto-test-bot/.github/workflows/issue-auto-label.yml
+- wc -l /home/yuanzhi/Develop/NowHi/auto-test-bot/.github/ISSUE_TEMPLATE/bug.yaml /home/yuanzhi/Develop/NowHi/auto-test-bot/.github/workflows/issue-auto-label.yml /home/yuanzhi/Develop/NowHi/auto-test-bot/.ai/index.md /home/yuanzhi/Develop/NowHi/auto-test-bot/.ai/issues/ISSUE-30.md /home/yuanzhi/Develop/NowHi/auto-test-bot/runs/2025-12-20/run.md /home/yuanzhi/Develop/NowHi/auto-test-bot/runs/2025-12-20/issue-28-body.md
+
+## Context
+- Task: 删除误建标签 component:service-endpoint-9020-etc-
+
+## Commands
+- gh label delete "component:service-endpoint-9020-etc-" --yes
+
+## Results
+- 已删除标签：component:service-endpoint-9020-etc-
