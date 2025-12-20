@@ -16,6 +16,36 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: component
+    attributes:
+      label: 🧩 Component（组件/归类）
+      description: 选择最贴近的类别，便于自动路由
+      options:
+        - runner / workflow
+        - robot tests
+        - parallel executor
+        - auth / token
+        - service / endpoint (9020 etc.)
+        - data / fixtures
+        - CI / GitHub Actions
+        - spec ambiguity / process
+        - unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ai_action
+    attributes:
+      label: 🤖 AI Action（自动处理策略）
+      description: 默认建议 analysis-only；仅在你确认安全可改代码时选 auto-fix
+      options:
+        - analysis-only
+        - auto-fix (safe)
+        - manual-only
+    validations:
+      required: true
+
   - type: textarea
     id: repro
     attributes:
