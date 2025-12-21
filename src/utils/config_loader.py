@@ -8,6 +8,8 @@ import yaml
 import logging
 from typing import Dict, Any, Optional
 
+from .locator_hierarchy import LocatorHierarchyCompiler
+
 
 class ConfigLoader:
     """配置加载器"""
@@ -91,6 +93,7 @@ class ConfigLoader:
             return
 
         if isinstance(locators, dict):
+            locators = self._compile_locators_if_needed(locators)
             for key in required_keys:
                 if key not in locators:
                     raise ValueError(f"缺少必需的定位器配置(locators): {key}")
@@ -158,6 +161,10 @@ class ConfigLoader:
         """获取失败边界配置"""
         return self.get('failure_boundaries', {})
 
+    def get_locators(self) -> Dict[str, Any]:
+        """获取定位器配置（已编译）"""
+        return self.get('locators', {})
+
     def get_timeout(self, timeout_type: str = 'default') -> int:
         """
         获取超时配置
@@ -178,6 +185,17 @@ class ConfigLoader:
         """重新加载配置文件"""
         self._config = None
         return self.load_config()
+
+    def _compile_locators_if_needed(self, locators: Dict[str, Any]) -> Dict[str, Any]:
+        compiler = LocatorHierarchyCompiler(locators)
+        if compiler.hierarchy is None:
+            return locators
+
+        compiled = compiler.compile()
+        self._config['locators_hierarchy'] = locators
+        self._config['locators_compiled'] = compiled
+        self._config['locators'] = compiled
+        return compiled
 
 
 class MCPConfigLoader:
