@@ -3,6 +3,7 @@
 
 | ID | Title | Status | Project Status | Assignee |
 |---|---|---|---|---|
+| [AUTO-1766320095](issues/ISSUE-AUTO-1766320095.md) | [Task] 选择器层级优化 | OPEN | Todo |  |
 | [20](issues/ISSUE-20.md) | [Bug] NH-SMOKE-001 Execution Failed | OPEN | Todo |  |
 | [21](issues/ISSUE-21.md) | [Task] Execute NH-CREATE-001: NH-CREATE-001 闹海剧本创建与资源准备 | OPEN | Todo |  |
 | [22](issues/ISSUE-22.md) | [Task] Execute NH-E2E-001: NH-E2E-001 闹海完整创作流程端到端测试 | OPEN | Todo |  |

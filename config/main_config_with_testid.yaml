@@ -16,229 +16,494 @@ test:
   # 测试提示词
   test_prompt: "一只可爱的猫咪在花园里玩耍，阳光明媚，花朵盛开"
 
-# Data-TestId 定位策略配置（唯一真源）
+# Data-TestId 定位策略配置（层级化，唯一真源）
 locators:
-  # 导航相关
-  nav_home_tab:
-    - "[data-testid='nav-home-tab']"
-    - "[data-testid*='home'][data-testid*='tab']"
-    - "a:has-text('首页')"
-    - ".nav-item:has-text('首页')"
+  # === 层级1: 基础骨架 (Base Layer) ===
+  base:
+    navigation:
+      nav_home_tab:
+        - "[data-testid='nav-home-tab']"
+        - "[data-testid*='home'][data-testid*='tab']"
+        - "a:has-text('首页')"
+        - ".nav-item:has-text('首页')"
+      nav_ai_create_tab:
+        - "[data-testid='nav-ai-create-tab']"
+        - "[data-testid*='ai'][data-testid*='create']"
+        - "a:has-text('AI创作')"
+        - "button:has-text('AI创作')"
+        - ".nav-item:has-text('AI创作')"
+      nav_text_image_tab:
+        - "[data-testid='nav-text-image-tab']"
+        - "[data-testid*='text'][data-testid*='image']"
+        - "a:has-text('文生图')"
+        - "button:has-text('文生图')"
+        - ".nav-item:has-text('文生图')"
+      nav_ai_tools_tab:
+        - "[data-testid='nav-ai-tools-tab']"
+        - "a:has-text('AI工具')"
+        - ".nav-item:has-text('AI工具')"
+    feedback:
+      loading_indicator:
+        - "[data-testid='loading-indicator']"
+        - "[data-testid='loading']"
+        - "[data-testid='spinner']"
+        - ".loading"
+        - ".spinner"
+        - "[data-loading='true']"
+        - ".arco-spin"
+      loading_text:
+        - "[data-testid='loading-text']"
+        - "[data-testid='loading-message']"
+        - ".loading-text"
+        - "text=正在生成"
+        - "text=AI正在创作"
+      progress_bar:
+        - "[data-testid='progress-bar']"
+        - "[data-testid='progress']"
+        - ".progress-bar"
+        - ".arco-progress"
+      error_message:
+        - "[data-testid='error-message']"
+        - "[data-testid='error']"
+        - "[data-testid='alert']"
+        - ".error-message"
+        - ".arco-message-error"
+        - "[role='alert']"
+      success_message:
+        - "[data-testid='success-message']"
+        - "[data-testid='success']"
+        - ".success-message"
+        - ".arco-message-success"
+      toast_message:
+        - "[data-testid='toast']"
+        - "[data-testid='message']"
+        - ".arco-message"
+        - ".toast"
+    aigc_core:
+      workspace_area:
+        - "[data-testid='workspace']"
+        - ".workspace-container"
+      history_panel:
+        - "[data-testid='history']"
+        - ".history-sidebar"
+      collaboration:
+        - "[data-testid='collab-panel']"
+        - ".collaboration-tools"
+      layout:
+        main_content:
+          - "[data-testid='main-content']"
+          - "[data-testid='content']"
+          - "main"
+          - ".main-content"
+          - ".arco-layout-content"
+        sidebar:
+          - "[data-testid='sidebar']"
+          - "[data-testid='side-menu']"
+          - ".sidebar"
+          - ".arco-layout-sider"
+        header:
+          - "[data-testid='header']"
+          - "[data-testid='navbar']"
+          - "header"
+          - ".header"
+          - ".arco-layout-header"
+      forms:
+        form_group:
+          - "[data-testid='form-group']"
+          - ".form-group"
+          - ".arco-form-item"
+        input_label:
+          - "[data-testid='input-label']"
+          - ".arco-form-item-label"
+          - "label"
+      modals:
+        modal:
+          - "[data-testid='modal']"
+          - "[data-testid='dialog']"
+          - ".arco-modal"
+          - ".modal"
+          - "[role='dialog']"
+        modal_close:
+          - "[data-testid='modal-close']"
+          - "[data-testid='close']"
+          - ".arco-modal-close"
+          - "button[aria-label='Close']"
+        dropdown:
+          - "[data-testid='dropdown']"
+          - "[data-testid='select']"
+          - ".arco-dropdown"
+          - ".arco-select"
+      results:
+        result_container:
+          - "[data-testid='result-container']"
+          - "[data-testid='results']"
+          - ".result-area"
+          - ".results-container"
 
-  nav_ai_create_tab:
-    - "[data-testid='nav-ai-create-tab']"
-    - "[data-testid*='ai'][data-testid*='create']"
-    - "a:has-text('AI创作')"
-    - "button:has-text('AI创作')"
-    - ".nav-item:has-text('AI创作')"
+  # === 层级2: 功能域分组 (Functional Groups) ===
+  groups:
+    prompt_engine:
+      extends: base.aigc_core
+      input_area:
+        main_input:
+          - "[data-testid='prompt-input']"
+          - "[data-testid='prompt-textarea']"
+          - "[data-testid='ai-create-prompt']"
+          - "textarea[placeholder*='提示']"
+          - "textarea[placeholder*='描述']"
+          - ".arco-textarea"
+          - "textarea:first-of-type"
+        prompt_textarea:
+          - "[data-testid='prompt-textarea']"
+          - "[data-testid='textarea']"
+          - "textarea[placeholder*='请输入']"
+          - ".arco-textarea-large"
+        clear_button:
+          - "[data-testid='clear-button']"
+          - "[data-testid='clear-btn']"
+          - "button:has-text('清空')"
+          - "button:has-text('清除')"
+          - ".arco-btn:has-text('清空')"
+        submit_button:
+          - "[data-testid='submit-button']"
+          - "[data-testid='form-submit']"
+          - "button[type='submit']"
+          - ".arco-btn-primary[type='submit']"
+        word_count:
+          - "[data-testid='word-count']"
+          - ".character-counter"
+      optimization:
+        style_selector:
+          - "[data-testid='style-selector']"
+          - "[data-testid='art-style']"
+          - ".style-selector"
+          - "select:has-text('风格')"
+        model_switcher:
+          - "[data-testid='model-switch']"
+          - ".model-picker"
+        history_suggestions:
+          - "[data-testid='prompt-history']"
+          - ".suggestion-list"
 
-  nav_text_image_tab:
-    - "[data-testid='nav-text-image-tab']"
-    - "[data-testid*='text'][data-testid*='image']"
-    - "a:has-text('文生图')"
-    - "button:has-text('文生图')"
-    - ".nav-item:has-text('文生图')"
+    image_studio:
+      extends: groups.prompt_engine
+      parameters:
+        aspect_ratio:
+          - "[data-testid='aspect-ratio']"
+          - ".ratio-selector"
+          - "[data-testid='size-selector']"
+          - "[data-testid='image-size']"
+          - ".size-selector"
+          - "select:has-text('尺寸')"
+        quality_setting:
+          - "[data-testid='quality']"
+          - "[data-testid='quality-selector']"
+          - "[data-testid='image-quality']"
+          - ".quality-control"
+          - ".quality-selector"
+          - "select:has-text('质量')"
+        style_mode:
+          - "[data-testid='style-mode']"
+          - ".style-picker"
+      generation:
+        generate_button:
+          - "[data-testid='generate-image-button']"
+          - "[data-testid='generate-button']"
+          - "[data-testid='text-image-generate']"
+          - "button:has-text('生成图片')"
+          - "button:has-text('生成')"
+          - ".arco-btn-primary:has-text('图片')"
+          - "button[type='submit']"
+        cancel_button:
+          - "[data-testid='cancel-generation']"
+          - ".cancel-gen"
+        image_result:
+          - "[data-testid='image-result']"
+          - "[data-testid='result-image']"
+          - "[data-testid='generated-image']"
+          - ".image-result"
+          - ".generated-image"
+          - "img[alt*='生成']"
+          - "img[src*='result']"
+        generated_image:
+          - "[data-testid='generated-image']"
+          - "img[data-testid='generated-image']"
+          - "#image-result img"
+      editing:
+        canvas_area:
+          - "[data-testid='image-canvas']"
+          - ".image-editor"
+        tool_panel:
+          - "[data-testid='edit-tools']"
+          - ".tools-panel"
+        adjustment_sliders:
+          - "[data-testid='adjustments']"
+          - ".slider-group"
 
-  nav_ai_tools_tab:
-    - "[data-testid='nav-ai-tools-tab']"
-    - "a:has-text('AI工具')"
-    - ".nav-item:has-text('AI工具')"
+    video_workflow:
+      extends: groups.prompt_engine
+      timeline:
+        main_timeline:
+          - "[data-testid='video-timeline']"
+          - ".timeline-container"
+        scene_markers:
+          - "[data-testid='scene-markers']"
+          - ".marker-track"
+        playback_controls:
+          - "[data-testid='playback']"
+          - ".playback-controls"
+      parameters:
+        duration_control:
+          - "[data-testid='duration']"
+          - ".duration-slider"
+        fps_setting:
+          - "[data-testid='fps']"
+          - ".fps-selector"
+        resolution:
+          - "[data-testid='resolution']"
+          - ".resolution-picker"
+      rendering:
+        render_button:
+          - "[data-testid='generate-video-button']"
+          - "[data-testid='video-generate']"
+          - "button:has-text('生成视频')"
+          - "button:has-text('视频')"
+          - ".arco-btn-secondary:has-text('视频')"
+        progress_bar:
+          - "[data-testid='render-progress']"
+          - ".render-progress"
+        video_result:
+          - "[data-testid='video-result']"
+          - "[data-testid='result-video']"
+          - "[data-testid='generated-video']"
+          - ".video-result"
+          - ".generated-video"
+          - "video[controls]"
+          - "video[src*='result']"
+        generated_video:
+          - "[data-testid='generated-video']"
+          - "video[data-testid='generated-video']"
+          - "#video-result video"
+        export_options:
+          - "[data-testid='export-options']"
+          - ".export-panel"
 
-  # 输入相关
-  prompt_input:
-    - "[data-testid='prompt-input']"
-    - "[data-testid='prompt-textarea']"
-    - "[data-testid='ai-create-prompt']"
-    - "textarea[placeholder*='提示']"
-    - "textarea[placeholder*='描述']"
-    - ".arco-textarea"
-    - "textarea:first-of-type"
+  # === 层级3: 页面上下文映射 (Page Context Mapping) ===
+  page_mapping:
+    home:
+      extends: base
+      context:
+        - "navigation"
+        - "feedback"
+    text_to_image:
+      extends: groups.image_studio
+      context:
+        - "prompt_engine.input_area"
+        - "image_studio.parameters"
+        - "image_studio.generation"
+    image_editor:
+      extends: groups.image_studio
+      context:
+        - "image_studio.editing"
+        - "prompt_engine.optimization"
+    text_to_video:
+      extends: groups.video_workflow
+      context:
+        - "prompt_engine.input_area"
+        - "video_workflow.timeline"
+        - "video_workflow.parameters"
+    video_editor:
+      extends: groups.video_workflow
+      context:
+        - "video_workflow.timeline"
+        - "video_workflow.rendering"
+    creative_workspace:
+      extends:
+        - groups.image_studio
+        - groups.video_workflow
+      context:
+        - "prompt_engine.input_area"
+        - "image_studio.editing"
+        - "video_workflow.timeline"
+        - "video_workflow.rendering"
 
-  prompt_textarea:
-    - "[data-testid='prompt-textarea']"
-    - "[data-testid='textarea']"
-    - "textarea[placeholder*='请输入']"
-    - ".arco-textarea-large"
+  # === 层级4: 智能加载策略 (Smart Loading Strategy) ===
+  loading_strategy:
+    anchor_elements:
+      text_to_image:
+        primary:
+          - "prompt_engine.input_area.main_input"
+          - "aigc_core.workspace_area"
+        secondary:
+          - "image_studio.parameters.aspect_ratio"
+        tertiary:
+          - "image_studio.generation.generate_button"
+      video_editor:
+        primary:
+          - "video_workflow.timeline.main_timeline"
+          - "aigc_core.workspace_area"
+        secondary:
+          - "video_workflow.parameters.duration_control"
+        tertiary:
+          - "video_workflow.rendering.render_button"
+    progressive_loading:
+      image_generation_phase:
+        delayed_groups:
+          - "video_workflow"
+        early_groups:
+          - "prompt_engine"
+          - "image_studio"
+      video_rendering_phase:
+        deprioritized:
+          - "image_studio.editing"
+        prioritized:
+          - "video_workflow.timeline"
+          - "video_workflow.rendering"
 
-  # 按钮相关
-  generate_image_button:
-    - "[data-testid='generate-image-button']"
-    - "[data-testid='generate-button']"
-    - "[data-testid='text-image-generate']"
-    - "button:has-text('生成图片')"
-    - "button:has-text('生成')"
-    - ".arco-btn-primary:has-text('图片')"
-    - "button[type='submit']"
+  # === 层级5: 性能优化配置 (Performance Optimization) ===
+  performance:
+    timeout_allocation:
+      core_components:
+        timeout: 3000
+        priority: "high"
+      generation_components:
+        timeout: 8000
+        priority: "medium"
+      editing_components:
+        timeout: 12000
+        priority: "low"
+    caching:
+      page_level_cache:
+        text_to_image:
+          - "prompt_engine.input_area"
+          - "image_studio.parameters"
+        video_editor:
+          - "video_workflow.timeline"
+          - "video_workflow.parameters"
+      dynamic_priority:
+        on_success: "increase_priority_by_10%"
+        on_timeout: "decrease_priority_by_20%"
+        max_adjustment: "50%"
 
-  generate_video_button:
-    - "[data-testid='generate-video-button']"
-    - "[data-testid='video-generate']"
-    - "button:has-text('生成视频')"
-    - "button:has-text('视频')"
-    - ".arco-btn-secondary:has-text('视频')"
+  # === 层级6: 智能选择器语义化 (Smart Selector Semantics) ===
+  semantic_isolation:
+    data_mode_selectors:
+      container_modes:
+        image_mode: "[data-mode='image']"
+        video_mode: "[data-mode='video']"
+        mixed_mode: "[data-mode='mixed']"
+      mode_specific:
+        image_generation_button: "[data-mode='image'] [data-testid='generate-button']"
+        video_render_button: "[data-mode='video'] [data-testid='render-button']"
+    state_aware_selectors:
+      generation_states:
+        idle: "[data-generation-state='idle'] .generate-btn"
+        processing: "[data-generation-state='processing'] .cancel-btn"
+        completed: "[data-generation-state='completed'] .save-btn"
+      functional_selectors:
+        prompt_enhancement: "[data-function='enhance-prompt']"
+        style_transfer: "[data-function='style-transfer']"
+        video_composition: "[data-function='compose-video']"
 
-  clear_button:
-    - "[data-testid='clear-button']"
-    - "[data-testid='clear-btn']"
-    - "button:has-text('清空')"
-    - "button:has-text('清除')"
-    - ".arco-btn:has-text('清空')"
+  # === 兼容别名 (Flat Locators Compatibility) ===
+  aliases:
+    nav_home_tab: "navigation.nav_home_tab"
+    nav_ai_create_tab: "navigation.nav_ai_create_tab"
+    nav_text_image_tab: "navigation.nav_text_image_tab"
+    nav_ai_tools_tab: "navigation.nav_ai_tools_tab"
+    prompt_input: "prompt_engine.input_area.main_input"
+    prompt_textarea: "prompt_engine.input_area.prompt_textarea"
+    clear_button: "prompt_engine.input_area.clear_button"
+    submit_button: "prompt_engine.input_area.submit_button"
+    generate_image_button: "image_studio.generation.generate_button"
+    generate_video_button: "video_workflow.rendering.render_button"
+    image_result: "image_studio.generation.image_result"
+    generated_image: "image_studio.generation.generated_image"
+    video_result: "video_workflow.rendering.video_result"
+    generated_video: "video_workflow.rendering.generated_video"
+    result_container: "aigc_core.results.result_container"
+    loading_indicator: "feedback.loading_indicator"
+    loading_text: "feedback.loading_text"
+    progress_bar: "feedback.progress_bar"
+    error_message: "feedback.error_message"
+    success_message: "feedback.success_message"
+    toast_message: "feedback.toast_message"
+    main_content: "aigc_core.layout.main_content"
+    sidebar: "aigc_core.layout.sidebar"
+    header: "aigc_core.layout.header"
+    form_group: "aigc_core.forms.form_group"
+    input_label: "aigc_core.forms.input_label"
+    modal: "aigc_core.modals.modal"
+    modal_close: "aigc_core.modals.modal_close"
+    dropdown: "aigc_core.modals.dropdown"
+    style_selector: "prompt_engine.optimization.style_selector"
+    size_selector: "image_studio.parameters.aspect_ratio"
+    quality_selector: "image_studio.parameters.quality_setting"
 
-  submit_button:
-    - "[data-testid='submit-button']"
-    - "[data-testid='form-submit']"
-    - "button[type='submit']"
-    - ".arco-btn-primary[type='submit']"
+# 运行时上下文切换机制
+page_detection:
+  url_patterns:
+    text_to_image:
+      - "/create/image"
+      - "/text-to-image"
+      - "/t2i"
+    image_editor:
+      - "/edit/image"
+      - "/image-editor"
+      - "/img-edit"
+    video_editor:
+      - "/edit/video"
+      - "/video-editor"
+      - "/vid-edit"
+    creative_workspace:
+      - "/workspace"
+      - "/studio"
+      - "/create"
+  dom_features:
+    text_to_image:
+      required_elements:
+        - "[data-testid='prompt-input']"
+        - "[data-testid='aspect-ratio']"
+      forbidden_elements:
+        - "[data-testid='video-timeline']"
+    video_editor:
+      required_elements:
+        - "[data-testid='video-timeline']"
+        - "[data-testid='fps']"
+      forbidden_elements:
+        - "[data-testid='image-canvas']"
 
-  # 结果展示相关
-  image_result:
-    - "[data-testid='image-result']"
-    - "[data-testid='result-image']"
-    - "[data-testid='generated-image']"
-    - ".image-result"
-    - ".generated-image"
-    - "img[alt*='生成']"
-    - "img[src*='result']"
-
-  generated_image:
-    - "[data-testid='generated-image']"
-    - "img[data-testid='generated-image']"
-    - "#image-result img"
-
-  video_result:
-    - "[data-testid='video-result']"
-    - "[data-testid='result-video']"
-    - "[data-testid='generated-video']"
-    - ".video-result"
-    - ".generated-video"
-    - "video[controls]"
-    - "video[src*='result']"
-
-  generated_video:
-    - "[data-testid='generated-video']"
-    - "video[data-testid='generated-video']"
-    - "#video-result video"
-
-  result_container:
-    - "[data-testid='result-container']"
-    - "[data-testid='results']"
-    - ".result-area"
-    - ".results-container"
-
-  # 状态指示器
-  loading_indicator:
-    - "[data-testid='loading-indicator']"
-    - "[data-testid='loading']"
-    - "[data-testid='spinner']"
-    - ".loading"
-    - ".spinner"
-    - "[data-loading='true']"
-    - ".arco-spin"
-
-  loading_text:
-    - "[data-testid='loading-text']"
-    - "[data-testid='loading-message']"
-    - ".loading-text"
-    - "text=正在生成"
-    - "text=AI正在创作"
-
-  progress_bar:
-    - "[data-testid='progress-bar']"
-    - "[data-testid='progress']"
-    - ".progress-bar"
-    - ".arco-progress"
-
-  # 错误和提示
-  error_message:
-    - "[data-testid='error-message']"
-    - "[data-testid='error']"
-    - "[data-testid='alert']"
-    - ".error-message"
-    - ".arco-message-error"
-    - "[role='alert']"
-
-  success_message:
-    - "[data-testid='success-message']"
-    - "[data-testid='success']"
-    - ".success-message"
-    - ".arco-message-success"
-
-  toast_message:
-    - "[data-testid='toast']"
-    - "[data-testid='message']"
-    - ".arco-message"
-    - ".toast"
-
-  # 布局和容器
-  main_content:
-    - "[data-testid='main-content']"
-    - "[data-testid='content']"
-    - "main"
-    - ".main-content"
-    - ".arco-layout-content"
-
-  sidebar:
-    - "[data-testid='sidebar']"
-    - "[data-testid='side-menu']"
-    - ".sidebar"
-    - ".arco-layout-sider"
-
-  header:
-    - "[data-testid='header']"
-    - "[data-testid='navbar']"
-    - "header"
-    - ".header"
-    - ".arco-layout-header"
-
-  # 表单相关
-  form_group:
-    - "[data-testid='form-group']"
-    - ".form-group"
-    - ".arco-form-item"
-
-  input_label:
-    - "[data-testid='input-label']"
-    - ".arco-form-item-label"
-    - "label"
-
-  # 模态框和弹窗
-  modal:
-    - "[data-testid='modal']"
-    - "[data-testid='dialog']"
-    - ".arco-modal"
-    - ".modal"
-    - "[role='dialog']"
-
-  modal_close:
-    - "[data-testid='modal-close']"
-    - "[data-testid='close']"
-    - ".arco-modal-close"
-    - "button[aria-label='Close']"
-
-  dropdown:
-    - "[data-testid='dropdown']"
-    - "[data-testid='select']"
-    - ".arco-dropdown"
-    - ".arco-select"
-
-  # AI创作页面特有元素
-  style_selector:
-    - "[data-testid='style-selector']"
-    - "[data-testid='art-style']"
-    - ".style-selector"
-    - "select:has-text('风格')"
-
-  size_selector:
-    - "[data-testid='size-selector']"
-    - "[data-testid='image-size']"
-    - ".size-selector"
-    - "select:has-text('尺寸')"
-
-  quality_selector:
-    - "[data-testid='quality-selector']"
-    - "[data-testid='image-quality']"
-    - ".quality-selector"
-    - "select:has-text('质量')"
+context_activation:
+  activation_rules:
+    text_to_image:
+      active_groups:
+        - "prompt_engine"
+        - "image_studio"
+      inactive_groups:
+        - "video_workflow"
+    video_editor:
+      active_groups:
+        - "prompt_engine"
+        - "video_workflow"
+      inactive_groups:
+        - "image_studio"
+    creative_workspace:
+      active_groups:
+        - "prompt_engine"
+        - "image_studio"
+        - "video_workflow"
+      inactive_groups: []
+  state_based_adjustment:
+    when_generating_image:
+      hide_selectors:
+        - "video_workflow.*"
+      boost_selectors:
+        - "image_studio.generation.*"
+    when_rendering_video:
+      hide_selectors:
+        - "image_studio.editing.*"
+      boost_selectors:
+        - "video_workflow.rendering.*"
 
 # 测试步骤配置（使用新定位器）
 steps:
