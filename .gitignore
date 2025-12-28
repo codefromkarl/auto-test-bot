@@ -78,9 +78,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Test artifacts
-screenshots/
 test_results/
-*.png
 *.jpg
 *.jpeg
 
@@ -99,6 +97,7 @@ config/*.secrets.yaml
 .opencode/*
 .qwen/*
 reports/*
+.worktrees/
 test/
 tests/
 test_artifacts/*
