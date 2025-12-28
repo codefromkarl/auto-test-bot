@@ -95,6 +95,7 @@ class Action(ABC):
             'assert_element_value_contains': AssertElementValueContainsAction,
             'move_slider': MoveSliderAction,
             'save_data': SaveDataAction,
+            'plugin_action': PluginAction,
         }
 
         # Check if this is a semantic action (prefixed with 'rf_')
@@ -361,6 +362,16 @@ class MoveSliderAction(Action):
         if 'value' not in self.params:
             errors.append("MoveSliderAction requires 'value' parameter")
         return errors
+
+
+class PluginAction(Action):
+    """Action for plugin execution (handled by executor)."""
+
+    def get_step_name(self) -> str:
+        return "plugin_action"
+
+    def execute(self, context: Context) -> Context:
+        return context
 
 
 class SaveDataAction(Action):

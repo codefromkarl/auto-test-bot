@@ -17,13 +17,19 @@ def compile_case(case: DslCase, registry: KeywordRegistry, packs: LocatorPackReg
         spec = registry.get(stmt.keyword)
         spec.validate(stmt.params)
 
-        params: Dict[str, str] = dict(stmt.params)
-        if "target" in params:
-            if not case.locator_pack:
-                raise ValueError("locator_pack is required when using target")
-            params["selector"] = packs.resolve(case.locator_pack, params.pop("target"))
+        if spec.is_plugin:
+            if not spec.plugin_name:
+                raise ValueError("plugin_name is required for plugin keyword")
+            params = {"plugin": spec.plugin_name, "keyword": spec.name, **stmt.params}
+            action = Action.create("plugin_action", params)
+        else:
+            params = dict(stmt.params)
+            if "target" in params:
+                if not case.locator_pack:
+                    raise ValueError("locator_pack is required when using target")
+                params["selector"] = packs.resolve(case.locator_pack, params.pop("target"))
 
-        action = Action.create(spec.action, params)
+            action = Action.create(spec.action, params)
         phase.add_step(action)
 
     workflow.add_phase(phase)

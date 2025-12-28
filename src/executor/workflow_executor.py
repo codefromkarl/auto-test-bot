@@ -73,6 +73,7 @@ class WorkflowExecutor:
         self._execution_context: Optional[Context] = None
         self._is_running = False
         self._template_context: Optional[Dict[str, Any]] = None
+        self.plugin_manager = None
 
     async def execute_workflow(self, workflow: Workflow) -> Dict[str, Any]:
         """
@@ -1401,6 +1402,61 @@ class WorkflowExecutor:
             if not selector or not isinstance(selector, str):
                 return False
             return "nonexistent" in selector
+
+        if action_type == "plugin_action":
+            plugin_name = params.get("plugin")
+            plugin_manager = getattr(self, "plugin_manager", None)
+            if not plugin_manager:
+                return {
+                    'success': False,
+                    'error': {
+                        'type': 'PLUGIN_NOT_CONFIGURED',
+                        'error': 'plugin manager not configured',
+                        'action': action_type,
+                        'params': params,
+                    },
+                    'context': {},
+                }
+            if not plugin_name:
+                return {
+                    'success': False,
+                    'error': {
+                        'type': 'PLUGIN_NAME_MISSING',
+                        'error': 'plugin name is required',
+                        'action': action_type,
+                        'params': params,
+                    },
+                    'context': {},
+                }
+            try:
+                from core.protocol.scenario_context import ScenarioContext
+
+                scenario_payload = params.get("scenario_context")
+                if isinstance(scenario_payload, dict):
+                    scenario = ScenarioContext.from_dict(scenario_payload)
+                else:
+                    workflow_name = getattr(self._current_workflow, "name", None) or "keyword_dsl"
+                    snapshot = self._execution_context.create_snapshot() if self._execution_context else {}
+                    scenario = ScenarioContext(
+                        test_id=str(params.get("test_id") or workflow_name),
+                        business_flow=str(params.get("business_flow") or "keyword_dsl"),
+                        test_name=str(params.get("test_name") or workflow_name),
+                        test_data=dict(snapshot.get("data", {}) or {}),
+                    )
+                result = await plugin_manager.execute_plugin(plugin_name, scenario, params)
+            except Exception as exc:
+                return {
+                    'success': False,
+                    'error': {
+                        'type': 'PLUGIN_EXECUTION_FAILED',
+                        'error': str(exc),
+                        'action': action_type,
+                        'plugin': plugin_name,
+                        'params': params,
+                    },
+                    'context': {},
+                }
+            return {'success': True, 'context': {'plugin_result': result}, 'error': None}
 
         try:
             action = Action.create(action_type, params)
