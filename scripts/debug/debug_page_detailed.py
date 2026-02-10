@@ -33,7 +33,7 @@ async def debug_page_detailed():
         await browser.initialize()
         logger.info("浏览器初始化成功")
 
-        test_url = "http://<NOWHI_HOST>/nowhi/index.html#/home/dashboard"
+        test_url = os.getenv("NOWHI_TEST_URL", "http://localhost:9020/nowhi/index.html#/home/dashboard")
         logger.info(f"正在访问: {test_url}")
 
         success = await browser.navigate_to(test_url)

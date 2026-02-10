@@ -5,8 +5,9 @@
 
 test:
   flow_name: "workflow_e2e_remote"
-  # 直接进入 AI创作/剧本列表路由，避免远端导航渲染/点击不稳定导致用例阻塞
-  url: "http://<NOWHI_HOST>/nowhi/index.html#/ai-create/index/story-list"
+  # 默认使用本地地址；远端环境请替换为实际地址
+  # 示例: http://<NOWHI_HOST>/nowhi/index.html#/ai-create/index/story-list
+  url: "http://localhost:9020/nowhi/index.html#/ai-create/index/story-list"
   timeout: 30000
   page_load_timeout: 120000
   element_timeout: 30000

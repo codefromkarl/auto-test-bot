@@ -99,6 +99,13 @@ class Workflow:
 
         return context
 
+    def resolve_metadata(self, lookup, selectors=None) -> Dict[str, Any]:
+        """Resolve semantic variables in workflow metadata."""
+        from .semantic_variables import resolve_semantic_value
+
+        resolved = resolve_semantic_value(self.metadata or {}, lookup=lookup, selectors=selectors)
+        return resolved if isinstance(resolved, dict) else dict(self.metadata or {})
+
     @classmethod
     def from_yaml(cls, yaml_content: str) -> 'Workflow':
         """

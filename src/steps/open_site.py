@@ -1,6 +1,4 @@
-"""
-网站打开步骤（旧流程兼容）
-"""
+"""网站打开步骤（旧流程兼容）。"""
 
 from typing import Any, Dict, Optional
 
@@ -14,7 +12,7 @@ class OpenSiteStep:
 
     async def _verify_page_elements(self) -> bool:
         """
-        旧流程的页面校验：允许落在 HOME 或 AI_CREATE（新版站点可能直接路由到 AI_CREATE）。
+        旧流程页面校验：允许落在 HOME 或 AI_CREATE。
         """
         page = getattr(self.browser, "page", None)
         if page is None:
@@ -23,3 +21,5 @@ class OpenSiteStep:
         state = await get_current_page_state(page)
         return state in (PageState.HOME, PageState.AI_CREATE)
 
+
+__all__ = ["OpenSiteStep", "get_current_page_state"]

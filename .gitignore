@@ -91,14 +91,36 @@ network_logs/
 # Configuration with secrets
 config/secrets.yaml
 config/*.secrets.yaml
+.env.*
+*.env.local
+
+# Local auth/session artifacts (never commit)
+auth_session.json
+auth_state.json
+auth_state_real.json
+scripts/auth/auth_session.json
+scripts/auth/auth_state.json
+scripts/auth/auth_state_real.json
+!scripts/auth/*.example.json
+
+# Runtime evidence / workflow run logs
+runs/*
+!runs/TEMPLATE.md
+
+# Local assistant session files
+.codex-session
+.gemini-session
+
 .claude/*
 .codex_coord/*
 .gemini/*
 .opencode/*
 .qwen/*
 reports/*
+validation_reports/*
 .worktrees/
 test/
 tests/
 test_artifacts/*
 test_reports/*
+screenshots/*

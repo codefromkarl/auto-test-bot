@@ -57,6 +57,18 @@ class Action(ABC):
             'params': self.params
         }
 
+    def resolve_params(self, lookup, selectors=None) -> Dict[str, Any]:
+        """
+        Resolve semantic variables in params (placeholders + selector shorthand).
+
+        This keeps variable parsing close to the model layer, while allowing the
+        executor to provide the actual lookup context.
+        """
+        from .semantic_variables import resolve_semantic_value
+
+        resolved = resolve_semantic_value(self.params or {}, lookup=lookup, selectors=selectors)
+        return resolved if isinstance(resolved, dict) else dict(self.params or {})
+
     def validate(self) -> List[str]:
         """
         Validate action parameters
@@ -97,11 +109,11 @@ class Action(ABC):
             'save_data': SaveDataAction,
         }
 
-        # Check if this is a semantic action (prefixed with 'rf_')
+        # Semantic actions are referenced with rf_ prefix in DSL, but resolution is deferred
+        # until execution time (to allow dynamic adapter loading).
         if action_type.startswith('rf_'):
-            from .semantic_action import SemanticAction
             semantic_type = action_type[3:]  # Remove 'rf_' prefix
-            return SemanticAction.create_semantic(semantic_type, params)
+            return SemanticActionRef(semantic_type, params)
 
         if action_type not in action_classes:
             raise ValueError(f"Unknown action type: {action_type}")
@@ -259,6 +271,29 @@ class UploadFileAction(Action):
         if 'file_path' not in self.params and 'path' not in self.params:
             errors.append("UploadFileAction requires 'file_path' (or 'path') parameter")
         return errors
+
+
+class SemanticActionRef(Action):
+    """
+    A lightweight reference to a semantic action.
+
+    This avoids requiring semantic actions to be registered at YAML-parse time.
+    The executor resolves and executes semantic actions dynamically based on the
+    currently loaded business adapter.
+    """
+
+    def __init__(self, semantic_type: str, params: Dict[str, Any] = None):
+        super().__init__(params)
+        self.semantic_type = str(semantic_type or "").strip()
+        self.action = self.semantic_type
+
+    def get_step_name(self) -> str:
+        return self.semantic_type
+
+    def execute(self, context: Context) -> Context:
+        # Model-level execution is not responsible for resolving semantic actions.
+        # WorkflowExecutor handles this in the RF architecture.
+        return context
 
 
 class AssertElementExistsAction(Action):

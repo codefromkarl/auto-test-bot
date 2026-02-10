@@ -1,0 +1,261 @@
+workflow:
+  name: "naohai_complex_multi_project_management"
+  description: "闹海复杂场景测试：多项目管理与切换 - 验证在多个项目间操作时的数据隔离、性能影响和用户体验"
+  version: "complex-v1.0"
+  timeout: 600000  # 10分钟超时
+
+  # 多项目管理测试初始化
+  suite_setup:
+    - action: "open_site"
+      url: "${test.url}"
+      timeout: ${test.timeout.page_load}
+
+    - action: "navigate_to_ai_create"
+      timeout: ${test.timeout.navigation}
+
+  # 复杂场景：多项目管理与切换
+  phases:
+    # 场景1: 多项目创建与数据隔离验证
+    - name: "multiple_project_creation_isolation"
+      description: "创建多个项目并验证数据隔离性"
+      steps:
+        # 创建第一个项目
+        - action: "create_script"
+          name: "复杂测试项目_01"
+          description: "第一个复杂测试项目"
+          content: "这是第一个测试项目的剧本内容，用于验证数据隔离"
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "project_01_created"
+          save_path: "screenshots/complex/project_01_created.png"
+
+        # 创建第二个项目
+        - action: "navigate_to_ai_create"
+          timeout: ${test.timeout.navigation}
+
+        - action: "create_script"
+          name: "复杂测试项目_02"
+          description: "第二个复杂测试项目"
+          content: "这是第二个测试项目的剧本内容，内容不同以验证隔离"
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "project_02_created"
+          save_path: "screenshots/complex/project_02_created.png"
+
+        # 创建第三个项目
+        - action: "navigate_to_ai_create"
+          timeout: ${test.timeout.navigation}
+
+        - action: "create_script"
+          name: "复杂测试项目_03"
+          description: "第三个复杂测试项目"
+          content: "这是第三个测试项目的剧本内容，包含特殊字符和格式"
+          timeout: ${test.timeout.element_load}
+
+        - action: "screenshot"
+          name: "project_03_created"
+          save_path: "screenshots/complex/project_03_created.png"
+
+        # 验证数据隔离
+        - action: "verify_project_data_isolation"
+          projects:
+            - name: "复杂测试项目_01"
+              expected_content: "第一个测试项目的剧本内容"
+            - name: "复杂测试项目_02"
+              expected_content: "第二个测试项目的剧本内容"
+            - name: "复杂测试项目_03"
+              expected_content: "特殊字符和格式"
+
+    # 场景2: 快速项目切换性能测试
+    - name: "rapid_project_switching_performance"
+      description: "测试在多个项目间快速切换时的性能表现"
+      steps:
+        - action: "establish_performance_baseline"
+          operation_type: "project_navigation"
+          sample_count: 5
+
+        # 执行快速切换循环
+        - action: "perform_rapid_switching_test"
+          switch_cycles: 20
+          project_sequence: ["复杂测试项目_01", "复杂测试项目_02", "复杂测试项目_03"]
+          switch_interval: 1000  # 1秒间隔
+          collect_metrics: true
+
+        - action: "verify_performance_degradation"
+          max_acceptable_degradation: 30  # 最多30%性能下降
+          compare_to_baseline: true
+
+        - action: "screenshot"
+          name: "rapid_switching_completed"
+          save_path: "screenshots/complex/rapid_switching.png"
+
+    # 场景3: 并发项目操作测试
+    - name: "concurrent_project_operations"
+      description: "模拟在多个项目间进行并发操作"
+      steps:
+        - action: "setup_concurrent_operations"
+          operations:
+            - project: "复杂测试项目_01"
+              action: "add_episode"
+              episode_name: "第一集-项目01"
+              delay: 2000
+            - project: "复杂测试项目_02"
+              action: "add_character"
+              character_name: "主角-项目02"
+              delay: 3000
+            - project: "复杂测试项目_03"
+              action: "add_scene"
+              scene_name: "场景-项目03"
+              delay: 4000
+
+        - action: "execute_concurrent_operations"
+          timeout: 60000  # 1分钟超时
+          collect_detailed_logs: true
+
+        - action: "verify_concurrent_operation_results"
+          verify_data_integrity: true
+          check_for_conflicts: false
+
+        - action: "screenshot"
+          name: "concurrent_operations_result"
+          save_path: "screenshots/complex/concurrent_operations.png"
+
+    # 场景4: 资源消耗监控测试
+    - name: "resource_consumption_monitoring"
+      description: "监控多项目管理时的资源消耗情况"
+      steps:
+        - action: "establish_resource_baseline"
+          metrics: ["memory_usage", "cpu_usage", "network_requests"]
+
+        - action: "create_heavy_projects"
+          project_count: 5
+          assets_per_project: 10
+          include_media: true
+
+        - action: "monitor_resource_usage"
+          duration: 30000  # 30秒监控
+          interval: 5000  # 5秒采样
+          collect_detailed_metrics: true
+
+        - action: "verify_resource_limits"
+          memory_threshold: 1024  # MB
+          cpu_threshold: 80  # %
+          network_request_threshold: 100
+
+        - action: "generate_resource_report"
+          save_path: "reports/complex/resource_consumption.json"
+
+    # 场景5: 复杂状态管理测试
+    - name: "complex_state_management"
+      description: "测试复杂状态下的项目管理"
+      steps:
+        - action: "create_complex_project_states"
+          states:
+            - project: "复杂测试项目_01"
+              state: "editing"
+              unsaved_changes: true
+              active_operations: ["script_editing", "character_creation"]
+            - project: "复杂测试项目_02"
+              state: "generating"
+              ai_operations: ["image_generation", "script_analysis"]
+            - project: "复杂测试项目_03"
+              state: "exporting"
+              export_formats: ["mp4", "srt"]
+
+        - action: "perform_state_transitions"
+          transitions:
+            - from: "editing"
+              to: "generating"
+              trigger: "ai_generate_button_click"
+            - from: "generating"
+              to: "editing"
+              trigger: "generation_complete"
+            - from: "exporting"
+              to: "completed"
+              trigger: "export_finish"
+
+        - action: "verify_state_consistency"
+          check_project_states: true
+          verify_operation_history: true
+
+        - action: "screenshot"
+          name: "complex_state_management_result"
+          save_path: "screenshots/complex/state_management.png"
+
+    # 场景6: 数据一致性压力测试
+    - name: "data_consistency_stress_test"
+      description: "在高压操作下验证数据一致性"
+      steps:
+        - action: "create_data_consistency_checkpoint"
+          checkpoint_name: "stress_test_baseline"
+
+        - action: "execute_stress_operations"
+          operation_count: 100
+          operation_types: ["create", "update", "delete", "switch"]
+          concurrency_level: 5
+          duration: 120000  # 2分钟
+
+        - action: "verify_data_consistency"
+          compare_checkpoint: "stress_test_baseline"
+          expected_integrity_level: "high"
+          tolerance_for_inevitable_loss: "minimal"
+
+        - action: "generate_consistency_report"
+          include_detailed_diff: true
+          save_path: "reports/complex/data_consistency.json"
+
+  # 复杂场景成功标准
+  success_criteria:
+    - "多个项目能够同时创建并保持数据隔离"
+    - "快速项目切换性能下降不超过30%"
+    - "并发操作不会导致数据冲突或损坏"
+    - "资源消耗在可接受范围内"
+    - "复杂状态管理保持一致性"
+    - "高压操作下数据一致性得到保证"
+    - "所有关键操作都有截图证明"
+
+  # 错误处理策略
+  error_recovery:
+    strategies:
+      - name: "project_rollback"
+        trigger_conditions: ["data_corruption", "state_inconsistency"]
+        actions: ["restore_last_checkpoint", "validate_integrity"]
+
+      - name: "resource_cleanup"
+        trigger_conditions: ["memory_overflow", "performance_degradation"]
+        actions: ["clear_cache", "restart_browser_session"]
+
+    failure_handling:
+      - action: "capture_comprehensive_failure_state"
+        include: ["browser_logs", "network_logs", "resource_metrics", "project_states"]
+
+      - action: "generate_failure_analysis_report"
+        include_root_cause: true
+        include_recommendations: true
+
+  # 数据收集配置
+  data_collection:
+    enabled: true
+    metrics:
+      - "project_switch_time"
+      - "memory_usage_per_project"
+      - "concurrent_operation_success_rate"
+      - "data_consistency_score"
+      - "resource_utilization_percentage"
+      - "state_transition_success_rate"
+
+    monitoring:
+      - "project_isolation_integrity"
+      - "performance_degradation_trend"
+      - "resource_consumption_pattern"
+      - "error_frequency_by_operation"
+
+  # 报告配置
+  reporting:
+    include_performance_analysis: true
+    include_resource_utilization: true
+    include_data_integrity_analysis: true
+    include_recommendations: true
+    output_formats: ["json", "html", "markdown"]

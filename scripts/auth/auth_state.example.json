@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "test_session",
+      "value": "demo_logged_in",
+      "domain": "example.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://example.com",
+      "localStorage": [
+        {
+          "name": "user_logged_in",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

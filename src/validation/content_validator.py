@@ -31,7 +31,7 @@ class ContentValidator:
     - 聚合验证结果
     """
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None, config: Optional[Dict[str, Any]] = None):
         """
         初始化内容验证器
 
@@ -40,12 +40,17 @@ class ContentValidator:
         """
         self.logger = logging.getLogger(__name__)
 
-        # 加载配置
-        if config_path is None:
-            config_path = os.path.join(os.getcwd(), "config", "config.yaml")
-        self.config_loader = ConfigLoader(config_path)
-        self.config = self.config_loader.load_config()
-        self.validation_config = self.config.get('validation', self._get_default_validation_config())
+        # 加载配置（兼容：允许直接传入 config 字典）
+        if config is not None:
+            self.config_loader = None
+            self.config = dict(config)
+            self.validation_config = dict(config)
+        else:
+            if config_path is None:
+                config_path = os.path.join(os.getcwd(), "config", "config.yaml")
+            self.config_loader = ConfigLoader(config_path)
+            self.config = self.config_loader.load_config()
+            self.validation_config = self.config.get('validation', self._get_default_validation_config())
 
         # 初始化各验证器
         self.image_validator = ImageValidator(self.validation_config.get('image', {}))

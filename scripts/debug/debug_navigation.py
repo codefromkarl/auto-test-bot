@@ -39,7 +39,7 @@ async def debug_navigation():
         else:
             logger.info("未找到登录状态文件，使用空状态")
 
-        test_url = "http://<NOWHI_HOST>/nowhi/index.html#/home/dashboard"
+        test_url = os.getenv("NOWHI_TEST_URL", "http://localhost:9020/nowhi/index.html#/home/dashboard")
         logger.info(f"正在访问: {test_url}")
 
         success = await browser.navigate_to(test_url)
