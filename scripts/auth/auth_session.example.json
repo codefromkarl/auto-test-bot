@@ -1,0 +1,4 @@
+{
+  "token": "<replace-with-your-session-token>",
+  "user_info": "<replace-with-your-user-info-json-string>"
+}

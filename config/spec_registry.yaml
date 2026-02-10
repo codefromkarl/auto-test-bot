@@ -1,0 +1,425 @@
+# Spec Registry - 树状测试计划定义
+
+spec_registry:
+  version: "1.0"
+  
+  # 默认策略
+  defaults:
+    leaf:
+      retry: 0
+      timeout_sec: 600
+      evidence:
+        screenshots: "on_failure"
+        log: "always"
+    suite:
+      gate: "fail_fast"
+      parallel: false
+
+  # NH-SMOKE-001: 闹海核心功能冒烟测试
+  NH-SMOKE-001:
+    spec_id: "NH-SMOKE-001"
+    name: "闹海核心功能冒烟测试"
+    description: "快速验证闹海系统核心功能的可用性和稳定性"
+    
+    # 执行模式定义
+    modes:
+      quick:
+        description: "快速冒烟检查(5分钟内)"
+        include: ["TC.story_list.access", "TC.story.create_minimal"]
+        exit_criteria:
+          min_success_rate: 0.8
+      
+      full:
+        description: "完整冒烟验证(10分钟内)"
+        include: [
+          "TC.story_list.access",
+          "TC.story.create_minimal", 
+          "TC.storyboard.access",
+          "TC.video_generation.basic"
+        ]
+        exit_criteria:
+          min_success_rate: 0.9
+        
+      health:
+        description: "系统健康检查"
+        include: ["TC.system.auth_status"]
+        exit_criteria:
+          min_success_rate: 1.0
+    
+    # Leaf节点定义 - 具体的可执行测试用例
+    leaf_tests:
+      # 剧本列表访问测试
+      TC.story_list.access:
+        id: "TC.story_list.access"
+        name: "剧本列表访问测试"
+        description: "验证AI创作-剧本列表页面可正常访问和展示"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/at/naohai_01_story_list_smoke.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=剧本列表"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["smoke", "critical", "ui", "access"]
+      
+      # 剧本创建最小化测试
+      TC.story.create_minimal:
+        id: "TC.story.create_minimal"
+        name: "剧本创建最小化测试"
+        description: "验证能成功创建最基础的测试剧本"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/at/naohai_02_create_story_smoke.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=创建成功"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "on_success"
+          log: "always"
+        
+        retry: 1
+        timeout_sec: 300
+        
+        tags: ["smoke", "critical", "create", "persistence"]
+      
+      # 分镜管理访问测试
+      TC.storyboard.access:
+        id: "TC.storyboard.access"
+        name: "分镜管理访问测试"
+        description: "验证能进入分镜管理页面"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/at/naohai_03_storyboard_smoke.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=分镜管理"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "always"
+        
+        tags: ["smoke", "critical", "ui", "storyboard"]
+      
+      # 视频生成基础测试
+      TC.video_generation.basic:
+        id: "TC.video_generation.basic"
+        name: "视频生成基础测试"
+        description: "验证能触发基础的视频生成流程"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/at/naohai_05_create_story_to_video_e2e.yaml"
+        
+        # 放宽断言要求 - 生成可能需要时间
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=生成中"
+            severity: "critical"
+        
+        timeout_sec: 1200  # 20分钟
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["smoke", "generation", "video", "long_running"]
+      
+      # 认证状态检查
+      TC.system.auth_status:
+        id: "TC.system.auth_status"
+        name: "认证状态检查"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/at/naohai_01_story_list_smoke.yaml"
+        
+        # 通过是否成功进入剧本列表来判断认证状态
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=剧本列表"
+            severity: "critical"
+        
+        tags: ["health", "auth", "session"]
+
+  # NH-SCRIPT-001: 闹海分镜分析与编辑
+  NH-SCRIPT-001:
+    spec_id: "NH-SCRIPT-001"
+    name: "闹海分镜分析与编辑"
+    description: "验证闹海创作流程核心环节（分镜分析与编辑）的准确性和可用性"
+    
+    # 执行模式定义
+    modes:
+      quick:
+        description: "快速分镜分析检查"
+        include: [
+          "TC.script.input",
+          "TC.analysis.start",
+          "TC.storyboard.access"
+        ]
+        exit_criteria:
+          min_success_rate: 0.8
+      
+      full:
+        description: "完整分镜分析与编辑验证"
+        include: [
+          "TC.script.input",
+          "TC.analysis.parameters",
+          "TC.analysis.start", 
+          "TC.analysis.result",
+          "TC.storyboard.create",
+          "TC.prompt.generate",
+          "TC.binding.character",
+          "TC.binding.scene"
+        ]
+        exit_criteria:
+          min_success_rate: 0.9
+        
+      ai_only:
+        description: "AI分析专项测试"
+        include: [
+          "TC.script.input",
+          "TC.analysis.parameters", 
+          "TC.analysis.start",
+          "TC.analysis.result"
+        ]
+        exit_criteria:
+          min_success_rate: 0.85
+    
+    # Leaf节点定义 - 具体的可执行测试用例
+    leaf_tests:
+      # 剧本输入测试
+      TC.script.input:
+        id: "TC.script.input"
+        name: "剧本输入测试"
+        description: "验证剧本文本输入和文件导入功能"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_030_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "textarea[placeholder*='剧本']"
+            severity: "critical"
+          - kind: "ui_element_present"
+            target: "text=导入文件"
+            severity: "warning"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["script", "input", "analysis"]
+      
+      # 分析参数设置测试
+      TC.analysis.parameters:
+        id: "TC.analysis.parameters"
+        name: "分析参数设置测试"
+        description: "验证AI分析参数配置功能"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_031_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "select[name='target_duration'], .duration-select"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["analysis", "parameters", "config"]
+      
+      # AI分析启动测试
+      TC.analysis.start:
+        id: "TC.analysis.start"
+        name: "AI分析启动测试"
+        description: "验证AI分析触发和执行过程"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_033_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=开始分析"
+            severity: "critical"
+          - kind: "loading_state"
+            target: ".loading, .analyzing, text=分析中"
+            severity: "warning"
+        
+        timeout_sec: 180000  # 3分钟，给AI分析充足时间
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["analysis", "ai", "generation"]
+      
+      # AI分析结果验证
+      TC.analysis.result:
+        id: "TC.analysis.result"
+        name: "AI分析结果验证"
+        description: "验证AI分析产出和分镜生成结果"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_034_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=分析完成, .analysis-complete"
+            severity: "critical"
+          - kind: "ui_element_present"
+            target: ".script-list, .shot-list"
+            severity: "critical"
+          - kind: "ui_element_present"
+            target: "text=导入分镜"
+            severity: "warning"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["analysis", "result", "storyboard"]
+      
+      # 分镜创建测试
+      TC.storyboard.create:
+        id: "TC.storyboard.create"
+        name: "分镜创建测试"
+        description: "验证新增分镜功能"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_026_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=新增分镜"
+            severity: "critical"
+          - kind: "ui_element_present"
+            target: "input[placeholder*='分镜标题']"
+            severity: "critical"
+          - kind: "data_persisted"
+            target: "storyboard_created"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        retry: 1
+        tags: ["storyboard", "create", "edit"]
+      
+      # 提示词生成测试
+      TC.prompt.generate:
+        id: "TC.prompt.generate"
+        name: "提示词生成测试"
+        description: "验证分镜提示词生成功能"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_035_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=生成提示词"
+            severity: "critical"
+          - kind: "ui_element_present"
+            target: ".prompt-list, .prompt-column"
+            severity: "critical"
+          - kind: "ui_element_present"
+            target: ".prompt-item, .prompt-text"
+            severity: "warning"
+        
+        timeout_sec: 60000  # 1分钟
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["prompt", "generation", "ai"]
+      
+      # 角色绑定测试
+      TC.binding.character:
+        id: "TC.binding.character"
+        name: "角色绑定测试"
+        description: "验证分镜与角色的绑定功能"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_037_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: ".character-binding, .bind-character"
+            severity: "critical"
+          - kind: "binding_successful"
+            target: "character_bound"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["binding", "character", "resource"]
+      
+      # 场景绑定测试
+      TC.binding.scene:
+        id: "TC.binding.scene"
+        name: "场景绑定测试"
+        description: "验证分镜与场景的绑定功能"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/fc/naohai_FC_NH_038_rf.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: ".scene-binding, .bind-scene"
+            severity: "critical"
+          - kind: "binding_successful"
+            target: "scene_bound"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["binding", "scene", "resource"]
+      
+      # 分镜管理访问测试
+      TC.storyboard.access:
+        id: "TC.storyboard.access"
+        name: "分镜管理访问测试"
+        description: "验证能够进入分镜管理页面"
+        type: "test"
+        executor:
+          kind: "workflow"
+          ref: "workflows/at/naohai_03_storyboard_smoke.yaml"
+        
+        assertions:
+          - kind: "ui_element_present"
+            target: "text=分镜管理"
+            severity: "critical"
+        
+        evidence:
+          screenshots: "always"
+          log: "always"
+        
+        tags: ["storyboard", "access", "ui"]

@@ -73,6 +73,18 @@ class ValidationReport:
         self.overall_score: float = 0.0
         self.status: str = "pending"
 
+    @property
+    def image_results(self) -> List[ValidationResult]:
+        return self.results.get("images", [])
+
+    @property
+    def video_results(self) -> List[ValidationResult]:
+        return self.results.get("videos", [])
+
+    @property
+    def consistency_results(self) -> List[ValidationResult]:
+        return self.results.get("consistency", [])
+
     def add_result(self, category: str, result: ValidationResult):
         """
         添加验证结果
@@ -126,10 +138,27 @@ class ValidationReport:
 
     def get_summary(self) -> Dict[str, Any]:
         """获取验证摘要"""
+        total_items = sum(len(results) for results in self.results.values())
+        passed_items = sum(
+            len([r for r in results if r.status == 'passed'])
+            for results in self.results.values()
+        )
+        failed_items = sum(
+            len([r for r in results if r.status == 'failed'])
+            for results in self.results.values()
+        )
+        error_items = sum(
+            len([r for r in results if r.status == 'error'])
+            for results in self.results.values()
+        )
         summary = {
             'timestamp': self.timestamp,
             'overall_score': self.overall_score,
             'status': self.status,
+            'total_items': total_items,
+            'passed_items': passed_items,
+            'failed_items': failed_items,
+            'error_items': error_items,
             'categories': {}
         }
 
@@ -205,12 +234,39 @@ class ValidationReport:
             file_path: 输出文件路径
         """
         try:
-            html_content = self._generate_html()
+            html_content = self.to_html()
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(html_content)
             self.logger.info(f"HTML report saved to {file_path}")
         except Exception as e:
             self.logger.error(f"Error saving HTML report: {str(e)}")
+
+    def to_json(self) -> str:
+        """返回 JSON 字符串（兼容旧测试接口）"""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=2)
+
+    def to_html(self) -> str:
+        """返回 HTML 字符串（兼容旧测试接口）"""
+        summary = self.get_summary()
+        categories = []
+        for category, info in summary.get("categories", {}).items():
+            categories.append(
+                f"<li>{category}: count={info.get('count', 0)}, avg={info.get('avg_score', 0):.1f}, "
+                f"passed={info.get('passed', 0)}, failed={info.get('failed', 0)}, error={info.get('error', 0)}</li>"
+            )
+        categories_html = "".join(categories) or "<li>no categories</li>"
+        return (
+            "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Validation Report</title></head>"
+            "<body>"
+            f"<h1>Validation Report</h1>"
+            f"<p>timestamp: {self.timestamp}</p>"
+            f"<p>overall_score: {self.overall_score:.2f}</p>"
+            f"<p>status: {self.status}</p>"
+            f"<p>total_items: {summary.get('total_items', 0)}</p>"
+            f"<p>passed_items: {summary.get('passed_items', 0)}</p>"
+            f"<ul>{categories_html}</ul>"
+            "</body></html>"
+        )
 
     def _generate_html(self) -> str:
         """生成HTML报告内容"""

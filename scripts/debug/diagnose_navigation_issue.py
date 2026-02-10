@@ -44,7 +44,7 @@ async def diagnose_navigation_issue():
         if auth_state_file:
             logger.info(f"加载登录状态: {auth_state_file}")
 
-        test_url = "http://<NOWHI_HOST>/nowhi/index.html"
+        test_url = os.getenv("NOWHI_TEST_URL", "http://localhost:9020/nowhi/index.html")
         logger.info(f"正在访问基础URL: {test_url}")
 
         # 先访问基础页面，不加hash

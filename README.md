@@ -21,6 +21,13 @@
 - **修复建议**: AI 提供代码修复建议，人工审核后应用
 - **多格式报告**: JSON 和 HTML 格式的结构化测试报告
 
+### 高级测试能力（新增）
+- **复杂场景测试**: 多项目管理、并发操作、数据完整性验证
+- **边界条件测试**: 输入验证、资源约束、错误恢复边界测试
+- **网络模拟**: 7种网络条件（3G/4G/离线/不稳定）模拟测试
+- **智能数据管理**: 动态数据生成、数据隔离、数据变异功能
+- **增强错误处理**: 智能重试、优雅降级、用户友好的错误提示
+
 ## 🏗️ 架构设计
 
 ### 分层架构
@@ -61,6 +68,8 @@ auto-test-bot/
 │   ├── workflows/         # 测试流程定义
 │   ├── reporter/          # 报告生成
 │   └── utils/             # 通用工具
+│       ├── test_data_manager.py     # 测试数据管理器
+│       └── network_simulator.py     # 网络模拟器
 ├── tests/                 # 测试文件
 ├── evidence/              # MCP 采集的证据
 ├── docs/                  # 项目文档
@@ -69,11 +78,22 @@ auto-test-bot/
 │   ├── RF_MIGRATION_FINAL_SUMMARY.md  # RF迁移完成总结
 │   ├── rf_full_migration_verification_report.md  # RF迁移验证报告
 │   ├── optimization_todo.md  # 项目优化计划
+│   ├── complex_scenario_guide.md     # 复杂场景测试指南
+│   ├── boundary_condition_guide.md  # 边界条件测试指南
 │   └── api.md            # API 参考
 ├── workflows/             # 测试工作流
-│   └── fc/              # 功能测试用例
-│       ├── naohai_FC_NH_*.yaml       # 原版FC文件（59个）
-│       └── naohai_FC_NH_*_rf.yaml    # RF语义化版本（59个）
+│   ├── at/               # 冒烟测试用例
+│   ├── e2e/              # 端到端测试用例
+│   ├── fc/               # 功能测试用例
+│   │   ├── naohai_FC_NH_*.yaml       # 原版FC文件（59个）
+│   │   └── naohai_FC_NH_*_rf.yaml    # RF语义化版本（59个）
+│   ├── resilience/       # 容错和恢复测试
+│   │   ├── naohai_complex_multi_project_management.yaml    # 多项目管理测试
+│   │   ├── naohai_boundary_condition_stress_test.yaml      # 边界条件测试
+│   │   ├── naohai_enhanced_error_handling_test.yaml       # 增强错误处理测试
+│   │   └── naohai_resilience_test.yaml                   # 容错性测试
+│   ├── rt/               # 回归测试用例
+│   └── shared/           # 共享工作流组件
 └── scripts/               # 辅助脚本
 ```
 
@@ -226,11 +246,17 @@ crontab -e
 
 ## 📋 测试流程
 
+### 基础功能测试
 1. **网站访问** - 验证页面可访问性和关键元素存在
 2. **文生图测试** - 输入提示词，生成图片并验证结果
 3. **图生视频测试** - 基于图片生成视频并验证结果
-4. **智能诊断** - 失败时自动进行深度分析
-5. **报告生成** - 生成详细的测试报告
+
+### 高级测试能力
+4. **复杂场景测试** - 多项目管理、并发操作、数据完整性验证
+5. **边界条件测试** - 输入验证、资源约束、错误恢复边界测试
+6. **网络模拟测试** - 多种网络条件下的系统行为验证
+7. **智能诊断** - 失败时自动进行深度分析
+8. **报告生成** - 生成详细的测试报告
 
 ## 🎯 RF语义化迁移（已完成）
 
@@ -267,6 +293,7 @@ python src/main_workflow.py --workflow workflows/fc/naohai_FC_NH_XXX.yaml
 - **🏗️ 架构文档**：[架构总览](docs/architecture-design/README.md) - 三层架构设计体系
 - **🎉 RF迁移文档**：[迁移总结](docs/RF_MIGRATION_FINAL_SUMMARY.md) - 59个FC全量迁移成果
 - **⚡ 项目优化**：[优化计划](docs/optimization_todo.md) - 详细的优化任务清单
+- **🚀 测试增强**：[测试增强完成报告](runs/2025-12-21/test_enhancement_completion_report.md) - 复杂场景和边界条件测试能力
 
 ### 核心文档
 | 分类 | 文档 | 用途 | 状态 |
@@ -276,6 +303,9 @@ python src/main_workflow.py --workflow workflows/fc/naohai_FC_NH_XXX.yaml
 | **RF迁移** | RF_MIGRATION_FINAL_SUMMARY.md | 迁移成果和总结 | ✅ 完成 |
 | **工作流** | README_WORKFLOWS.md | 工作流使用指南 | ✅ 有效 |
 | **MCP调试** | chrome-devtools-mcp-guide.md | 调试工具使用 | ✅ 有效 |
+| **复杂场景** | docs/complex_scenario_guide.md | 复杂场景测试指南 | ✅ 新增 |
+| **边界条件** | docs/boundary_condition_guide.md | 边界条件测试指南 | ✅ 新增 |
+| **数据管理** | docs/test_data_management_best_practices.md | 测试数据管理最佳实践 | ✅ 新增 |
 
 ### 历史文档（已归档）
 - `docs/auto_test_bot_todo_archived.md` - 原项目TODO（已归档）
@@ -323,10 +353,19 @@ black src/ tests/
 
 ## 📈 监控指标
 
+### 基础指标
 - 测试成功率
 - 平均执行时间
 - 错误类型分布
 - 性能指标趋势
+
+### 高级指标（新增）
+- 复杂场景测试覆盖率
+- 边界条件测试通过率
+- 网络模拟测试结果
+- 错误恢复成功率
+- 数据一致性验证结果
+- 并发操作稳定性指标
 
 ## 🤝 贡献指南
 

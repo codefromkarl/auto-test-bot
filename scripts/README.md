@@ -18,9 +18,9 @@
 
 - `save_login_state.py` - 保存登录状态
 - `save_real_auth_state.py` - 保存真实的认证状态
-- `auth_session.json` - 会话认证数据
-- `auth_state.json` - 认证状态数据
-- `auth_state_real.json` - 真实环境认证状态
+- `auth_session.example.json` - 会话认证数据模板（示例）
+- `auth_state.example.json` - 认证状态模板（示例）
+- `auth_state_real.example.json` - 真实环境认证状态模板（示例）
 
 ### test/
 各种测试脚本
@@ -61,3 +61,4 @@
 - 运行这些脚本前请确保在正确的 Python 环境中
 - 部分脚本需要特定的依赖或配置
 - 测试脚本可能会产生临时文件，请在使用后清理
+- `scripts/auth/*.json` 为本地敏感认证文件，禁止提交到 Git

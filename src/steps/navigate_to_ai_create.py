@@ -1,6 +1,4 @@
-"""
-导航到 AI创作 页（旧流程兼容）
-"""
+"""导航到 AI创作 页（旧流程兼容）。"""
 
 from typing import Any, Dict, Optional
 
@@ -39,10 +37,12 @@ class NavigateToAICreateStep:
         # 尝试点击导航（best-effort）
         try:
             if hasattr(page, "click"):
-                await page.click('.nav-routerTo-item:has-text(\"AI创作\")', timeout=10000)
+                await page.click('.nav-routerTo-item:has-text("AI创作")', timeout=10000)
         except Exception:
             pass
 
         ok = await self._verify_ai_create_page()
         return {"success": bool(ok), "page_state": PageState.AI_CREATE.value if ok else "UNKNOWN"}
 
+
+__all__ = ["NavigateToAICreateStep", "get_current_page_state"]

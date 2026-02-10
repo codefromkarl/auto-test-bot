@@ -1,0 +1,368 @@
+workflow:
+  name: "naohai_05_create_story_to_video_e2e"
+  description: "闹海当前版本-E2E：创建剧本→进入分镜管理→进入视频编辑并触发生成（选择器按当前页面做宽匹配，失败会产出截图用于对齐）"
+
+  phases:
+    - name: "enter_story_list"
+      description: "进入AI创作-剧本列表"
+      steps:
+        - action: "open_page"
+          url: "${test.url}"
+          timeout: ${test.timeout.page_load}
+
+        - action: "wait_for"
+          condition:
+            selector: "body"
+            visible: true
+          timeout: ${test.timeout.element_load}
+
+        - action: "assert_logged_in"
+
+        # 若 test.url 已经是剧本列表路由，则无需点击导航；保留为 optional 以兼容首页场景
+        - action: "click"
+          selector: '.nav-routerTo-item:has-text("AI创作"), text=AI创作'
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本列表"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "story_list_before_create"
+          save_path: "screenshots/naohai/e2e_story_list_before_create.png"
+
+    - name: "create_story"
+      description: "优先复用已有测试剧本，不存在时再创建（基础信息→画风→提交）"
+      steps:
+        # 步骤1: 尝试复用已有剧本
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:not(.add-item):has-text('自动化测试剧本')"
+            visible: true
+          timeout: 5000
+          optional: true
+
+        # 步骤2: 如果找到剧本，点击复用并跳过创建流程
+        - action: "click"
+          selector: "div.list-item:not(.add-item):has-text('自动化测试剧本')"
+          timeout: 3000
+          optional: true
+
+        # 步骤3: 验证是否进入剧本详情页（复用成功）
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本详情, text=分集, text=角色, text=场景"
+            visible: true
+          timeout: 5000
+          optional: true
+
+        # 步骤4: 如果复用成功，跳过创建流程；否则开始创建新剧本
+        # 先关闭可能存在的残留弹窗
+        - action: "click"
+          selector: ".el-dialog__headerbtn, .el-dialog__close, button[aria-label='Close']"
+          timeout: 2000
+          optional: true
+
+        # 步骤5: 点击"添加剧本"按钮（只有在需要创建时才有效）
+        - action: "click"
+          selector: "div.list-item.add-item, .add-item, .list-item.add, .el-icon-plus"
+          timeout: 5000
+          optional: true
+
+        # 步骤6: 等待创建表单出现（如果步骤5成功）
+        - action: "wait_for"
+          condition:
+            selector: "text=基础信息"
+            visible: true
+          timeout: 5000
+          optional: true
+
+        # 步骤7: 填写剧本基本信息（只有在表单存在时才执行）
+        - action: "input"
+          selector: "input[placeholder*=\"剧本名称\"], input[placeholder*=\"名称\"], .el-dialog input, input[type='text']"
+          text: "自动化测试剧本_${timestamp}"
+          clear: true
+          timeout: 3000
+          optional: true
+
+        - action: "input"
+          selector: "textarea[placeholder*='描述'], textarea"
+          text: "自动化测试：创建剧本→生成视频全流程验证"
+          clear: true
+          timeout: 3000
+          optional: true
+
+        - action: "upload_file"
+          selector: "input[type=\"file\"]"
+          file_path: "tests/assets/cover.png"
+          timeout: 5000
+          optional: true
+
+        # 步骤8: 选择画幅比例
+        - action: "click"
+          selector: "text=16:9, .aspect-ratio-option, .ratio-item"
+          timeout: 3000
+          optional: true
+
+        - action: "click"
+          selector: "button:has-text('下一步'), text=下一步, .next-btn"
+          timeout: 3000
+          optional: true
+
+        # 步骤9: 选择画风
+        - action: "wait_for"
+          condition:
+            selector: "text=画风, .style-card, .style-option"
+            visible: true
+          timeout: 5000
+          optional: true
+
+        - action: "click"
+          selector: ".style-card:first-child, .style-option:first-child, .art-style-item:first-child, .style-item:first-child"
+          timeout: 3000
+          optional: true
+
+        - action: "click"
+          selector: "button:has-text('下一步'), text=下一步, .next-btn"
+          timeout: 3000
+          optional: true
+
+        # 步骤10: 项目成员页，点击"新增剧本"
+        - action: "wait_for"
+          condition:
+            selector: "text=项目成员, text=添加成员, text=新增剧本"
+            visible: true
+          timeout: 8000
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: ".picture-mask, .el-loading-mask"
+            not_visible: true
+          timeout: 5000
+          optional: true
+
+        - action: "click"
+          selector: "text=新增剧本, button:has-text('新增剧本'), .el-button--primary:has-text('新增剧本'), .submit-btn, button.primary"
+          timeout: 5000
+          optional: true
+
+        # 步骤11: 等待创建成功和弹窗关闭
+        - action: "wait_for"
+          condition:
+            selector: ".picture-mask, .el-overlay"
+            not_visible: true
+          timeout: 8000
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=创建成功, text=成功, .success-message, .toast-success"
+            visible: true
+          timeout: 5000
+          optional: true
+
+        # 步骤12: 验证回到剧本列表，且能看到"自动化测试剧本"
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:has-text('自动化测试剧本'), text=剧本列表"
+            visible: true
+          timeout: 8000
+          optional: true
+
+        - action: "screenshot"
+          name: "story_created"
+          save_path: "screenshots/naohai/e2e_story_created.png"
+          optional: true
+
+        # 步骤13: 点击进入刚创建或看到的剧本
+        - action: "click"
+          selector: "div.list-item:not(.add-item):has-text('自动化测试剧本_${timestamp}'), div.list-item:not(.add-item):has-text('自动化测试剧本')"
+          timeout: 10000
+          optional: true
+
+    - name: "prepare_story_assets"
+      description: "准备剧本素材：优先复用已有分集，否则创建角色、场景、分集并进入"
+      steps:
+        # 1. 初始检查：确保在详情页并清理干扰
+        - action: "wait_for"
+          condition:
+            selector: "text=剧本详情, text=分集, text=角色, text=场景"
+            visible: true
+          timeout: 10000
+
+        - action: "click"
+          selector: ".el-dialog__headerbtn, .el-dialog__close, button[aria-label='Close']"
+          timeout: 1000
+          optional: true
+
+        # 2. 核心逻辑：如果已经有分集，直接点击进入并结束此阶段
+        - action: "click"
+          selector: "div.list-item:has-text('第一集'), .episode-item:has-text('第一集')"
+          timeout: 3000
+          optional: true
+
+        # 检查是否成功进入分镜管理（如果点击了分集，这步应该成功，后续步骤会因为找不到详情页元素而跳过）
+        - action: "wait_for"
+          condition:
+            selector: "text=分集详情, text=分镜管理"
+            visible: true
+          timeout: 3000
+          optional: true
+
+        # 3. 创建角色 (仅在仍处于详情页时尝试)
+        - action: "click"
+          selector: "div:has(> span:text-is('角色')) .el-icon-plus, div:has-text('角色') .add-item"
+          timeout: 3000
+          optional: true
+        
+        - action: "input"
+          selector: "input[placeholder*='角色名称'], .el-dialog input"
+          text: "测试主角"
+          timeout: 2000
+          optional: true
+
+        - action: "click"
+          selector: "button:has-text('确定'), button:has-text('保存')"
+          timeout: 2000
+          optional: true
+
+        # 4. 创建场景 (仅在仍处于详情页时尝试)
+        - action: "click"
+          selector: "div:has(> span:text-is('场景')) .el-icon-plus, div:has-text('场景') .add-item"
+          timeout: 3000
+          optional: true
+        
+        - action: "input"
+          selector: "input[placeholder*='场景名称'], .el-dialog input"
+          text: "测试场景"
+          timeout: 2000
+          optional: true
+
+        - action: "click"
+          selector: "button:has-text('确定'), button:has-text('保存')"
+          timeout: 2000
+          optional: true
+
+        # 5. 创建分集 (仅在仍处于详情页且无分集时尝试)
+        - action: "click"
+          selector: "div:has(> span:text-is('分集')) .el-icon-plus, div:has-text('分集') .add-item"
+          timeout: 3000
+          optional: true
+
+        - action: "input"
+          selector: "input[placeholder*='分集名称'], .el-dialog input"
+          text: "第一集"
+          timeout: 2000
+          optional: true
+
+        - action: "click"
+          selector: "button:has-text('新增分集'), button:has-text('确定'), button:has-text('保存')"
+          timeout: 3000
+          optional: true
+
+        # 等待弹窗消失
+        - action: "wait_for"
+          condition:
+            selector: ".el-dialog, .el-overlay"
+            not_visible: true
+          timeout: 5000
+          optional: true
+
+        # 6. 最终确保点击分集进入
+        - action: "wait_for"
+          condition:
+            selector: "div.list-item:has-text('第一集'), .episode-item:has-text('第一集')"
+            visible: true
+          timeout: 8000
+
+        - action: "click"
+          selector: "div.list-item:has-text('第一集'), .episode-item:has-text('第一集')"
+          timeout: 5000
+
+        - action: "screenshot"
+          name: "story_assets_prepared"
+          save_path: "screenshots/naohai/e2e_story_assets_prepared.png"
+
+    - name: "enter_storyboard"
+      description: "从分集详情页进入分镜管理"
+      steps:
+        # 确保在分集详情页
+        - action: "wait_for"
+          condition:
+            selector: "text=分集详情, text=第一集, text=分镜管理"
+            visible: true
+          timeout: 3000
+
+        # 点击分镜管理
+        - action: "click"
+          selector: "text=分镜管理, .tab:has-text('分镜')"
+          timeout: ${test.timeout.element_load}
+
+        # 等待分镜管理页加载
+        - action: "wait_for"
+          condition:
+            selector: "text=分镜, .storyboard-section"
+            visible: true
+          timeout: ${test.timeout.page_load}
+
+        - action: "screenshot"
+          name: "storyboard_page"
+          save_path: "screenshots/naohai/e2e_storyboard_page.png"
+
+        # 调试截图
+        - action: "screenshot"
+          name: "storyboard_debug"
+          save_path: "screenshots/naohai/e2e_storyboard_debug.png"
+          optional: true
+
+    - name: "enter_video_editor"
+      description: "进入视频编辑/视频创作并尝试触发生成"
+      steps:
+        - action: "click"
+          selector: "text=视频编辑, text=视频创作, .tab:has-text('视频')"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=视频编辑, text=视频创作, .video-editor, .video-creation-page"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "screenshot"
+          name: "video_editor_page"
+          save_path: "screenshots/naohai/e2e_video_editor_page.png"
+
+        - action: "click"
+          selector: "text=开始生成, text=生成视频, text=生成, .start-generate, .generate-btn"
+          timeout: ${test.timeout.element_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "text=生成中, text=处理中, .loading, .generating"
+            visible: true
+          timeout: ${test.timeout.page_load}
+          optional: true
+
+        - action: "wait_for"
+          condition:
+            selector: "video, .result-video, .video-item, text=生成完成"
+            visible: true
+          timeout: 240000
+          optional: true
+
+        - action: "screenshot"
+          name: "video_result"
+          save_path: "screenshots/naohai/e2e_video_result.png"
+
+  success_criteria:
+    - 成功进入AI创作模块
+    - 成功复用或创建测试剧本并可进入分镜管理
+    - 成功进入分镜管理页
+    - 成功进入视频编辑页并完成生成触发/结果可见

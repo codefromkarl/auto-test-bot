@@ -6,17 +6,17 @@ test:
   flow_name: "nowhi_basic_navigation"
 
   # 测试目标网站
-  url: "http://<NOWHI_HOST>/nowhi/index.html"
-
-  # url: "http://localhost:9020/#/home/dashboard"
+  url: "http://localhost:9020/nowhi/index.html"
+  # 远端环境请自行替换，例如：
+  # url: "http://<NOWHI_HOST>/nowhi/index.html"
 
   # 超时设置 (毫秒)
   timeout: 30000
 
   # 页面加载超时
-  page_load_timeout: 120000
+  page_load_timeout: 30000
 
-  # 元素等待超时
+  # 元素等待超时 (UI操作快速失败)
   element_timeout: 10000
 
   # DOM 选择器配置
@@ -64,17 +64,17 @@ execution:
   phase_success_mode: "strict"
   # true：非 optional 步骤失败后立即停止执行该 phase 剩余步骤（减少无意义等待）
   fail_fast: true
-  # wait_for 最大等待上限（毫秒），即使 workflow 写了更大的 timeout 也会被裁剪
-  max_wait_for_timeout_ms: 240000
-  # 任一单步最大执行时长（毫秒）；超过即终止该步并判失败（用于“4分钟以上等待就终止”）
-  max_step_duration_ms: 240000
+  # wait_for 最大等待上限（毫秒）
+  max_wait_for_timeout_ms: 60000
+  # 任一单步最大执行时长（毫秒）；超过即终止该步并判失败
+  max_step_duration_ms: 60000
   # 失败现场自动截图（best-effort）
   screenshot_on_error: true
   screenshots_dir: "screenshots/errors"
-  # 任一阶段失败后停止该 workflow（避免前置失败还继续跑后续阶段造成“看起来卡住”）
+  # 任一阶段失败后停止该 workflow
   stop_on_phase_failure: true
-  # 自动基线准备：每个 workflow 执行前确保 AI创作/剧本列表至少有 1 个剧本卡片（无则自动创建）
-  auto_ensure_baseline: true
+  # 自动基线准备：关闭，避免前置干扰
+  auto_ensure_baseline: false
   ensure_baseline_min_story_cards: 1
 
 # 失败边界定义 (Failure Boundaries)
@@ -87,22 +87,25 @@ failure_boundaries:
 
   # High级别：重试3次后停止
   high:
-    - "auth_failure"            # 认证失败
-    - "workflow_file_not_found"  # 工作流文件缺失
+    types:
+      - "auth_failure"            # 认证失败
+      - "workflow_file_not_found"  # 工作流文件缺失
     max_retries: 3
     retry_delay: 5  # 秒
 
   # Medium级别：继续执行后续用例
   medium:
-    - "element_not_found"       # 页面元素缺失
-    - "timeout_unexpected"      # 操作超时
-    - "assertion_failed"        # 业务断言失败
+    types:
+      - "element_not_found"       # 页面元素缺失
+      - "timeout_unexpected"      # 操作超时
+      - "assertion_failed"        # 业务断言失败
     continue_on_failure: true
 
   # Low级别：记录但不影响执行
   low:
-    - "report_generation_failed" # 报告生成失败
-    - "file_write_error"        # 非关键文件写入失败
+    types:
+      - "report_generation_failed" # 报告生成失败
+      - "file_write_error"        # 非关键文件写入失败
     log_only: true
 
 # 测试步骤配置（重构版本）

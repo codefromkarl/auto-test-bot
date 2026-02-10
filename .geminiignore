@@ -286,3 +286,7 @@ __pycache__/
 # ============================================================================
 # Custom Rules (Add your project-specific rules below)
 # ============================================================================
+
+# Allow screenshots for analysis
+!screenshots/
+!*.png

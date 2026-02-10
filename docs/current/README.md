@@ -1,118 +1,105 @@
-# 当前有效文档（Current Documents）
+# Current Documentation
 
-## 📋 文档说明
+## 📋 概述
 
-**更新时间**：2025-12-18
-**文档类型**：当前有效文档导航
-**维护范围**：docs/current/ 目录下文档为当前有效版本
+本目录包含闹海自动化测试平台的当前活跃文档，涵盖实现指南、使用手册和最佳实践等实用内容。
 
 ---
 
-## 🎯 文档分类
+## 📖 核心文档
 
-### 1. 📖 核心项目文档
-这些文档包含项目的核心架构、迁移成果和优化计划：
+### 🚀 快速开始
+- **[README.md](README.md)** - 当前文档导航和概览
+- **[Documentation Guide](DOCUMENTATION_GUIDE.md)** - 文档编写和维护指南
+- **[Structure Summary](STRUCTURE_SUMMARY.md)** - 项目结构和组织说明
 
-| 文档 | 状态 | 描述 | 维护频率 |
-|------|------|------|----------|
-| **项目总览** | 📖 有效 | [../README.md](../README.md) - 项目完整使用指南 | 按需更新 |
-| **架构总览** | 📖 有效 | [../architecture-design/README.md](../architecture-design/README.md) - 三层架构设计 | 需重大更新时 |
-| **RF迁移成果** | 📖 最新 | [../RF_MIGRATION_FINAL_SUMMARY.md](../RF_MIGRATION_FINAL_SUMMARY.md) - 59个FC迁移总结 | 不定期更新 |
-| **项目优化** | 📖 最新 | [../optimization_todo.md](../optimization_todo.md) - 详细优化计划 | 按需更新 |
+### 🛠️ 实现指南
+- **[E2E Golden Path](E2E_GOLDEN_PATH_IMPLEMENTATION_GUIDE.md)** - 端到端黄金路径实现
+- **[Workflow Guide](WORKFLOW_GUIDE.md)** - 工作流开发和使用指南
+- **[Documentation Index](DOCUMENTATION_INDEX.md)** - 文档索引和分类
 
-### 2. 📊 项目指南文档
-这些文档提供具体的使用和配置指南：
-
-| 文档 | 状态 | 描述 | 适用角色 |
-|------|------|------|----------|
-| **工作流使用** | 📖 有效 | [../README_WORKFLOWS.md](../README_WORKFLOWS.md) - 测试流程指南 | 开发、测试 |
-| **MCP调试使用** | 📖 有效 | [../chrome-devtools-mcp-guide.md](../chrome-devtools-mcp-guide.md) - 调试工具指南 | 开发、调试 |
-| **监控SLO指南** | 📖 有效 | [../monitoring-slos.md](../monitoring-slos.md) - 监控指标定义 | 运维、监控 |
-
-### 3. 📈 验证和报告文档
-这些文档记录项目验证过程和结果：
-
-| 文档 | 状态 | 描述 | 使用场景 |
-|------|------|------|----------|
-| **RF迁移验证** | 📖 最新 | [../rf_full_migration_verification_report.md](../rf_full_migration_verification_report.md) - 详细验证报告 | 质量检查 |
-| **最终成功总结** | 📖 有效 | [../FINAL_SUCCESS_SUMMARY.md](../FINAL_SUCCESS_SUMMARY.md) - 项目成果总结 | 项目汇报 |
-
-### 4. 📁 配置和工具文档
-这些文档提供配置模板和使用工具：
-
-| 文档 | 状态 | 描述 | 适用场景 |
-|------|------|------|----------|
-| **测试用例索引** | 📖 有效 | [workflows/fc/FC_INDEX.md](../workflows/fc/FC_INDEX.md) - FC用例索引 | 测试管理 |
-| **迁移工具指南** | 📖 有效 | [../scripts/rf_migration_tools.md](../scripts/rf_migration_tools.md) - 迁移工具使用 | 开发团队 |
+### 🧪 测试指南
+- **[Testing & Bug Guide](TESTING_AND_BUG_GUIDE.md)** - 测试执行和缺陷处理
+- **[Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md)** - 问题排查和解决方案
 
 ---
 
-## 🚀 快速导航
+## 📊 文档状态
 
-### 🆕 新手入门
-1. 阅读 **[项目README](../README.md)** 了解项目基础
-2. 查看 **[RF迁移总结](../RF_MIGRATION_FINAL_SUMMARY.md)** 了解项目成果
-3. 使用 **[工作流指南](../README_WORKFLOWS.md)** 开始配置测试
-
-### 👨 开发人员
-1. 查看 **[架构总览](../architecture-design/README.md)** 理解系统设计
-2. 参考 **[RF迁移总结](../RF_MIGRATION_FINAL_SUMMARY.md)** 学习RF语义化最佳实践
-3. 使用 **[项目优化计划](../optimization_todo.md)** 了解后续开发方向
-
-### 🔧 测试人员
-1. 使用 **[工作流指南](../README_WORKFLOWS.md)** 配置测试用例
-2. 参考 **[RF迁移验证](../rf_full_migration_verification_report.md)** 了解质量标准
-3. 查看 **[FC用例索引](../workflows/fc/FC_INDEX.md)** 管理测试用例
-
-### 👥 项目经理
-1. 查阅 **[RF迁移总结](../RF_MIGRATION_FINAL_SUMMARY.md)** 了解项目成果
-2. 参考 **[项目优化计划](../optimization_todo.md)** 制定资源计划
-3. 使用 **[最终成功总结](../FINAL_SUCCESS_SUMMARY.md)** 进行项目汇报
+| 文档 | 维护状态 | 更新频率 | 负责人 |
+|------|---------|---------|--------|
+| README.md | ✅ 活跃 | 按需更新 | 项目维护者 |
+| DOCUMENTATION_GUIDE.md | ✅ 活跃 | 季度更新 | 技术写作团队 |
+| E2E_GOLDEN_PATH_IMPLEMENTATION_GUIDE.md | ✅ 活跃 | 版本发布时更新 | 测试团队 |
+| WORKFLOW_GUIDE.md | ✅ 活跃 | 功能更新时同步 | 开发团队 |
+| TESTING_AND_BUG_GUIDE.md | ✅ 活跃 | 持续更新 | QA团队 |
+| TROUBLESHOOTING_GUIDE.md | ✅ 活跃 | 问题解决后更新 | 运维团队 |
 
 ---
 
-## ⚠️ 使用注意事项
+## 🎯 使用场景
 
-### 文档有效性
-- ✅ **本目录下的文档均为当前有效版本**
-- ⚠️ **历史文档已归档**：查看 `../archived/` 目录
-- ✅ **优先使用当前文档**：避免使用过时信息
+### 👨‍💻 开发者
+1. **新项目入门**: 阅读 [Structure Summary](STRUCTURE_SUMMARY.md) 了解项目结构
+2. **工作流开发**: 参考 [Workflow Guide](WORKFLOW_GUIDE.md) 开发新的测试流程
+3. **问题排查**: 使用 [Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md) 解决开发问题
 
-### 文档更新机制
-- 🔄 **自动更新**：重大功能完成后自动更新
-- 📅 **手动更新**：配置和流程变更时手动更新
-- 📋 **定期审查**：每季度检查文档准确性
+### 🧪 测试工程师
+1. **测试执行**: 参考 [E2E Golden Path](E2E_GOLDEN_PATH_IMPLEMENTATION_GUIDE.md) 执行测试
+2. **缺陷处理**: 使用 [Testing & Bug Guide](TESTING_AND_BUG_GUIDE.md) 管理缺陷
+3. **文档编写**: 遵循 [Documentation Guide](DOCUMENTATION_GUIDE.md) 编写测试文档
 
-### 反馈机制
-- 🐛 **问题反馈**：通过项目管理工具提交文档问题
-- 📝 **改进建议**：在团队会议中提出文档改进意见
-- ✅ **质量保证**：重要更新后进行交叉检查
-
----
-
-## 🔗 外部参考
-
-### 开发资源
-- **Playwright文档**：https://playwright.dev/docs
-- **Python最佳实践**：团队内部约定
-- **代码规范**：项目开发规范文档
-
-### 项目管理
-- **项目管理系统**：[项目链接]
-- **代码仓库**：[仓库链接]
-- **持续集成**：[CI/CD链接]
+### 🏗️ 架构师
+1. **架构理解**: 通过 [Structure Summary](STRUCTURE_SUMMARY.md) 理解项目架构
+2. **设计文档**: 使用 [Documentation Guide](DOCUMENTATION_GUIDE.md) 编写设计文档
+3. **标准制定**: 基于现有文档制定团队标准
 
 ---
 
-## 📞 维护信息
+## 📝 文档维护
 
-**维护团队**：项目团队
-**更新频率**：按需更新 + 季度审查
-**质量标准**：准确性、清晰性、完整性
-**版本控制**：Git版本跟踪
+### 维护原则
+- **及时更新**: 功能变更时同步更新相关文档
+- **质量保证**: 所有文档都需要经过技术评审
+- **版本管理**: 重要文档变更需要记录版本历史
+- **用户反馈**: 定期收集用户反馈并改进文档
+
+### 贡献指南
+1. **新建文档**: 遵循现有文档的格式和风格
+2. **修改文档**: 保持内容准确性和时效性
+3. **文档评审**: 重要变更需要团队评审
+4. **发布流程**: 通过标准流程发布文档更新
 
 ---
 
-**文档版本**：v1.0
-**最后更新**：2025-12-18
-**下次审查**：2026-03-18（建议季度审查）
+## 🔗 相关资源
+
+### 📚 架构文档
+- **[Architecture Design](../architecture-design/)** - 系统架构和设计文档
+- **[ADR Documents](../adr/)** - 架构决策记录
+
+### 🔧 高级功能
+- **[Advanced Features](../advanced_features_guide.md)** - 高级功能使用指南
+- **[Chrome DevTools](../chrome-devtools-mcp-guide.md)** - DevTools集成指南
+- **[Boundary Conditions](../boundary_condition_guide.md)** - 边界条件测试
+
+### 📖 业务文档
+- **[闹海关键流程](../闹海关键流程.md)** - 业务流程说明
+- **[Workflow Manifest](../NAOHAI_WORKFLOW_MANIFEST.md)** - 工作流清单
+
+---
+
+## 📞 获取帮助
+
+如果在使用文档时遇到问题：
+
+1. **文档内容问题**: 查看文档中的联系方式或提交Issue
+2. **技术问题**: 参考 [Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md)
+3. **功能建议**: 通过项目管理系统提交功能请求
+4. **文档改进**: 直接提交Pull Request或联系文档维护团队
+
+---
+
+**最后更新**: 2025-12-21  
+**维护状态**: ✅ 活跃维护  
+**文档数量**: 8个核心文档

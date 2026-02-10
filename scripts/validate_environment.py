@@ -4,6 +4,7 @@
 """
 
 import sys
+import os
 import requests
 import time
 from pathlib import Path
@@ -14,7 +15,8 @@ def check_environment():
 
     # 检查网站可达性
     try:
-        response = requests.get('http://<NOWHI_HOST>/nowhi/index.html', timeout=10)
+        test_url = os.getenv("NOWHI_TEST_URL", "http://localhost:9020/nowhi/index.html")
+        response = requests.get(test_url, timeout=10)
         if response.status_code == 200:
             print("✅ 网站可达性检查通过")
         else:
