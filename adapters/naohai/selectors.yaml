@@ -1,0 +1,13 @@
+# 闹海业务选择器配置
+navigation:
+  ai_creation: '.nav-routerTo-item:has-text("AI创作"), text=AI创作'
+  story_list: 'text=剧本列表'
+  storyboard: '.step-item:has-text("分镜管理"), text=分镜管理'
+
+story_list:
+  card: 'div.list-item:not(.add-item)'
+  add_btn: '.add-item'
+
+storyboard:
+  container: '.storyboard-section'
+  suggest_btn: '.suggest-count, text=建议分镜'

@@ -1,0 +1,149 @@
+{
+  "timestamp": "2026-01-03T01:27:44.292945",
+  "context": {
+    "characters": [
+      {
+        "name": "cat",
+        "features": {
+          "color": [
+            255,
+            200,
+            100
+          ]
+        }
+      }
+    ],
+    "scenes": [
+      "garden"
+    ],
+    "style": "cartoon"
+  },
+  "overall_score": 0.0,
+  "status": "error",
+  "summary": {
+    "timestamp": "2026-01-03T01:27:44.292945",
+    "overall_score": 0.0,
+    "status": "error",
+    "categories": {
+      "videos": {
+        "count": 2,
+        "avg_score": 0.0,
+        "passed": 0,
+        "failed": 1,
+        "error": 1,
+        "warning": 0
+      },
+      "consistency": {
+        "count": 3,
+        "avg_score": 0.0,
+        "passed": 0,
+        "failed": 3,
+        "error": 0,
+        "warning": 0
+      }
+    }
+  },
+  "results": {
+    "videos": [
+      {
+        "item_id": "video_0",
+        "validation_type": "video_basic",
+        "status": "error",
+        "score": 0.0,
+        "details": {
+          "error": "Failed to read video information"
+        },
+        "timestamp": "2026-01-03T01:27:44.292956"
+      },
+      {
+        "item_id": "video_0_relevance",
+        "validation_type": "video_relevance",
+        "status": "failed",
+        "score": 0.0,
+        "details": {
+          "error": "Failed to extract frames from video"
+        },
+        "timestamp": "2026-01-03T01:27:44.293144"
+      }
+    ],
+    "consistency": [
+      {
+        "item_id": "character_consistency",
+        "validation_type": "character_consistency",
+        "status": "failed",
+        "score": 0.0,
+        "details": {
+          "error": "No valid frames found"
+        },
+        "timestamp": "2026-01-03T01:27:44.293217"
+      },
+      {
+        "item_id": "scene_consistency",
+        "validation_type": "scene_consistency",
+        "status": "failed",
+        "score": 0.0,
+        "details": {
+          "error": "No valid frames found"
+        },
+        "timestamp": "2026-01-03T01:27:44.293259"
+      },
+      {
+        "item_id": "style_consistency",
+        "validation_type": "style_consistency",
+        "status": "failed",
+        "score": 0.0,
+        "details": {
+          "error": "No valid frames found"
+        },
+        "timestamp": "2026-01-03T01:27:44.293295"
+      }
+    ]
+  },
+  "key_issues": [
+    {
+      "category": "videos",
+      "item_id": "video_0",
+      "type": "video_basic",
+      "status": "error",
+      "score": 0.0,
+      "reason": "No reason provided",
+      "error": "Failed to read video information"
+    },
+    {
+      "category": "videos",
+      "item_id": "video_0_relevance",
+      "type": "video_relevance",
+      "status": "failed",
+      "score": 0.0,
+      "reason": "No reason provided",
+      "error": "Failed to extract frames from video"
+    },
+    {
+      "category": "consistency",
+      "item_id": "character_consistency",
+      "type": "character_consistency",
+      "status": "failed",
+      "score": 0.0,
+      "reason": "No reason provided",
+      "error": "No valid frames found"
+    },
+    {
+      "category": "consistency",
+      "item_id": "scene_consistency",
+      "type": "scene_consistency",
+      "status": "failed",
+      "score": 0.0,
+      "reason": "No reason provided",
+      "error": "No valid frames found"
+    },
+    {
+      "category": "consistency",
+      "item_id": "style_consistency",
+      "type": "style_consistency",
+      "status": "failed",
+      "score": 0.0,
+      "reason": "No reason provided",
+      "error": "No valid frames found"
+    }
+  ]
+}

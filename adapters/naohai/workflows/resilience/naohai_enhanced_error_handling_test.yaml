@@ -1,0 +1,386 @@
+workflow:
+  name: "naohai_enhanced_error_handling_test"
+  description: "闹海增强错误处理测试 - 网络模拟、异常处理和恢复验证"
+  version: "error-handling-v1.0"
+  timeout: 600000  # 10分钟超时
+
+  # 错误处理测试初始化
+  suite_setup:
+    - action: "open_site"
+      url: "${test.url}"
+      timeout: ${test.timeout.page_load}
+
+    - action: "navigate_to_ai_create"
+      timeout: ${test.timeout.navigation}
+
+    - action: "initialize_network_simulator"
+      simulator_config:
+        enable_monitoring: true
+        log_level: "INFO"
+
+  # 增强错误处理测试场景
+  phases:
+    # 场景1: 网络条件模拟测试
+    - name: "network_condition_simulation"
+      description: "测试不同网络条件下的系统行为"
+      steps:
+        # 正常网络条件测试
+        - action: "set_network_condition"
+          condition: "normal"
+          verify_response: true
+
+        - action: "perform_basic_operations"
+          operations: ["create_script", "add_episode", "upload_image"]
+          expected_performance: "excellent"
+
+        - action: "screenshot"
+          name: "network_normal_completed"
+          save_path: "screenshots/error_handling/network_normal.png"
+
+        # 慢速3G网络测试
+        - action: "set_network_condition"
+          condition: "slow_3g"
+          verify_response: true
+
+        - action: "perform_basic_operations"
+          operations: ["create_script", "add_episode"]
+          expected_performance: "acceptable"
+          timeout_extension: 2.0
+
+        - action: "verify_user_experience"
+          check_loading_indicators: true
+          check_timeout_handling: true
+          max_acceptable_delay: 10000  # 10秒
+
+        - action: "screenshot"
+          name: "network_slow_3g_completed"
+          save_path: "screenshots/error_handling/network_slow_3g.png"
+
+        # 不稳定网络测试
+        - action: "set_network_condition"
+          condition: "unstable"
+          verify_response: true
+
+        - action: "test_resilient_operations"
+          operations: ["create_script_with_retry", "auto_save_functionality"]
+          verify_retry_mechanism: true
+          max_retry_attempts: 3
+
+        - action: "screenshot"
+          name: "network_unstable_completed"
+          save_path: "screenshots/error_handling/network_unstable.png"
+
+        # 离线模式测试
+        - action: "set_network_condition"
+          condition: "offline"
+          verify_response: true
+
+        - action: "test_offline_functionality"
+          features: ["cached_data_access", "local_storage", "offline_indicators"]
+          expected_behavior: "graceful_degradation"
+
+        - action: "screenshot"
+          name: "network_offline_completed"
+          save_path: "screenshots/error_handling/network_offline.png"
+
+    # 场景2: 异常恢复机制测试
+    - name: "exception_recovery_mechanisms"
+      description: "测试各种异常情况下的恢复机制"
+      steps:
+        # 超时异常恢复
+        - action: "inject_timeout_error"
+          target_operation: "ai_content_generation"
+          timeout_duration: 5000  # 5秒超时
+
+        - action: "verify_timeout_recovery"
+          expected_actions: ["show_timeout_message", "offer_retry", "preserve_user_input"]
+
+        - action: "screenshot"
+          name: "timeout_recovery_verified"
+          save_path: "screenshots/error_handling/timeout_recovery.png"
+
+        # 服务器错误恢复
+        - action: "inject_server_error"
+          error_code: 500
+          error_message: "Internal Server Error"
+          affected_operations: ["script_save", "image_upload"]
+
+        - action: "verify_server_error_recovery"
+          expected_actions: ["show_error_message", "retry_with_backoff", "fallback_to_cache"]
+
+        - action: "screenshot"
+          name: "server_error_recovery_verified"
+          save_path: "screenshots/error_handling/server_error_recovery.png"
+
+        # 网络中断恢复
+        - action: "simulate_network_interruption"
+          duration: 10000  # 10秒中断
+          during_operations: ["video_processing", "large_file_upload"]
+
+        - action: "verify_network_recovery"
+          expected_actions: ["auto_resume", "progress_preservation", "user_notification"]
+
+        - action: "screenshot"
+          name: "network_interruption_recovery_verified"
+          save_path: "screenshots/error_handling/network_interruption_recovery.png"
+
+        # 认证错误恢复
+        - action: "simulate_session_expiry"
+          trigger_after_operation: "project_creation"
+
+        - action: "verify_auth_recovery"
+          expected_actions: ["prompt_relogin", "restore_session", "preserve_work_state"]
+
+        - action: "screenshot"
+          name: "auth_recovery_verified"
+          save_path: "screenshots/error_handling/auth_recovery.png"
+
+    # 场景3: 智能重试机制测试
+    - name: "intelligent_retry_mechanisms"
+      description: "测试智能重试机制的有效性"
+      steps:
+        # 指数退避重试
+        - action: "test_exponential_backoff_retry"
+          error_types: ["network_timeout", "server_busy"]
+          initial_delay: 1000  # 1秒
+          max_delay: 30000    # 30秒
+          max_retries: 5
+
+        - action: "verify_retry_behavior"
+          expected_backoff_pattern: "exponential"
+          verify_delay_increments: true
+
+        - action: "screenshot"
+          name: "exponential_backoff_retry_verified"
+          save_path: "screenshots/error_handling/exponential_backoff_retry.png"
+
+        # 线性退避重试
+        - action: "test_linear_backoff_retry"
+          error_types: ["rate_limit_error"]
+          initial_delay: 5000  # 5秒
+          increment: 2000       # 每次增加2秒
+          max_retries: 3
+
+        - action: "verify_linear_retry_behavior"
+          expected_backoff_pattern: "linear"
+          verify_consistent_increments: true
+
+        - action: "screenshot"
+          name: "linear_backoff_retry_verified"
+          save_path: "screenshots/error_handling/linear_backoff_retry.png"
+
+        # 条件重试（特定错误不重试）
+        - action: "test_conditional_retry"
+          non_retryable_errors: ["authentication_error", "permission_denied"]
+          retryable_errors: ["network_error", "temporary_server_error"]
+
+        - action: "verify_conditional_retry_behavior"
+          verify_no_retry_on_non_retryable: true
+          verify_retry_on_retryable: true
+
+        - action: "screenshot"
+          name: "conditional_retry_verified"
+          save_path: "screenshots/error_handling/conditional_retry.png"
+
+    # 场景4: 优雅降级测试
+    - name: "graceful_degradation_test"
+      description: "测试系统在资源受限时的优雅降级"
+      steps:
+        # 功能降级
+        - action: "simulate_resource_constraints"
+          constraints:
+            memory_available: "256MB"
+            cpu_available: "30%"
+            network_bandwidth: "1Mbps"
+
+        - action: "verify_functionality_degradation"
+          expected_disabled_features: ["ai_content_generation", "advanced_effects"]
+          expected_available_features: ["basic_editing", "text_input", "local_save"]
+
+        - action: "screenshot"
+          name: "functionality_degradation_verified"
+          save_path: "screenshots/error_handling/functionality_degradation.png"
+
+        # 性能降级
+        - action: "simulate_high_load"
+          concurrent_users: 100
+          operations_per_second: 50
+          duration: 60000  # 1分钟
+
+        - action: "verify_performance_degradation"
+          acceptable_response_time_increase: "50%"
+          verify_core_functionality_available: true
+
+        - action: "screenshot"
+          name: "performance_degradation_verified"
+          save_path: "screenshots/error_handling/performance_degradation.png"
+
+        # 质量降级
+        - action: "simulate_quality_degradation"
+          enabled_features: ["low_quality_previews", "compressed_media"]
+          disabled_features: ["high_quality_rendering", "full_resolution_previews"]
+
+        - action: "verify_quality_degradation"
+          verify_performance_improvement: true
+          verify_acceptable_quality: true
+
+        - action: "screenshot"
+          name: "quality_degradation_verified"
+          save_path: "screenshots/error_handling/quality_degradation.png"
+
+    # 场景5: 错误监控和报告测试
+    - name: "error_monitoring_and_reporting"
+      description: "测试错误监控和报告机制"
+      steps:
+        # 错误收集
+        - action: "generate_various_errors"
+          error_types: [
+            "client_validation_error",
+            "network_timeout_error", 
+            "server_internal_error",
+            "resource_not_found_error"
+          ]
+          count_per_type: 5
+
+        - action: "verify_error_collection"
+          expected_error_count: 20
+          verify_error_details: true
+          verify_error_context: true
+
+        - action: "screenshot"
+          name: "error_collection_verified"
+          save_path: "screenshots/error_handling/error_collection.png"
+
+        # 错误聚合和分析
+        - action: "test_error_aggregation"
+          time_window: 300000  # 5分钟窗口
+          aggregation_levels: ["by_error_type", "by_frequency", "by_user_impact"]
+
+        - action: "verify_error_analysis"
+          expected_insights: ["error_patterns", "impact_assessment", "trend_analysis"]
+          verify_root_cause_identification: true
+
+        - action: "screenshot"
+          name: "error_analysis_verified"
+          save_path: "screenshots/error_handling/error_analysis.png"
+
+        # 错误报告生成
+        - action: "generate_error_report"
+          report_types: ["summary_report", "detailed_report", "trend_report"]
+          time_range: "last_24_hours"
+          include_recommendations: true
+
+        - action: "verify_report_quality"
+          expected_sections: ["executive_summary", "error_statistics", "recommendations"]
+          verify_data_accuracy: true
+
+        - action: "screenshot"
+          name: "error_report_verified"
+          save_path: "screenshots/error_handling/error_report.png"
+
+    # 场景6: 用户友好的错误处理
+    - name: "user_friendly_error_handling"
+      description: "测试用户友好的错误处理和提示"
+      steps:
+        # 错误消息测试
+        - action: "test_error_messages"
+          message_types: [
+            "clear_explanation",
+            "suggested_action", 
+            "progress_indicator",
+            "recovery_options"
+          ]
+
+        - action: "verify_message_quality"
+          criteria: ["clarity", "actionability", "technical_appropriateness"]
+          language: "chinese"
+          tone: "helpful"
+
+        - action: "screenshot"
+          name: "error_messages_verified"
+          save_path: "screenshots/error_handling/error_messages.png"
+
+        # 错误恢复指导
+        - action: "test_recovery_guidance"
+          error_scenarios: [
+            "file_upload_failed",
+            "ai_generation_error",
+            "network_connection_lost"
+          ]
+
+        - action: "verify_guidance_helpfulness"
+          check_step_by_step_instructions: true
+          verify_visual_aids: true
+          test_alternative_suggestions: true
+
+        - action: "screenshot"
+          name: "recovery_guidance_verified"
+          save_path: "screenshots/error_handling/recovery_guidance.png"
+
+        # 错误预防机制
+        - action: "test_error_prevention"
+          prevention_types: [
+            "input_validation_before_submit",
+            "compatibility_check",
+            "resource_availability_check"
+          ]
+
+        - action: "verify_prevention_effectiveness"
+          measure_prevented_errors: true
+          verify_user_experience: "smooth"
+
+        - action: "screenshot"
+          name: "error_prevention_verified"
+          save_path: "screenshots/error_handling/error_prevention.png"
+
+  # 增强错误处理成功标准
+  success_criteria:
+    - "所有网络条件下系统表现稳定"
+    - "异常恢复机制能够正确处理各种错误"
+    - "智能重试机制有效且不会造成过度重试"
+    - "优雅降级能够在资源受限时保持核心功能"
+    - "错误监控和报告机制完整准确"
+    - "用户友好的错误处理提供清晰指导"
+    - "所有错误场景都有截图记录"
+
+  # 错误处理配置
+  error_handling:
+    retry_configuration:
+      default_max_retries: 3
+      default_initial_delay: 1000  # 1秒
+      max_backoff_delay: 30000      # 30秒
+      backoff_multiplier: 2.0
+
+    timeout_configuration:
+      default_timeout: 30000         # 30秒
+      extended_timeout: 120000       # 2分钟
+      timeout_grace_period: 5000     # 5秒
+
+    degradation_levels:
+      - level: "minimal"
+        preserved_features: ["core_functionality", "user_data"]
+      - level: "moderate" 
+        preserved_features: ["core_functionality", "user_data", "basic_ui"]
+      - level: "severe"
+        preserved_features: ["user_data_preservation", "emergency_exit"]
+
+  # 监控和报告配置
+  monitoring:
+    error_metrics:
+      - "error_frequency_by_type"
+      - "recovery_success_rate"
+      - "user_impact_score"
+      - "resolution_time_distribution"
+      - "retry_pattern_analysis"
+
+    performance_metrics:
+      - "response_time_under_load"
+      - "resource_usage_during_errors"
+      - "system_stability_indicator"
+      - "user_experience_score"
+
+    reporting:
+      real_time_alerts: true
+      batch_report_interval: 3600000  # 1小时
+      include_user_feedback: true
+      auto_escalation_threshold: "critical_error_rate > 5%"

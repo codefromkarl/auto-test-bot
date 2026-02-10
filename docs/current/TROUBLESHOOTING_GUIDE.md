@@ -155,15 +155,15 @@ net::ERR_CONNECTION_TIMED_OUT
 **诊断步骤**：
 ```bash
 # 1. 基础连通性测试
-ping 115.29.232.120
+ping <NOWHI_HOST>
 
 # 2. 端口可访问性
-telnet 115.29.232.120 80
-curl -I http://115.29.232.120/nowhi/index.html
+telnet <NOWHI_HOST> 80
+curl -I http://<NOWHI_HOST>/nowhi/index.html
 
 # 3. DNS解析
-nslookup 115.29.232.120
-dig 115.29.232.120
+nslookup <NOWHI_HOST>
+dig <NOWHI_HOST>
 
 # 4. 代理设置检查
 echo $http_proxy
@@ -177,7 +177,7 @@ export http_proxy=http://proxy.company.com:8080
 export https_proxy=http://proxy.company.com:8080
 
 # 2. 修改hosts文件（如需要）
-sudo echo "115.29.232.120 nowhi.test" >> /etc/hosts
+sudo echo "<NOWHI_HOST> nowhi.test" >> /etc/hosts
 
 # 3. 调整超时设置
 # 编辑 config/config.yaml
@@ -202,7 +202,7 @@ APIError: Service unavailable
 ```bash
 # 1. 检查AI服务状态
 curl http://ai-service.example.com/health
-curl http://115.29.232.120/api/status
+curl http://<NOWHI_HOST>/api/status
 
 # 2. 检查API密钥
 grep -r "api_key" config/
@@ -245,7 +245,7 @@ SelectorError: No element matches selector
 ```bash
 # 1. 使用MCP调试工具
 python -m src.mcp.dom_debugger \
-  --url http://115.29.232.120/nowhi/index.html \
+  --url http://<NOWHI_HOST>/nowhi/index.html \
   --selector "[data-testid='ai-create-btn']"
 
 # 2. 检查页面结构
@@ -254,7 +254,7 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=False)
     page = browser.new_page()
-    page.goto('http://115.29.232.120/nowhi/index.html')
+    page.goto('http://<NOWHI_HOST>/nowhi/index.html')
     page.pause()  # 手动检查
     browser.close()
 "
@@ -561,7 +561,7 @@ def diagnose_system():
 
     # 网络检查
     print("\n4. 网络检查:")
-    test_url = "http://115.29.232.120/nowhi/index.html"
+    test_url = "http://<NOWHI_HOST>/nowhi/index.html"
     try:
         result = subprocess.run(['curl', '-I', test_url],
                               capture_output=True, text=True, timeout=10)

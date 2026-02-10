@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://example.com",
+      "localStorage": [
+        {
+          "name": "arco-theme",
+          "value": "auto"
+        },
+        {
+          "name": "login-config",
+          "value": "{\"rememberPassword\":false,\"mobile\":\"\",\"verificationCode\":\"\"}"
+        }
+      ]
+    }
+  ]
+}

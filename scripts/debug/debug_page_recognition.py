@@ -2,6 +2,7 @@
 """页面识别调试脚本"""
 
 import asyncio
+import os
 import sys
 from pathlib import Path
 
@@ -30,7 +31,8 @@ async def debug_page_recognition():
 
     try:
         print("\n📍 访问测试页面...")
-        await browser.navigate_to('http://115.29.232.120/nowhi/index.html#/home/dashboard')
+        test_url = os.getenv("NOWHI_TEST_URL", "http://localhost:9020/nowhi/index.html#/home/dashboard")
+        await browser.navigate_to(test_url)
 
         # 等待页面加载
         await asyncio.sleep(5)

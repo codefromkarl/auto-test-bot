@@ -11,7 +11,7 @@
 ## 🎯 测试流程概览
 
 ### 项目目标
-基于 `http://115.29.232.120/nowhi/index.html` 的完整功能测试，验证从文本输入到视频生成的用户流程。
+基于 `http://<NOWHI_HOST>/nowhi/index.html` 的完整功能测试，验证从文本输入到视频生成的用户流程。
 
 ### 核心测试场景
 1. **基础导航测试** - 验证页面可访问性和关键元素存在
@@ -183,7 +183,7 @@ cat validation_reports/validation_report_YYYYMMDD_HHMMSS.json
 ```yaml
 # config/config.yaml 示例
 test:
-  url: "http://115.29.232.120/nowhi/index.html"
+  url: "http://<NOWHI_HOST>/nowhi/index.html"
   timeout: 30000
 
   selectors:

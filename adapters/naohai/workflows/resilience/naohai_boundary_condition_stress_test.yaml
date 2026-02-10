@@ -1,0 +1,365 @@
+workflow:
+  name: "naohai_boundary_condition_stress_test"
+  description: "闹海边界条件测试：输入验证、资源约束、错误恢复的全面验证"
+  version: "boundary-v1.0"
+  timeout: 480000  # 8分钟超时
+
+  # 边界条件测试初始化
+  suite_setup:
+    - action: "open_site"
+      url: "${test.url}"
+      timeout: ${test.timeout.page_load}
+
+    - action: "navigate_to_ai_create"
+      timeout: ${test.timeout.navigation}
+
+  # 边界条件测试场景
+  phases:
+    # 场景1: 输入验证边界测试
+    - name: "input_validation_boundary_test"
+      description: "测试各种输入边界条件"
+      steps:
+        # 超长文本输入测试
+        - action: "test_text_input_boundaries"
+          test_cases:
+            - name: "极短文本"
+              input: "A"
+              expected_result: "accept"
+            - name: "边界长度文本"
+              input: "${generate.string.length_1000}"
+              expected_result: "accept"
+            - name: "超长文本"
+              input: "${generate.string.length_10000}"
+              expected_result: "reject_or_truncate"
+            - name: "空文本"
+              input: ""
+              expected_result: "reject"
+            - name: "只有空格"
+              input: "     "
+              expected_result: "trim_or_reject"
+
+        # 特殊字符处理测试
+        - action: "test_special_character_handling"
+          test_cases:
+            - name: "HTML标签"
+              input: "<script>alert('test')</script>"
+              expected_behavior: "escape_or_reject"
+            - name: "SQL注入尝试"
+              input: "'; DROP TABLE users; --"
+              expected_behavior: "escape_or_reject"
+            - name: "Unicode字符"
+              input: "🎬📝✨中文字符测试"
+              expected_result: "accept"
+            - name: "控制字符"
+              input: "${generate.control_characters}"
+              expected_behavior: "escape_or_remove"
+            - name: "零宽度字符"
+              input: "${generate.zero_width_chars}"
+              expected_behavior: "preserve_or_remove"
+
+        - action: "screenshot"
+          name: "input_validation_completed"
+          save_path: "screenshots/boundary/input_validation.png"
+
+    # 场景2: 文件大小和格式边界测试
+    - name: "file_boundary_test"
+      description: "测试文件上传的大小和格式边界"
+      steps:
+        # 文件大小边界测试
+        - action: "test_file_size_boundaries"
+          test_cases:
+            - name: "空文件"
+              size: 0
+              expected_result: "reject"
+            - name: "极小文件"
+              size: 1
+              expected_result: "accept"
+            - name: "边界大小文件"
+              size: "${config.max_file_size}"
+              expected_result: "accept"
+            - name: "超大文件"
+              size: "${config.max_file_size * 2}"
+              expected_result: "reject"
+
+        # 文件格式边界测试
+        - action: "test_file_format_boundaries"
+          test_cases:
+            - name: "支持的格式"
+              formats: ["jpg", "png", "mp4", "txt"]
+              expected_result: "accept"
+            - name: "不支持的格式"
+              formats: ["exe", "bat", "sh", "ps1"]
+              expected_result: "reject"
+            - name: "伪造扩展名"
+              original_format: "exe"
+              fake_extension: "jpg"
+              expected_result: "detect_and_reject"
+
+        - action: "screenshot"
+          name: "file_boundary_completed"
+          save_path: "screenshots/boundary/file_boundary.png"
+
+    # 场景3: 资源约束测试
+    - name: "resource_constraint_test"
+      description: "测试系统在资源受限情况下的行为"
+      steps:
+        # 内存约束测试
+        - action: "simulate_memory_constraint"
+          scenarios:
+            - name: "低内存警告"
+              available_memory: "256MB"
+              expected_behavior: "graceful_degradation"
+            - name: "内存不足"
+              available_memory: "64MB"
+              expected_behavior: "emergency_mode"
+            - name: "内存耗尽"
+              available_memory: "16MB"
+              expected_behavior: "shutdown_safely"
+
+        # 网络约束测试
+        - action: "simulate_network_constraint"
+          scenarios:
+            - name: "慢速网络"
+              bandwidth: "56Kbps"
+              latency: "1000ms"
+              expected_behavior: "adaptive_loading"
+            - name: "不稳定网络"
+              packet_loss: "10%"
+              jitter: "200ms"
+              expected_behavior: "retry_with_backoff"
+            - name: "网络中断"
+              connectivity: "none"
+              duration: "30s"
+              expected_behavior: "offline_mode"
+
+        # 存储约束测试
+        - action: "simulate_storage_constraint"
+          scenarios:
+            - name: "存储空间不足"
+              available_space: "100MB"
+              expected_behavior: "cleanup_and_continue"
+            - name: "存储空间耗尽"
+              available_space: "10MB"
+              expected_behavior: "readonly_mode"
+
+        - action: "screenshot"
+          name: "resource_constraint_completed"
+          save_path: "screenshots/boundary/resource_constraint.png"
+
+    # 场景4: 并发用户边界测试
+    - name: "concurrent_user_boundary_test"
+      description: "测试系统在高并发情况下的边界表现"
+      steps:
+        - action: "establish_concurrent_baseline"
+          concurrent_users: 1
+          operations_per_user: 10
+
+        - action: "test_concurrent_boundaries"
+          scenarios:
+            - name: "中等并发"
+              concurrent_users: 50
+              operations_per_user: 5
+              expected_success_rate: "95%"
+            - name: "高并发"
+              concurrent_users: 100
+              operations_per_user: 3
+              expected_success_rate: "85%"
+            - name: "极限并发"
+              concurrent_users: 200
+              operations_per_user: 1
+              expected_success_rate: "70%"
+
+        - action: "verify_system_stability"
+          check_memory_leaks: true
+          check_resource_cleanup: true
+          verify_error_handling: true
+
+        - action: "screenshot"
+          name: "concurrent_boundary_completed"
+          save_path: "screenshots/boundary/concurrent_boundary.png"
+
+    # 场景5: 时间边界测试
+    - name: "time_boundary_test"
+      description: "测试与时间相关的边界条件"
+      steps:
+        # 超时边界测试
+        - action: "test_timeout_boundaries"
+          test_cases:
+            - name: "正常操作时间"
+              operation_duration: "5s"
+              expected_behavior: "normal_completion"
+            - name: "边界超时"
+              operation_duration: "${config.default_timeout}"
+              expected_behavior: "timeout_warning"
+            - name: "严重超时"
+              operation_duration: "${config.default_timeout * 2}"
+              expected_behavior: "force_timeout"
+
+        # 时间戳边界测试
+        - action: "test_timestamp_boundaries"
+          test_cases:
+            - name: "最小时间戳"
+              timestamp: "1970-01-01T00:00:00Z"
+              expected_result: "accept"
+            - name: "最大时间戳"
+              timestamp: "2038-01-19T03:14:07Z"
+              expected_result: "accept"
+            - name: "无效时间戳"
+              timestamp: "invalid-date"
+              expected_result: "reject"
+
+        # 时区边界测试
+        - action: "test_timezone_boundaries"
+          test_cases:
+            - name: "UTC时区"
+              timezone: "UTC"
+              expected_result: "accept"
+            - name: "极端时区"
+              timezone: "UTC+14"
+              expected_result: "accept"
+            - name: "无效时区"
+              timezone: "Invalid/Timezone"
+              expected_result: "fallback_to_default"
+
+        - action: "screenshot"
+          name: "time_boundary_completed"
+          save_path: "screenshots/boundary/time_boundary.png"
+
+    # 场景6: 数据量边界测试
+    - name: "data_volume_boundary_test"
+      description: "测试大数据量处理的边界条件"
+      steps:
+        # 数据集大小边界
+        - action: "test_data_volume_boundaries"
+          test_cases:
+            - name: "空数据集"
+              record_count: 0
+              expected_result: "graceful_handling"
+            - name: "单条记录"
+              record_count: 1
+              expected_result: "normal_processing"
+            - name: "大数据集"
+              record_count: 10000
+              expected_result: "batch_processing"
+            - name: "超大数据集"
+              record_count: 100000
+              expected_result: "streaming_or_reject"
+
+        # 数据结构复杂度边界
+        - action: "test_structure_complexity_boundaries"
+          test_cases:
+            - name: "简单结构"
+              nesting_depth: 1
+              field_count: 5
+              expected_result: "normal"
+            - name: "深层嵌套"
+              nesting_depth: 10
+              field_count: 100
+              expected_result: "slow_but_acceptable"
+            - name: "过度复杂"
+              nesting_depth: 50
+              field_count: 1000
+              expected_result: "reject_or_simplify"
+
+        - action: "screenshot"
+          name: "data_volume_boundary_completed"
+          save_path: "screenshots/boundary/data_volume_boundary.png"
+
+    # 场景7: 错误恢复边界测试
+    - name: "error_recovery_boundary_test"
+      description: "测试各种错误情况下的恢复能力边界"
+      steps:
+        # 连续错误恢复测试
+        - action: "test_consecutive_error_recovery"
+          error_sequence:
+            - type: "network_error"
+              count: 3
+              expected_recovery: "automatic"
+            - type: "server_error"
+              count: 2
+              expected_recovery: "retry_with_backoff"
+            - type: "client_error"
+              count: 1
+              expected_recovery: "user_intervention_required"
+
+        # 部分系统故障恢复
+        - action: "test_partial_system_failure"
+          failure_scenarios:
+            - name: "数据库连接失败"
+              affected_components: ["data_persistence"]
+              expected_fallback: "cache_only_mode"
+            - name: "文件存储失败"
+              affected_components: ["file_upload", "export"]
+              expected_fallback: "disable_affected_features"
+            - name: "AI服务失败"
+              affected_components: ["content_generation"]
+              expected_fallback: "manual_input_mode"
+
+        # 级联故障测试
+        - action: "test_cascading_failure"
+          initial_failure: "authentication_service"
+          expected_cascade_prevention: true
+          isolation_mechanisms: ["circuit_breaker", "bulkhead_pattern"]
+
+        - action: "screenshot"
+          name: "error_recovery_boundary_completed"
+          save_path: "screenshots/boundary/error_recovery_boundary.png"
+
+  # 边界条件成功标准
+  success_criteria:
+    - "所有输入边界条件都得到正确处理"
+    - "文件大小和格式边界验证有效"
+    - "资源约束下系统表现稳定"
+    - "并发用户边界测试在可接受范围内"
+    - "时间相关边界条件处理正确"
+    - "大数据量处理不会导致系统崩溃"
+    - "错误恢复机制在边界条件下有效"
+    - "所有测试场景都有截图记录"
+
+  # 边界测试错误处理
+  error_recovery:
+    boundary_strategies:
+      - name: "graceful_degradation"
+        trigger: "resource_constraint"
+        actions: ["disable_non_essential_features", "reduce_quality", "increase_cache_usage"]
+
+      - name: "fallback_to_default"
+        trigger: "invalid_input"
+        actions: ["clear_invalid_input", "show_help_message", "restore_last_valid_state"]
+
+      - name: "emergency_shutdown"
+        trigger: "critical_failure"
+        actions: ["save_critical_data", "graceful_termination", "error_reporting"]
+
+    failure_analysis:
+      - action: "categorize_boundary_failure"
+        categories: ["input_validation", "resource_constraint", "performance_limit", "system_error"]
+
+      - action: "identify_boundary_threshold"
+        record_breaking_point: true
+        suggest_adjustments: true
+
+  # 边界测试数据收集
+  data_collection:
+    enabled: true
+    boundary_metrics:
+      - "maximum_acceptable_input_length"
+      - "minimum_required_resources"
+      - "maximum_concurrent_users"
+      - "timeout_thresholds"
+      - "data_volume_limits"
+      - "error_recovery_success_rate"
+
+    monitoring:
+      - "resource_usage_at_boundaries"
+      - "response_time_degradation"
+      - "error_frequency_patterns"
+      - "recovery_time_metrics"
+
+  # 边界测试报告
+  reporting:
+    include_boundary_analysis: true
+    include_threshold_identification: true
+    include_recommendations: true
+    include_performance_impact: true
+    output_formats: ["json", "html", "markdown"]

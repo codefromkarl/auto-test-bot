@@ -13,6 +13,7 @@ from models import Workflow, Context
 from browser_manager import BrowserManager
 from utils import create_test_logger
 from mcp_monitor import MCPObserver
+from framework.core.adapter_loader import load_adapter
 
 
 @dataclass
@@ -51,6 +52,29 @@ class WorkflowExecutor:
         self.mcp_observer = mcp_observer
         self.logger = logging.getLogger(__name__)
         self.test_logger = create_test_logger("workflow")
+
+        # Business adapter (dynamic, from adapters/ directory).
+        # Default is a no-op adapter to keep core executor usable.
+        self.adapter = None
+        self._adapter_config: Dict[str, Any] = {}
+        self._adapter_selectors: Dict[str, str] = {}
+        try:
+            cfg = config if isinstance(config, dict) else {}
+            adapter_spec = (
+                (cfg.get("adapter") if isinstance(cfg.get("adapter"), str) else None)
+                or (cfg.get("execution", {}) or {}).get("adapter")
+                or os.getenv("AUTO_TEST_BOT_ADAPTER")
+            )
+            self.adapter = load_adapter(adapter_spec)
+            self._adapter_config = dict(self.adapter.get_config() or {})
+            self._adapter_selectors = dict(self.adapter.register_selectors() or {})
+
+            from models.semantic_action import SemanticAction
+
+            for name, cls in (self.adapter.register_semantic_actions() or {}).items():
+                SemanticAction.register(str(name), cls)
+        except Exception as e:
+            self.logger.warning(f"Adapter load skipped: {e}")
 
         exec_cfg = (config or {}).get('execution', {}) if isinstance(config, dict) else {}
         self.max_wait_for_timeout_ms = int(exec_cfg.get('max_wait_for_timeout_ms', 30000))
@@ -164,7 +188,8 @@ class WorkflowExecutor:
                     step_name = step.get_step_name()
                     self._execution_context.update_step(step_name)
 
-                    params = self._resolve_placeholders(getattr(step, 'params', {}) or {})
+                    selectors = (self._template_context or {}).get("selectors", {}) if isinstance(self._template_context, dict) else {}
+                    params = step.resolve_params(self._lookup_template_value, selectors)
                     is_optional = bool(params.get('optional', False))
 
                     try:
@@ -294,7 +319,8 @@ class WorkflowExecutor:
 
                     try:
                         # Resolve parameters once for both execution and reporting
-                        params = self._resolve_placeholders(getattr(step, 'params', {}) or {})
+                        selectors = (self._template_context or {}).get("selectors", {}) if isinstance(self._template_context, dict) else {}
+                        params = step.resolve_params(self._lookup_template_value, selectors)
                         is_optional = bool(params.get('optional', False))
 
                         # Execute the action (4分钟以上单步等待即中止，用于快速发现卡点)
@@ -515,8 +541,8 @@ class WorkflowExecutor:
             raise RuntimeError("Execution context not initialized")
 
         action_type = step.get_step_name()
-        raw_params = getattr(step, 'params', {}) or {}
-        params = self._resolve_placeholders(raw_params)
+        selectors = (self._template_context or {}).get("selectors", {}) if isinstance(self._template_context, dict) else {}
+        params = step.resolve_params(self._lookup_template_value, selectors)
 
         async def raise_if_auth_issue() -> None:
             fn = getattr(self.browser_manager, "raise_if_auth_expired", None)
@@ -554,6 +580,8 @@ class WorkflowExecutor:
 
         # 每个动作开始前先检查认证状态，避免 token 过期导致长时间 wait_for 卡住。
         await raise_if_auth_issue()
+
+        self.logger.info(f"Executing action: {action_type} with params: {params}")
 
         if action_type == 'open_page':
             url = params.get('url')
@@ -917,6 +945,28 @@ class WorkflowExecutor:
             self._execution_context.set_data(str(key), value)
             return {'success': True, 'context': {'saved_key': str(key)}}
 
+        # Semantic action fallback: resolve via registry (loaded from adapter).
+        try:
+            from models.semantic_action import SemanticAction
+
+            semantic = SemanticAction.create_semantic(action_type, params)
+            atomic_actions = semantic.get_atomic_actions()
+        except Exception:
+            atomic_actions = None
+
+        if atomic_actions is not None:
+            for atomic in atomic_actions:
+                atomic_type = atomic.get_step_name()
+                atomic_params = self._resolve_placeholders(getattr(atomic, "params", {}) or {})
+                res = await self.execute_single_action(atomic_type, atomic_params)
+                if not res.get("success", False):
+                    return {
+                        "success": False,
+                        "error": res.get("error") or f"{atomic_type} failed",
+                        "context": {},
+                    }
+            return {"success": True, "context": {}}
+
         raise ValueError(f"Unknown action type: {action_type}")
 
     def _default_timeout_ms(self, kind: str) -> int:
@@ -926,7 +976,9 @@ class WorkflowExecutor:
         return int(self.config.get('test', {}).get('element_timeout', 10000))
 
     def _build_template_context(self) -> Dict[str, Any]:
-        test_cfg = dict(self.config.get('test', {}) or {})
+        adapter_test_cfg = (self._adapter_config.get("test") or {}) if isinstance(self._adapter_config, dict) else {}
+        test_cfg = dict(adapter_test_cfg) if isinstance(adapter_test_cfg, dict) else {}
+        test_cfg.update(dict(self.config.get('test', {}) or {}))
         steps_cfg = dict(self.config.get('steps', {}) or {})
 
         # Environment overrides
@@ -935,13 +987,14 @@ class WorkflowExecutor:
         from datetime import datetime
         timestamp = os.getenv('TEST_TIMESTAMP') or datetime.now().strftime("%Y%m%d_%H%M%S")
 
+        selectors: Dict[str, Any] = dict(self._adapter_selectors or {})
         selectors_cfg = test_cfg.get('selectors', {}) or {}
-        selectors: Dict[str, Any] = {}
-        for key, value in selectors_cfg.items():
-            if isinstance(value, list):
-                selectors[key] = value[0] if value else ""
-            else:
-                selectors[key] = value
+        if isinstance(selectors_cfg, dict):
+            for key, value in selectors_cfg.items():
+                if isinstance(value, list):
+                    selectors[str(key)] = value[0] if value else ""
+                else:
+                    selectors[str(key)] = value
 
         # Normalize timeouts into a dict expected by DSL v2
         timeout_map: Dict[str, Any] = {}
@@ -961,54 +1014,45 @@ class WorkflowExecutor:
             'test': test_cfg,
             'selectors': selectors,
             'timestamp': timestamp,
+            'adapter': dict(self._adapter_config or {}),
         }
 
     _PLACEHOLDER_RE = re.compile(r"\$\{([^}]+)\}")
 
     def _resolve_placeholders(self, value: Any) -> Any:
-        if isinstance(value, dict):
-            return {k: self._resolve_placeholders(v) for k, v in value.items()}
-        if isinstance(value, list):
-            return [self._resolve_placeholders(v) for v in value]
-        if not isinstance(value, str):
-            return value
+        from models.semantic_variables import resolve_semantic_value
 
-        matches = list(self._PLACEHOLDER_RE.finditer(value))
-        if not matches:
-            return value
-
-        # If the entire string is exactly one placeholder, preserve types.
-        if len(matches) == 1 and matches[0].span() == (0, len(value)):
-            path = matches[0].group(1).strip()
-            resolved = self._lookup_template_value(path)
-            if resolved is None:
-                raise KeyError(f"Unresolved template variable: {path}")
-            return resolved
-
-        # Otherwise, substitute into string
-        def repl(match: re.Match) -> str:
-            path = match.group(1).strip()
-            resolved = self._lookup_template_value(path)
-            if resolved is None:
-                raise KeyError(f"Unresolved template variable: {path}")
-            return str(resolved)
-
-        return self._PLACEHOLDER_RE.sub(repl, value)
+        selectors = (self._template_context or {}).get("selectors", {}) if isinstance(self._template_context, dict) else {}
+        return resolve_semantic_value(value, lookup=self._lookup_template_value, selectors=selectors)
 
     def _lookup_template_value(self, path: str) -> Any:
         ctx = self._template_context or {}
 
         # Direct lookup: dotted dict traversal
         current: Any = ctx
-        for part in path.split('.'):
+        parts = path.split('.')
+        for idx, part in enumerate(parts):
             if isinstance(current, dict) and part in current:
                 current = current[part]
-            else:
-                current = None
-                break
+                continue
+            if isinstance(current, dict):
+                # Support flattened keys (e.g. selectors["navigation.ai_creation"]) while still
+                # allowing placeholder form ${selectors.navigation.ai_creation}.
+                remaining_key = ".".join(parts[idx:])
+                if remaining_key in current:
+                    current = current[remaining_key]
+                    break
+            current = None
+            break
 
         if current is not None:
             return current
+
+        # Context data lookup: ${context.foo} / ${data.foo}
+        if path.startswith("context.") or path.startswith("data."):
+            key = path.split(".", 1)[1]
+            if self._execution_context:
+                return self._execution_context.get_data(key)
 
         # Compatibility: support ${test.timeout.X} even if timeout isn't nested in config
         if path.startswith('test.timeout.'):

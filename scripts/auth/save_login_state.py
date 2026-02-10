@@ -4,6 +4,7 @@
 """
 
 import asyncio
+import os
 from playwright.async_api import async_playwright
 
 async def save_login_state():
@@ -14,8 +15,9 @@ async def save_login_state():
         context = await browser.new_context()
         page = await context.new_page()
 
-        # 访问页面
-        await page.goto("http://115.29.232.120/nowhi/index.html")
+        # 访问页面（可通过 NOWHI_TEST_URL 覆盖）
+        target_url = os.getenv("NOWHI_TEST_URL", "http://localhost:9020/nowhi/index.html")
+        await page.goto(target_url)
 
         print("🎯 登录状态保存工具")
         print("=" * 50)

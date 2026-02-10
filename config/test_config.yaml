@@ -2,10 +2,11 @@
 # Kept compatible with ConfigLoader validation and src/main.py expectations.
 
 test:
-  url: "http://115.29.232.120/nowhi/index.html"
-  # url: "http://localhost:9020/#/home/dashboard"
+  url: "http://localhost:9020/nowhi/index.html"
+  # 远端环境请自行替换，例如：
+  # url: "http://<NOWHI_HOST>/nowhi/index.html"
   timeout: 30000
-  page_load_timeout: 60000
+  page_load_timeout: 30000
   element_timeout: 10000
 
   selectors:
@@ -91,4 +92,3 @@ screenshots:
     - "step_failure"
     - "test_complete"
   save_path: "screenshots"
-
